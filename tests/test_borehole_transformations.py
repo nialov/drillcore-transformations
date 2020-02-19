@@ -6,9 +6,7 @@
 import unittest
 from click.testing import CliRunner
 
-# from borehole_transformations_code import borehole_transformations_code
 import borehole_transformations.borehole_transformations_code.cli as cli
-# from borehole_transformations_code import cli
 
 
 class TestBorehole_transformations(unittest.TestCase):
