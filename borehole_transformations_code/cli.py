@@ -1,13 +1,13 @@
-"""Console script for borehole_transformations."""
+"""Console script for borehole_transformations_code."""
 import sys
 import click
 
 
 @click.command()
 def main(args=None):
-    """Console script for borehole_transformations."""
+    """Console script for borehole_transformations_code."""
     click.echo("Replace this message by putting your code into "
-               "borehole_transformations.cli.main")
+               "borehole_transformations_code.cli.main")
     click.echo("See click documentation at https://click.palletsprojects.com/")
     return 0
 
