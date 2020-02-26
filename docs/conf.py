@@ -21,7 +21,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
-import drillcore_transformations.drillcore_transformations_py as drillcore_transformations_py
+import drillcore_transformations_py
 
 # -- General configuration ---------------------------------------------
 
