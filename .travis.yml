@@ -14,7 +14,7 @@ deploy:
     secure: BBUCRbdw75E/aSadPOS2I7VIwYqaBdVUBPjwwUw/UMsfi86vUravpD5dMIQ90VFhoIPLSqisZdgvToGpVVL54yhJ6UP5a3stPceGhJOq2EoHl3MIydMeDJ9mMWp7+VvcxxrjapaW2EFM1Wt2+W9adW+1y1I/7YTnuFkftp+FLQF37Wi5ul1t5hMdj0O1PX0wTf0j04cWfxW3YEQPNTLOddDFyPdaAWRkxQz+ePxeqnKFRxDh8PFEE4BIzi0pVdJpgQPtoDjVhjJb1m9vY/ro/LmcBVRX4a9woH85GpYTBMKjLTLuw6b5jwLJy9E8nGmwdVo6i1rbgBWs1cwO3B8DiAnbs9zDrxg2Zw4DQm4jZCcbixRCRAiz/T3pi3CKhoiQMvf2DruZ9X3WlQDLsvWxuSoZXzo6W9effJmLLMx6Ye7tqMFQ+BfI9Tbw/uhXu2fbLXEDxV++b1/+htZVpzaa+JZVC1igKYIBlmso8QmxtbawlFFCQcdENv6/LU7E9Y1oYFiAAnV8X0H+lCbzxZZ4ALoAuI6+akb7PnTZkZsaQjMmTeFtBg4MsJgY8La9AnyqIxjyRugkLwalQDsx/s3K3Ad0NDXse5CvXMtGq2cuHjYjGAsGW354+M1SrNZ1PPo9QB79E+4RLN24tC2efk64TxpeYBQu5oQlZiaFlIussXQ=
   on:
     tags: true
-    repo: nialov/borehole_transformations
+    repo: nialov/drillcore_transformations
     python: 3.8
 env:
   global:
