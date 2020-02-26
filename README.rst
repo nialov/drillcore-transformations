@@ -6,8 +6,8 @@ Drillcore Transformations
 .. image:: https://img.shields.io/pypi/v/drillcore_transformations.svg
         :target: https://pypi.python.org/pypi/drillcore_transformations
 
-.. image:: https://img.shields.io/travis/nialov/drillcore_transformations.svg
-        :target: https://travis-ci.com/nialov/drillcore_transformations
+.. image:: https://img.shields.io/travis/nialov/drillcore-transformations.svg
+        :target: https://travis-ci.com/nialov/drillcore-transformations
 
 .. image:: https://readthedocs.org/projects/drillcore-transformations/badge/?version=latest
         :target: https://drillcore-transformations.readthedocs.io/en/latest/?badge=latest
@@ -16,7 +16,7 @@ Drillcore Transformations
 
 
 
-drillcore Transformations allows for alpha and beta drillcore transformations.
+Drillcore Transformations allows for alpha, beta and gamma structural drillcore measurement transformations.
 
 
 * Free software: GNU General Public License v3
