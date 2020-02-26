@@ -69,6 +69,7 @@ def visualize_plane(xyz: list, ax: Axes3D, **kwargs):
 def vector_from_dip_and_dir(dip, dir):
 	"""
 	Assembles a normalized vector that always points downwards from dip and dip direction.
+	Credits to PhD Jussi Mattila (Rock Mechanics Consulting Finland) for this snippet.
 
 	Example:
 
