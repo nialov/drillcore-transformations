@@ -86,6 +86,7 @@ def vector_from_dip_and_dir(dip, dir):
 	ny = np.cos(np.deg2rad(dir)) * np.cos(np.deg2rad(dip))
 	nz = -np.sin(np.deg2rad(dip))
 	n = np.array([nx, ny, nz])
+	# Normalize output vector
 	n = n / np.linalg.norm(n)
 	return n
 
