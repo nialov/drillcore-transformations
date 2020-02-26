@@ -4,8 +4,6 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-
-[packages]
 bump2version = "*"
 watchdog = "*"
 flake8 = "*"
@@ -15,6 +13,8 @@ twine = "*"
 click = "*"
 Sphinx = "*"
 travis = "*"
+
+[packages]
 pip = "*"
 pandas = "*"
 numpy = "*"
