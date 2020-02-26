@@ -1,1 +1,1 @@
-"""Unit test package for drillcore_transformations_code."""
+"""Unit test package for drillcore_transformations_py."""
