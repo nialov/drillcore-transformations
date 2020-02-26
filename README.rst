@@ -1,26 +1,26 @@
 ========================
-Borehole Transformations
+Drillcore Transformations
 ========================
 
 
-.. image:: https://img.shields.io/pypi/v/borehole_transformations.svg
-        :target: https://pypi.python.org/pypi/borehole_transformations
+.. image:: https://img.shields.io/pypi/v/drillcore_transformations.svg
+        :target: https://pypi.python.org/pypi/drillcore_transformations
 
-.. image:: https://img.shields.io/travis/nialov/borehole_transformations.svg
-        :target: https://travis-ci.com/nialov/borehole_transformations
+.. image:: https://img.shields.io/travis/nialov/drillcore_transformations.svg
+        :target: https://travis-ci.com/nialov/drillcore_transformations
 
-.. image:: https://readthedocs.org/projects/borehole-transformations/badge/?version=latest
-        :target: https://borehole-transformations.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/drillcore-transformations/badge/?version=latest
+        :target: https://drillcore-transformations.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 
 
 
-Borehole Transformations allows for alpha and beta borehole transformations.
+drillcore Transformations allows for alpha and beta drillcore transformations.
 
 
 * Free software: GNU General Public License v3
-* Documentation: https://borehole-transformations.readthedocs.io.
+* Documentation: https://drillcore-transformations.readthedocs.io.
 
 
 Features

@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
-"""Tests for `borehole_transformations_code` package."""
+"""Tests for `drillcore_transformations_py` package."""
 
 
 import unittest
 from click.testing import CliRunner
 
-import borehole_transformations.borehole_transformations_code.cli as cli
+import drillcore_transformations_py.cli as cli
 
 
-class TestBorehole_transformations(unittest.TestCase):
-    """Tests for `borehole_transformations_code` package."""
+class Testdrillcore_transformations(unittest.TestCase):
+    """Tests for `drillcore_transformations_py` package."""
 
     def setUp(self):
         """Set up test fixtures, if any."""
@@ -26,7 +26,7 @@ class TestBorehole_transformations(unittest.TestCase):
         runner = CliRunner()
         result = runner.invoke(cli.main)
         assert result.exit_code == 0
-        assert 'borehole_transformations_code.cli.main' in result.output
+        assert 'drillcore_transformations_py.cli.main' in result.output
         help_result = runner.invoke(cli.main, ['--help'])
         assert help_result.exit_code == 0
         assert '--help  Show this message and exit.' in help_result.output

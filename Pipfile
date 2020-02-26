@@ -16,6 +16,10 @@ click = "*"
 Sphinx = "*"
 travis = "*"
 pip = "*"
+pandas = "*"
+numpy = "*"
+matplotlib = "*"
+sympy = "*"
 
 [requires]
 python_version = "3.8"

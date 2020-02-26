@@ -104,3 +104,9 @@ ENV/
 # IDE settings
 .vscode/
 /.pypirc
+/drillcore_transformations_py/Transform_scripts.py
+/drillcore_transformations_py/Transform_workflow.py
+/drillcore_transformations_py/workflow.ipynb
+/requirements_dev.txt
+/drillcore_transformations_py/drillcore_transformations_dev.py
+

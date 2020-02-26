@@ -1,4 +1,4 @@
-* Borehole Transformations version:
+* Drillcore Transformations version:
 * Python version:
 * Operating System:
 

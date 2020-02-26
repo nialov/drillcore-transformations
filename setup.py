@@ -10,7 +10,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=7.0', ]
+requirements = ['Click>=7.0', 'numpy', 'pandas', 'matplotlib', 'sympy', 'numpy']
 
 setup_requirements = [ ]
 
@@ -31,23 +31,23 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="Borehole Transformations allows for alpha and beta borehole transformations.",
+    description="Drillcore Transformations allows for alpha and beta drillcore transformations.",
     entry_points={
         'console_scripts': [
-            'borehole_transformations_code=borehole_transformations_code.cli:main',
+            'drillcore_transformations_py=drillcore_transformations_py.cli:main',
         ],
     },
     install_requires=requirements,
     license="GNU General Public License v3",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
-    keywords='borehole_transformations_code',
-    name='borehole_transformations_code',
-    packages=find_packages(include=['borehole_transformations_code', 'borehole_transformations_code.*']),
+    keywords='drillcore_transformations_py',
+    name='drillcore_transformations_py',
+    packages=find_packages(include=['drillcore_transformations_py', 'drillcore_transformations_py.*']),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/nialov/borehole_transformations',
+    url='https://github.com/nialov/drillcore-transformations',
     version='0.1.0',
     zip_safe=False,
 )

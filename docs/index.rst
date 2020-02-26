@@ -13,6 +13,10 @@ Welcome to Borehole Transformations's documentation!
    authors
    history
 
+References and Credits
+
+
+
 Indices and tables
 ==================
 * :ref:`genindex`
