@@ -21,6 +21,7 @@ numpy = "*"
 matplotlib = "*"
 sympy = "*"
 xlrd = "*"
+guzzle-sphinx-theme = "*"
 
 [requires]
 python_version = "3.8"
