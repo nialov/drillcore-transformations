@@ -17,13 +17,14 @@
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 #
+import drillcore_transformations_py
+import guzzle_sphinx_theme
+
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
-import drillcore_transformations_py
 
-import guzzle_sphinx_theme
 # -- General configuration ---------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -32,7 +33,18 @@ import guzzle_sphinx_theme
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.doctest']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.doctest', 'guzzle_sphinx_theme']
+
+html_theme_path = guzzle_sphinx_theme.html_theme_path()
+html_theme = 'guzzle_sphinx_theme'
+
+# Guzzle theme options (see theme.conf for more information)
+html_theme_options = {
+    # Set the name of the project to appear in the sidebar
+    "project_nav_name": "Drillcore Transformations",
+	# Set you GA account ID to enable tracking
+	"google_analytics_account": "nialov"
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -86,19 +98,7 @@ todo_include_todos = False
 #
 
 
-html_theme_path = guzzle_sphinx_theme.html_theme_path()
-html_theme = 'guzzle_sphinx_theme'
 
-# Register the theme as an extension to generate a sitemap.xml
-extensions.append("guzzle_sphinx_theme")
-
-# Guzzle theme options (see theme.conf for more information)
-html_theme_options = {
-    # Set the name of the project to appear in the sidebar
-    "project_nav_name": "Drillcore Transformations",
-	# Set you GA account ID to enable tracking
-	"google_analytics_account": "nialov"
-}
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
