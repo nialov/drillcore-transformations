@@ -61,16 +61,16 @@ def rotate_vector_about_vector(vector, about_vector, amount):
 	>>> rotate_vector_about_vector(np.array([1, 0, 1]), np.array([0, 0, 1]), np.pi)
 	array([-1.0000000e+00,  1.2246468e-16,  1.0000000e+00])
 
-	TODO: Is gamma axial or vector data?
+	TODO: Is gamma axial or vector data? Right now treated as vector. => Negative plunges possible.
 
-	:param vector:
-	:type vector:
-	:param about_vector:
-	:type about_vector:
-	:param amount:
-	:type amount:
-	:return:
-	:rtype:
+	:param vector: Vector to rotate.
+	:type vector: numpy.ndarray
+	:param about_vector: Vector to rotate about.
+	:type about_vector: numpy.ndarray
+	:param amount: How many radians to rotate.
+	:type amount: float
+	:return: Rotated vector.
+	:rtype: np.ndarray
 	"""
 	about_vector = about_vector / np.linalg.norm(about_vector)
 	amount_rad = amount
@@ -85,8 +85,8 @@ def rotate_vector_about_vector(vector, about_vector, amount):
 
 def vector_from_dip_and_dir(dip, dir):
 	"""
-	Assembles a normalized vector that always points downwards from dip and dip direction.
-	Credits to PhD Jussi Mattila (Rock Mechanics Consulting Finland) for this snippet.
+	Assembles a normalized vector that always points downwards, if dip is positive, from dip and dip direction.
+	Credits to PhD Jussi Mattila for this snippet.
 
 	Example:
 
@@ -100,6 +100,12 @@ def vector_from_dip_and_dir(dip, dir):
 	:return: Normalized vector pointing in the direction and the dip.
 	:rtype: numpy.ndarray
 	"""
+	# Print warning if dip is negative.
+	if dip < 0:
+		print(f"Warning!\n"
+			  f"Dip is negative. Dip: {dip}\n"
+			  f"In {__name__}")
+
 	nx = np.sin(np.deg2rad(dir)) * np.cos(np.deg2rad(dip))
 	ny = np.cos(np.deg2rad(dir)) * np.cos(np.deg2rad(dip))
 	nz = -np.sin(np.deg2rad(dip))
@@ -121,7 +127,7 @@ def calc_plane_dir_dip(normal):
 	# plane dip
 	dip_radians = np.pi / 2 - np.arcsin(normal[2])
 	dip_degrees = np.rad2deg(dip_radians)
-	# Get fracture vector trend from fracture normal vector
+	# Get plane vector trend from plane normal vector
 
 	normal_xy = normal[:2]
 	normal_xy = normal_xy / np.linalg.norm(normal_xy)
@@ -130,7 +136,7 @@ def calc_plane_dir_dip(normal):
 	if normal_xy[1] < 0:
 		# x is negative
 		if normal_xy[0] < 0:
-			dir_radians = np.pi*2 - np.arccos(np.dot(normal_xy, dir_0))
+			dir_radians = np.pi * 2 - np.arccos(np.dot(normal_xy, dir_0))
 		# x is positive
 		else:
 			dir_radians = np.arccos(np.dot(normal_xy, dir_0))
@@ -138,13 +144,14 @@ def calc_plane_dir_dip(normal):
 	else:
 		# x is negative
 		if normal_xy[0] < 0:
-			dir_radians = np.pi*2-np.arccos(np.dot(normal_xy, dir_0))
+			dir_radians = np.pi * 2 - np.arccos(np.dot(normal_xy, dir_0))
 		# x is positive
 		else:
 			dir_radians = np.arccos(np.dot(normal_xy, dir_0))
 
 	dir_degrees = np.rad2deg(dir_radians)
 	return dir_degrees, dip_degrees
+
 
 def calc_vector_trend_plunge(vector):
 	"""
@@ -172,7 +179,7 @@ def calc_vector_trend_plunge(vector):
 	if vector_xy[1] < 0:
 		# x is negative
 		if vector_xy[0] < 0:
-			dir_radians = np.pi*2 - np.arccos(np.dot(vector_xy, dir_0))
+			dir_radians = np.pi * 2 - np.arccos(np.dot(vector_xy, dir_0))
 		# x is positive
 		else:
 			dir_radians = np.arccos(np.dot(vector_xy, dir_0))
@@ -180,7 +187,7 @@ def calc_vector_trend_plunge(vector):
 	else:
 		# x is negative
 		if vector_xy[0] < 0:
-			dir_radians = np.pi*2-np.arccos(np.dot(vector_xy, dir_0))
+			dir_radians = np.pi * 2 - np.arccos(np.dot(vector_xy, dir_0))
 		# x is positive
 		else:
 			dir_radians = np.arccos(np.dot(vector_xy, dir_0))
@@ -220,7 +227,6 @@ def transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
 	except ValueError as e:
 		print(str(e))
 		return np.NaN, np.NaN
-
 
 
 def transform_with_gamma(alpha, beta, drillcore_trend, drillcore_plunge, gamma):
@@ -306,7 +312,8 @@ def transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge,
 		# Gamma trend and plunge
 		gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
 
-		visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, -beta, gamma_vector, gamma)
+		visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, -beta,
+						  gamma_vector, gamma)
 
 		return plane_dip, plane_dir, gamma_plunge, gamma_trend
 
@@ -329,7 +336,6 @@ if __name__ == "__main__":
 	# for a in zip(alphas, betas, drillcore_trends, drillcore_plunges, gammas):
 	#
 	# 	main(a[0], a[1], a[2], a[3], True, a[4])
-
 
 	alpha, beta, drillcore_trend, drillcore_plunge, gamma = 22.5, 90, 90, 22.5, 180
 
