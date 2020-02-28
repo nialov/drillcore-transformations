@@ -13,6 +13,7 @@ twine = "*"
 click = "*"
 Sphinx = "*"
 travis = "*"
+guzzle-sphinx-theme = "*"
 
 [packages]
 pip = "*"
@@ -21,7 +22,7 @@ numpy = "*"
 matplotlib = "*"
 sympy = "*"
 xlrd = "*"
-guzzle-sphinx-theme = "*"
+
 
 [requires]
 python_version = "3.8"
