@@ -1,5 +1,5 @@
-Welcome to Borehole Transformations's documentation!
-======================================
+Welcome to Drillcore Transformations's documentation!
+======================================================
 
 .. toctree::
    :maxdepth: 2
@@ -14,11 +14,11 @@ Welcome to Borehole Transformations's documentation!
    history
 
 References and Credits
-
+=======================
 
 
 Indices and tables
-==================
+===================
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`

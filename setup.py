@@ -31,7 +31,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="Drillcore Transformations allows for alpha and beta drillcore transformations.",
+    description="Drillcore Transformations allows for alpha, beta and gamma drillcore transformations.",
     entry_points={
         'console_scripts': [
             'drillcore_transformations_py=drillcore_transformations_py.cli:main',

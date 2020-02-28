@@ -110,3 +110,6 @@ ENV/
 /requirements_dev.txt
 /drillcore_transformations_py/drillcore_transformations_dev.py
 
+/tests/test_gamma_rotation.py
+/drillcore_transformations_py/rotation_dev.py
+/drillcore_transformations_py/gamma_rotation.py

@@ -20,6 +20,7 @@ pandas = "*"
 numpy = "*"
 matplotlib = "*"
 sympy = "*"
+xlrd = "*"
 
 [requires]
 python_version = "3.8"

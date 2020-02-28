@@ -1,14 +1,8 @@
 """
 Main module.
 """
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import sympy
-from mpl_toolkits.mplot3d import Axes3D
-from sympy import Plane, Point3D, Line3D
-
-from drillcore_transformations_py.gamma_rotation import rotateAbout
+from drillcore_transformations_py.visualizations import visualize_results
 
 
 def calc_global_normal_vector(alpha, beta, trend, plunge):
@@ -16,7 +10,7 @@ def calc_global_normal_vector(alpha, beta, trend, plunge):
 	Calculates the normal vector of a measured plane based on alpha and beta measurements and the trend and plunge
 	of the drillcore.
 	Help and code snippets from:
-	https://www.researchgate.net/publication/256939047_Orientation_uncertainty_goes_bananas_An_algorithm_to_visualise_the_uncertainty_sample_space_on_stereonets_for_oriented_objects_measured_in_boreholes
+	https://www.researchgate.net/publication/256939047_Orientation_uncertainty_goes_bananas_An_algorithm_to_visualise_the_uncertainty_sample_space_on_stereonets_for_oriented_objects_measured_in_drillcores
 
 	:param alpha: Alpha of the measured plane in degrees.
 	:type alpha: float
@@ -55,15 +49,38 @@ def calc_global_normal_vector(alpha, beta, trend, plunge):
 		return np.array([ng_1, ng_2, ng_3]) / np.linalg.norm(np.array([ng_1, ng_2, ng_3]))
 
 
-def visualize_vector(vector: np.array, ax: Axes3D, **kwargs):
-	vector = vector.round(decimals=2)
-	ax.plot([0, vector[0]], [0, vector[1]], [0, vector[2]], **kwargs)
+def rotate_vector_about_vector(vector, about_vector, amount):
+	"""
+	Rotates a given vector about another vector.
 
+	Implements Rodrigues' rotation formula:
+	https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
 
-def visualize_plane(xyz: list, ax: Axes3D, **kwargs):
-	surf = ax.plot_surface(xyz[0], xyz[1], xyz[2], alpha=0.2, **kwargs)
-	surf._facecolors2d = surf._facecolors3d
-	surf._edgecolors2d = surf._edgecolors3d
+	Example:
+
+	>>> rotate_vector_about_vector(np.array([1, 0, 1]), np.array([0, 0, 1]), np.pi)
+	array([-1.0000000e+00,  1.2246468e-16,  1.0000000e+00])
+
+	TODO: Is gamma axial or vector data?
+
+	:param vector:
+	:type vector:
+	:param about_vector:
+	:type about_vector:
+	:param amount:
+	:type amount:
+	:return:
+	:rtype:
+	"""
+	about_vector = about_vector / np.linalg.norm(about_vector)
+	amount_rad = amount
+	v_rot = vector * np.cos(amount_rad) \
+			+ np.cross(about_vector, vector) \
+			* np.sin(amount_rad) + about_vector \
+			* np.dot(about_vector, vector) \
+			* (1 - np.cos(amount_rad))
+
+	return v_rot
 
 
 def vector_from_dip_and_dir(dip, dir):
@@ -101,130 +118,78 @@ def calc_plane_dir_dip(normal):
 	:return: Direction of dip and dip in degrees
 	:rtype: tuple[float, float]
 	"""
-	# Fracture vector plane plunge
-	measured_plane = Plane(Point3D(0, 0, 0), normal_vector=tuple(normal))
-	surface_plane = Plane(Point3D(0, 0, 0), Point3D(1, 1, 0), Point3D(1, -1, 0))
-	dip_radians = measured_plane.angle_between(surface_plane)
-	dip_degrees = \
-		np.rad2deg(float(dip_radians)) \
-			if np.rad2deg(float(dip_radians)) <= 90 else \
-			180 - np.rad2deg(float(dip_radians))
-
+	# plane dip
+	dip_radians = np.pi / 2 - np.arcsin(normal[2])
+	dip_degrees = np.rad2deg(dip_radians)
 	# Get fracture vector trend from fracture normal vector
-	normal_projection = surface_plane.projection_line(Line3D(Point3D(0, 0, 0), direction_ratio=tuple(normal)))
-	north_line = Line3D(Point3D(0, 0, 0), Point3D(0, 1, 0))
+
+	normal_xy = normal[:2]
+	normal_xy = normal_xy / np.linalg.norm(normal_xy)
+	dir_0 = np.array([0, 1.])
 	# y is negative
-	if float(normal_projection.p2[1]) < 0:
+	if normal_xy[1] < 0:
 		# x is negative
-		if float(normal_projection.p2[0]) < 0:
-			dir_radians = sympy.pi + normal_projection.smallest_angle_between(north_line)
+		if normal_xy[0] < 0:
+			dir_radians = np.pi*2 - np.arccos(np.dot(normal_xy, dir_0))
 		# x is positive
 		else:
-			dir_radians = sympy.pi - normal_projection.smallest_angle_between(north_line)
+			dir_radians = np.arccos(np.dot(normal_xy, dir_0))
 	# y is positive
 	else:
 		# x is negative
-		if float(normal_projection.p2[0]) < 0:
-			dir_radians = 2 * sympy.pi - normal_projection.smallest_angle_between(north_line)
+		if normal_xy[0] < 0:
+			dir_radians = np.pi*2-np.arccos(np.dot(normal_xy, dir_0))
 		# x is positive
 		else:
-			dir_radians = normal_projection.smallest_angle_between(north_line)
+			dir_radians = np.arccos(np.dot(normal_xy, dir_0))
 
-	dir_degrees = np.rad2deg(float(dir_radians))
+	dir_degrees = np.rad2deg(dir_radians)
 	return dir_degrees, dip_degrees
 
-def trend_plunge_of_vector(vector):
+def calc_vector_trend_plunge(vector):
 	"""
-	Calculate trend and plunge of a vector.
+	Calculate trend and plunge of a vector. Does not assume that the data is axial and a negative plunge result implies
+	that the gamma feature is pointed upwards.
 
-	:param vector: Vector
+	:param vector: vector vector of a plane.
 	:type vector: numpy.ndarray
-	:return: Trend and plunge
+	:return: Direction of dip and dip in degrees
 	:rtype: tuple[float, float]
 	"""
-	# Get vector trend from plane normal vector
-	surface_plane = Plane(Point3D(0, 0, 0), Point3D(1, 1, 0), Point3D(1, -1, 0))
-	vector_projection = surface_plane.projection_line(Line3D(Point3D(0, 0, 0), direction_ratio=tuple(vector)))
-	north_line = Line3D(Point3D(0, 0, 0), Point3D(0, 1, 0))
+
+	if vector[2] > 0:
+		plunge_radians = np.arcsin(vector[2])
+		plunge_degrees = -np.rad2deg(plunge_radians)
+	else:
+		plunge_radians = np.arcsin(vector[2])
+		plunge_degrees = -np.rad2deg(plunge_radians)
+
+	# Get vector trend
+	vector_xy = vector[:2]
+	vector_xy = vector_xy / np.linalg.norm(vector_xy)
+	dir_0 = np.array([0, 1.])
 	# y is negative
-	if float(vector_projection.p2[1]) < 0:
+	if vector_xy[1] < 0:
 		# x is negative
-		if float(vector_projection.p2[0]) < 0:
-			trend_radians = sympy.pi + vector_projection.smallest_angle_between(north_line)
+		if vector_xy[0] < 0:
+			dir_radians = np.pi*2 - np.arccos(np.dot(vector_xy, dir_0))
 		# x is positive
 		else:
-			trend_radians = sympy.pi - vector_projection.smallest_angle_between(north_line)
+			dir_radians = np.arccos(np.dot(vector_xy, dir_0))
 	# y is positive
 	else:
 		# x is negative
-		if float(vector_projection.p2[0]) < 0:
-			trend_radians = 2 * sympy.pi - vector_projection.smallest_angle_between(north_line)
+		if vector_xy[0] < 0:
+			dir_radians = np.pi*2-np.arccos(np.dot(vector_xy, dir_0))
 		# x is positive
 		else:
-			trend_radians = vector_projection.smallest_angle_between(north_line)
+			dir_radians = np.arccos(np.dot(vector_xy, dir_0))
 
-	trend_degrees = np.rad2deg(float(trend_radians))
-	plunge_degrees = np.rad2deg(-np.arcsin(vector[2]))
-
-	return trend_degrees, plunge_degrees
-
-def visualize_results(plane_normal, plane_vector, borehole_vector, alpha, beta, gamma_vector=None):
-	"""
-	Visualizes alpha-beta measured plane and gamma measured linear feature if given.
-
-	:param plane_normal: Normal of measured plane.
-	:type plane_normal: numpy.ndarray
-	:param plane_vector: Vector in the dip direction and dip of plane.
-	:type plane_vector: numpy.ndarray
-	:param borehole_vector: Vector in the direction of the borehole.
-	:type borehole_vector: numpy.ndarray
-	:param gamma_vector:
-	:type gamma_vector: numpy.ndarray
-	:return:
-	:rtype:
-	"""
-
-	# 3D Figure
-	fig = plt.figure(figsize=(9, 9))
-	ax = fig.gca(projection='3d')
-	ax: Axes3D
-
-	# Create plane plane for visualization
-	xx, yy = np.meshgrid(np.linspace(-1, 1), np.linspace(-1, 1))
-	d = -np.array([0, 0, 0]).dot(plane_normal)
-	zz = (-plane_normal[0] * xx - plane_normal[1] * yy - d) * 1. / plane_normal[2]
-
-	# Plot in 3D
-	visualize_vector(plane_normal, ax, label='normal of plane', color='red')
-	visualize_plane([xx, yy, zz], ax, label='plane plane', color='red')
-	visualize_vector(plane_vector, ax, label=r'plunge vector of plane', color='brown', linewidth=2)
-	visualize_vector(borehole_vector, ax, label='borehole', color='black', linewidth=2)
-	if gamma_vector is not None:
-		visualize_vector(gamma_vector, ax, label='gamma', color='darkgreen', linewidth=2)
-
-	ax.set_xlabel('X')
-	ax.set_ylabel('Y')
-	ax.set_zlabel('Z')
-
-	ax.set_xlim(-1, 1)
-	ax.set_ylim(-1, 1)
-	ax.set_zlim(-1, 1)
-	if gamma_vector is not None:
-		ax.text(0, 0, 1.4, s=f'bh dir {borehole_dir}\n'
-							 f'bh dip {borehole_dip}\n'
-							 f'alpha {alpha}\n'
-							 f'beta {beta}\n'
-							 f'gamma {gamma}\n')
-	else:
-		ax.text(0, 0, 1.4, s=f'bh dir {borehole_dir}\n'
-							 f'bh dip {borehole_dip}\n'
-							 f'alpha {alpha}\n'
-							 f'beta {beta}\n')
-
-	plt.legend()
+	dir_degrees = np.rad2deg(dir_radians)
+	return dir_degrees, plunge_degrees
 
 
-def transform_without_gamma(alpha, beta, borehole_trend, borehole_plunge):
+def transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
 	"""
 	Transforms alpha and beta measurements from core.
 
@@ -232,40 +197,45 @@ def transform_without_gamma(alpha, beta, borehole_trend, borehole_plunge):
 	:type alpha: float
 	:param beta: Angle in degrees between TOP mark of core and ellipse long axis at DOWN hole end.
 	:type beta: float
-	:param borehole_trend: Trend of the borehole.
-	:type borehole_trend: float
-	:param borehole_plunge: Plunge of the borehole.
-	:type borehole_plunge: float
+	:param drillcore_trend: Trend of the drillcore.
+	:type drillcore_trend: float
+	:param drillcore_plunge: Plunge of the drillcore.
+	:type drillcore_plunge: float
 	:return: Plane dip and direction
 	:rtype: Tuple
 	"""
-	# Achieve clockwise measurement rotation of beta.
-	beta = -beta
-	# plane normal vector
-	plane_normal = calc_global_normal_vector(alpha, beta, borehole_trend, borehole_plunge)
 
-	# plane direction of dip and dip
-	plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
+	if np.NaN in (alpha, beta, drillcore_trend, drillcore_plunge):
+		return np.NaN, np.NaN
+	try:
+		# Achieve clockwise measurement rotation of beta.
+		beta = -beta
+		# plane normal vector
+		# >>> timeit.timeit(lambda: calc_global_normal_vector(41, 195, 44, 85), number=1000)
+		# 0.04800009999996746
+		plane_normal = calc_global_normal_vector(alpha, beta, drillcore_trend, drillcore_plunge)
 
-	return plane_dip, plane_dir
+		plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
+		return plane_dip, plane_dir
+	except ValueError as e:
+		print(str(e))
+		return np.NaN, np.NaN
 
 
-def transform_with_gamma(alpha, beta, borehole_trend, borehole_plunge, gamma):
+
+def transform_with_gamma(alpha, beta, drillcore_trend, drillcore_plunge, gamma):
 	"""
 	Transforms alpha, beta and gamma measurements from core.
-	Rotation of vector about another vector	code is from:
-	https://gist.github.com/fasiha/6c331b158d4c40509bd180c5e64f7924
-	Big thanks to github user fasiha!
 
 	:param alpha: Angle in degrees between drillcore axis and plane.
 	:type alpha: float
 	:param beta: Angle in degrees between TOP mark of core and ellipse long axis at DOWN hole end in counterclockwise
 		direction.
 	:type beta: float
-	:param borehole_trend: Trend of the borehole.
-	:type borehole_trend: float
-	:param borehole_plunge: Plunge of the borehole.
-	:type borehole_plunge: float
+	:param drillcore_trend: Trend of the drillcore.
+	:type drillcore_trend: float
+	:param drillcore_plunge: Plunge of the drillcore.
+	:type drillcore_plunge: float
 	:param gamma: Linear feature on a plane. Measured in clockwise direction from ellipse long axis at DOWN hole end.
 	:type gamma: float
 	:return: Plane dip and direction + Linear feature plunge and trend.
@@ -275,7 +245,7 @@ def transform_with_gamma(alpha, beta, borehole_trend, borehole_plunge, gamma):
 	beta = -beta
 
 	# plane normal vector
-	plane_normal = calc_global_normal_vector(alpha, beta, borehole_trend, borehole_plunge)
+	plane_normal = calc_global_normal_vector(alpha, beta, drillcore_trend, drillcore_plunge)
 
 	# plane direction of dip and dip
 	plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
@@ -286,15 +256,15 @@ def transform_with_gamma(alpha, beta, borehole_trend, borehole_plunge, gamma):
 	# Gamma vector
 	# Rotates with right-hand curl. Needs to be reversed to achieve clockwise(!) gamma measurement
 	rotation = -np.deg2rad(gamma)
-	gamma_vector = rotateAbout(plane_vector, plane_normal, rotation)
+	gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, rotation)
 
 	# Gamma trend and plunge
-	gamma_trend, gamma_plunge = trend_plunge_of_vector(gamma_vector)
+	gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
 
 	return plane_dip, plane_dir, gamma_plunge, gamma_trend
 
 
-def transform_with_visualization(alpha, beta, borehole_trend, borehole_plunge, with_gamma=False, gamma=None):
+def transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge, with_gamma=False, gamma=None):
 	"""
 	Transforms alpha, beta and gamma measurements from core and visualizes in Matplotlib 3D-plot.
 
@@ -302,10 +272,10 @@ def transform_with_visualization(alpha, beta, borehole_trend, borehole_plunge, w
 	:type alpha: float
 	:param beta: Angle in degrees between TOP mark of core and ellipse long axis at DOWN hole end.
 	:type beta: float
-	:param borehole_trend: Trend of the borehole.
-	:type borehole_trend: float
-	:param borehole_plunge: Plunge of the borehole.
-	:type borehole_plunge: float
+	:param drillcore_trend: Trend of the drillcore.
+	:type drillcore_trend: float
+	:param drillcore_plunge: Plunge of the drillcore.
+	:type drillcore_plunge: float
 	:param with_gamma: Visualize gamma measurement or not.
 	:type with_gamma: bool
 	:param gamma: Linear feature on a plane. Measured in clockwise direction from ellipse long axis at DOWN hole end.
@@ -315,41 +285,52 @@ def transform_with_visualization(alpha, beta, borehole_trend, borehole_plunge, w
 	"""
 	# Achieve clockwise measurement rotation of beta.
 	beta = -beta
-	# Borehole vector
-	borehole_vector = vector_from_dip_and_dir(borehole_plunge, borehole_trend)
+	# drillcore vector
+	drillcore_vector = vector_from_dip_and_dir(drillcore_plunge, drillcore_trend)
 
 	# plane normal vector
-	plane_normal = calc_global_normal_vector(alpha, beta, borehole_trend, borehole_plunge)
+	plane_normal = calc_global_normal_vector(alpha, beta, drillcore_trend, drillcore_plunge)
 
 	# plane direction of dip and dip
 	plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
-	print(plane_dir, plane_dip)
 
 	# Vector in the direction of plane dir and dip
 	plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
+
 	if with_gamma:
 		# Gamma vector
 		# Rotates with right-hand curl. Needs to be reversed to achieve clockwise(!) gamma measurement
 		rotation = -np.deg2rad(gamma)
-		gamma_vector = rotateAbout(plane_vector, plane_normal, rotation)
+		gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, rotation)
 
 		# Gamma trend and plunge
-		gamma_trend, gamma_plunge = trend_plunge_of_vector(gamma_vector)
+		gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
 
-		visualize_results(plane_normal, plane_vector, borehole_vector, alpha, -beta, gamma_vector)
+		visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, -beta, gamma_vector, gamma)
 
 		return plane_dip, plane_dir, gamma_plunge, gamma_trend
 
-	visualize_results(plane_normal, plane_vector, borehole_vector, alpha, -beta)
+	visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, -beta)
 	return plane_dip, plane_dir
 
 
-def main(alpha, beta, borehole_trend, borehole_plunge, with_gamma, gamma):
-	pass
-	# transform_with_visualization(alpha, beta, borehole_trend, borehole_plunge, with_gamma, gamma)
+def main(alpha, beta, drillcore_trend, drillcore_plunge, with_gamma, gamma):
+	transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge, with_gamma, gamma)
 
 
 if __name__ == "__main__":
-	alpha, beta, borehole_dir, borehole_dip, gamma = 55, 1, 0, 70, 45
+	num = 5
 	with_gamma = True
-	main(alpha, beta, borehole_dir, borehole_dip, with_gamma, gamma)
+	# alphas = np.linspace(0, 90, num)
+	# betas = np.linspace(0, 360, num)
+	# drillcore_trends = np.linspace(0, 360, num)
+	# drillcore_plunges = np.linspace(0, 90, num)
+	# gammas = np.linspace(0, 360, num)
+	# for a in zip(alphas, betas, drillcore_trends, drillcore_plunges, gammas):
+	#
+	# 	main(a[0], a[1], a[2], a[3], True, a[4])
+
+
+	alpha, beta, drillcore_trend, drillcore_plunge, gamma = 22.5, 90, 90, 22.5, 180
+
+	main(alpha, beta, drillcore_trend, drillcore_plunge, with_gamma, gamma)
