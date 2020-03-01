@@ -4,7 +4,7 @@ from pathlib import Path
 import configparser
 import json
 
-from drillcore_transformations_py.drillcore_transformations import transform_with_gamma, transform_without_gamma
+from drillcore_transformations_py.transformations import transform_with_gamma, transform_without_gamma
 
 # Identifiers within the module. DO NOT CHANGE TO MATCH YOUR DATA FILE COLUMNS.
 # Matching your data file to module identifiers is done in the config file (column_names.ini).
@@ -32,6 +32,9 @@ def check_config(method):
 		result = method(*args, **kwargs)
 		return result
 	return inner
+
+def find_config():
+	print(Path(_CONFIG).absolute())
 
 def initialize_config():
 	"""
@@ -68,6 +71,9 @@ def add_column_name(header, base_column, name):
 
 	>>>add_column_name(_MEASUREMENTS, _ALPHA, "alpha_measurements")
 
+	If the inputted column name is already in the config file, this will be printed out and config will not be
+	changed.
+
 	:param header: You may add new column names to the measurements file and to the file containing measurement depth
 		information.
 	:type header: str
@@ -91,8 +97,10 @@ def add_column_name(header, base_column, name):
 	assert Path(configname).exists()
 	config.read(configname)
 	column_list = json.loads(config.get(header, base_column))
-
 	assert isinstance(column_list, list)
+	if name in column_list:
+		print("Given column name is already in the config. No changes required.")
+		return
 	column_list.append(name)
 	config[header][base_column] = json.dumps(column_list)
 	save_config(config)
@@ -382,12 +390,4 @@ def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, 
 	# Save new .csv. Overwrites old and creates new if needed.
 	measurements.to_csv(savepath, sep=';', mode='w+')
 
-def main():
-	initialize_config()
-	add_column_name(_BOREHOLE, _BOREHOLE_PLUNGE, "DIP")
-	transform_excel_two_files(r"F:\Users\nikke\Desktop\olkiluoto_data\KR55_raot.xlsx"
-							   , r"F:\Users\nikke\Desktop\olkiluoto_data\KR55_taipuma.xlsx", False)
 
-
-if __name__ == "__main__":
-	main()
