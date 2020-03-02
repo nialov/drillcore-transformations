@@ -26,7 +26,7 @@ Drillcore Transformations allows for alpha, beta and gamma structural drillcore 
 Features
 --------
 
-* Transform measurements from drillcore.
+* Transforms measurements from drillcores.
 * Supports alpha, beta and gamma measurements.
 * Supports .csv and .xlsx files.
 * Supports adding the column names of your data files to a custom-built config.ini file for each user.
