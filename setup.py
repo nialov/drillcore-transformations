@@ -12,9 +12,9 @@ with open('HISTORY.rst') as history_file:
 
 requirements = ['pip', 'Click', 'numpy', 'pandas', 'matplotlib', 'sympy', 'numpy', 'xlrd', 'openpyxl']
 
-setup_requirements = [ ]
+setup_requirements = []
 
-test_requirements = [ ]
+test_requirements = ['pytest', 'hypothesis', 'numpy']
 
 setup(
     author="Nikolas Ovaskainen",
@@ -25,10 +25,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
     description="Drillcore Transformations allows for alpha, beta and gamma drillcore transformations.",

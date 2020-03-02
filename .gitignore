@@ -113,3 +113,4 @@ ENV/
 /tests/test_gamma_rotation.py
 /drillcore_transformations_py/rotation_dev.py
 /drillcore_transformations_py/gamma_rotation.py
+/docs/test_build/

@@ -32,11 +32,11 @@ you can add the column as an identifier in the config with:
 
 **Header** is the type of column name. Options for **header** are either:
 
-	"MEASUREMENTS" "DEPTHS" or "BOREHOLE"
+	*"MEASUREMENTS" "DEPTHS" or "BOREHOLE"*
 
 **Base_column** is the type of data. Options for **base_column** are either:
 
-	"alpha" "beta" "gamma" "measurement_depth" "depth" "borehole_trend" or "borehole_plunge"
+	*"alpha" "beta" "gamma" "measurement_depth" "depth" "borehole_trend" or "borehole_plunge"*
 
 **Name** is the column name that you wish to add to the identification list.
 
@@ -82,7 +82,7 @@ To transform .xlsx files where measurement data and depth+trend+plunge data are 
 
 All "example_*" filenames should be replaced with your own filenames.
 
-Alpha, beta and gamma measurement conventions
+Measurement conventions
 ---------------------------------------------
 
 Testing this module has been difficult due to high variance in the conventions used to measure alpha and beta structures
@@ -94,12 +94,10 @@ only used to identify boreholes that have been drilled downhole i.e. towards the
 
 	* Alpha is the angle between the discontinuity and the core axis.
 
-	* Beta is measured clockwise from the reference line (orientation line) to the maximum dip vector.
+	* Beta is measured clockwise from the reference line (orientation line) to the maximum dip vector and the reference line is at the bottom of the core.
 
-		* Reference line is at the bottom of the core.
+	* TODO: Gamma measurements require further testing to define the convention with certainty....
 
-	* Gamma measurements require further testing to define the convention with certainty....
+	* Borehole/drillcore trend is the direction of plunge of the borehole/drillcore, between 0 and 360 degrees.
 
-	* Borehole/drillcore trend is the direction of plunge of the borehole/drillcore, betweeon 0 and 360 degrees.
-
-	* Borehole/drillcore plunge is the angle between Earth's surface and the borehole/drillcore.
+	* Borehole/drillcore plunge is the angle between the Earth's surface and the borehole/drillcore.

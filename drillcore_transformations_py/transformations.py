@@ -1,5 +1,5 @@
 """
-Main module.
+Module with all calculations.
 """
 import numpy as np
 from drillcore_transformations_py.visualizations import visualize_results
@@ -42,7 +42,7 @@ def calc_global_normal_vector(alpha, beta, trend, plunge):
 	ng_3 = -np.sin(np.pi / 2 - plunge) * np.cos(beta) * np.cos(alpha) + np.cos(np.pi / 2 - plunge) * np.sin(
 		alpha)
 
-	# Always return a normalized vector pointing downwards.
+	# Always return a normalized vector pointing upwards.
 	if ng_3 < 0:
 		return np.array([-ng_1, -ng_2, -ng_3]) / np.linalg.norm(np.array([-ng_1, -ng_2, -ng_3]))
 	else:
@@ -72,14 +72,24 @@ def rotate_vector_about_vector(vector, about_vector, amount):
 	:return: Rotated vector.
 	:rtype: np.ndarray
 	"""
+	if np.all(vector == 0) or np.all(about_vector == 0):
+		return np.array([0., 0., 0.])
+	if np.allclose(vector/np.linalg.norm(vector), about_vector / np.linalg.norm(about_vector)):
+		return vector
+	if np.all(np.cross(vector, about_vector) == 0):
+		return vector
+	if np.isclose(amount, 0):
+		return vector
 	about_vector = about_vector / np.linalg.norm(about_vector)
 	amount_rad = amount
-	v_rot = vector * np.cos(amount_rad) \
-			+ np.cross(about_vector, vector) \
-			* np.sin(amount_rad) + about_vector \
-			* np.dot(about_vector, vector) \
-			* (1 - np.cos(amount_rad))
-
+	try:
+		v_rot = vector * np.cos(amount_rad) \
+				+ np.cross(about_vector, vector) \
+				* np.sin(amount_rad) + about_vector \
+				* np.dot(about_vector, vector) \
+				* (1 - np.cos(amount_rad))
+	except ValueError:
+		return np.array([np.NaN, np.NaN, np.NaN])
 	return v_rot
 
 
@@ -117,13 +127,20 @@ def vector_from_dip_and_dir(dip, dir):
 
 def calc_plane_dir_dip(normal):
 	"""
-	Calculate direction of dip and dip of a plane based on normal vector of plane.
+	Calculate direction of dip and dip of a plane based on normal vector of plane. Normal vector should point upwards
+	but it will be reversed if not.
 
 	:param normal: Normal vector of a plane.
 	:type normal: numpy.ndarray
 	:return: Direction of dip and dip in degrees
 	:rtype: tuple[float, float]
 	"""
+
+	if np.all(normal == 0):
+		return np.NaN, np.NaN
+	if normal[2] < 0:
+		normal = -normal
+
 	# plane dip
 	dip_radians = np.pi / 2 - np.arcsin(normal[2])
 	dip_degrees = np.rad2deg(dip_radians)
@@ -150,6 +167,10 @@ def calc_plane_dir_dip(normal):
 			dir_radians = np.arccos(np.dot(normal_xy, dir_0))
 
 	dir_degrees = np.rad2deg(dir_radians)
+	if 90.1 > dip_degrees > 90.:
+		dip_degrees = 90.
+	elif dip_degrees > 90.1:
+		raise ValueError(f"dip_degrees too high: {dip_degrees}")
 	return dir_degrees, dip_degrees
 
 
@@ -163,6 +184,9 @@ def calc_vector_trend_plunge(vector):
 	:return: Direction of dip and dip in degrees
 	:rtype: tuple[float, float]
 	"""
+
+	if np.all(vector == 0):
+		return np.NaN, np.NaN
 
 	if vector[2] > 0:
 		plunge_radians = np.arcsin(vector[2])
@@ -179,26 +203,31 @@ def calc_vector_trend_plunge(vector):
 	if vector_xy[1] < 0:
 		# x is negative
 		if vector_xy[0] < 0:
-			dir_radians = np.pi * 2 - np.arccos(np.dot(vector_xy, dir_0))
+			trend_radians = np.pi * 2 - np.arccos(np.dot(vector_xy, dir_0))
 		# x is positive
 		else:
-			dir_radians = np.arccos(np.dot(vector_xy, dir_0))
+			trend_radians = np.arccos(np.dot(vector_xy, dir_0))
 	# y is positive
 	else:
 		# x is negative
 		if vector_xy[0] < 0:
-			dir_radians = np.pi * 2 - np.arccos(np.dot(vector_xy, dir_0))
+			trend_radians = np.pi * 2 - np.arccos(np.dot(vector_xy, dir_0))
 		# x is positive
 		else:
-			dir_radians = np.arccos(np.dot(vector_xy, dir_0))
+			trend_radians = np.arccos(np.dot(vector_xy, dir_0))
 
-	dir_degrees = np.rad2deg(dir_radians)
-	return dir_degrees, plunge_degrees
+	trend_degrees = np.rad2deg(trend_radians)
+	return round(trend_degrees, 5), round(plunge_degrees, 5)
 
 
 def transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
 	"""
 	Transforms alpha and beta measurements from core.
+
+	Example:
+
+	>>> transform_without_gamma(45, 0, 0, 90)
+	(45.00000000000001, 0.0)
 
 	:param alpha: Angle in degrees between drillcore axis and plane.
 	:type alpha: float
@@ -230,6 +259,11 @@ def transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
 def transform_with_gamma(alpha, beta, drillcore_trend, drillcore_plunge, gamma):
 	"""
 	Transforms alpha, beta and gamma measurements from core.
+
+	Example:
+
+	>>> transform_with_gamma(45, 0, 0, 90, 10)
+	(45.00000000000001, 0.0, -36.39247, 137.48165)
 
 	:param alpha: Angle in degrees between drillcore axis and plane.
 	:type alpha: float

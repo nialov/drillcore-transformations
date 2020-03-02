@@ -1,3 +1,6 @@
+"""
+Module with all usage methods i.e. for converting data files and manipulating the config.
+"""
 import bisect
 import pandas as pd
 from pathlib import Path
