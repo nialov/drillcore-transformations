@@ -16,6 +16,7 @@ travis = "*"
 guzzle-sphinx-theme = "*"
 pytest = "*"
 hypothesis = "*"
+yamllint = "*"
 
 [packages]
 pip = "*"
