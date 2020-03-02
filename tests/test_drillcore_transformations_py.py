@@ -1,21 +1,28 @@
-from hypothesis import given, assume
-from hypothesis.strategies import floats
+from hypothesis import given, assume, settings
+from hypothesis.strategies import floats, functions, text, booleans, lists
 from hypothesis.extra.numpy import arrays
 import numpy as np
+from pathlib import Path
+import matplotlib.pyplot as plt
 
 import drillcore_transformations_py.transformations as transformations
+import drillcore_transformations_py.usage as usage
+import drillcore_transformations_py.visualizations as visualizations
 
+alpha_strategy = floats(min_value=0, max_value=90)
+beta_strategy = floats(min_value=0, max_value=360)
+trend_strategy = floats(min_value=0, max_value=90)
+plunge_strategy = floats(min_value=0, max_value=90)
+gamma_strategy = floats(min_value=0, max_value=360)
+vector_strategy = arrays(np.float, shape=3, elements=floats(-1, 1))
+amount_strategy = floats(0, np.pi * 2)
+dip_strategy = floats(min_value=0, max_value=90)
+dir_strategy = floats(min_value=0, max_value=360)
+function_strategy = functions()
+text_strategy = text()
 
 class TestTransformations:
-	alpha_strategy = floats(min_value=0, max_value=90)
-	beta_strategy = floats(min_value=0, max_value=360)
-	trend_strategy = floats(min_value=0, max_value=90)
-	plunge_strategy = floats(min_value=0, max_value=90)
-	gamma_strategy = floats(min_value=0, max_value=360)
-	vector_strategy = arrays(np.float, shape=3, elements=floats(-1, 1))
-	amount_strategy = floats(0, np.pi*2)
-	dip_strategy = floats(min_value=0, max_value=90)
-	dir_strategy = floats(min_value=0, max_value=360)
+
 
 	@given(alpha_strategy, beta_strategy, trend_strategy, plunge_strategy)
 	def test_calc_global_normal_vector(self, alpha, beta, trend, plunge):
@@ -83,3 +90,115 @@ class TestTransformations:
 		plane_dip, plane_dir, gamma_plunge, gamma_trend = transformations.transform_with_gamma(45, 0, 0, 90, 10)
 		assert np.allclose((plane_dip, plane_dir, gamma_plunge, gamma_trend)
 						   , (45.00000000000001, 0.0, -36.39247, 137.48165))
+
+class TestUsage:
+
+
+
+	@given(function_strategy)
+	def test_check_config(self, method):
+		usage.check_config(method)
+
+
+	def test_get_config_identifiers(self):
+		base_measurements, headers, conf = usage.get_config_identifiers()
+		for s in base_measurements + headers + conf:
+			assert isinstance(s, str)
+		return base_measurements, headers, conf
+
+	def test_initialize_config(self):
+		_, _, conf = self.test_get_config_identifiers()
+		usage.initialize_config()
+		self.test_check_config()
+
+	@given(text_strategy)
+	def test_add_column_name(self, name):
+		base_measurements, headers, conf = self.test_get_config_identifiers()
+		usage.add_column_name(headers[0], base_measurements[0], name)
+		assert not usage.add_column_name(headers[0], base_measurements[0], base_measurements[0])
+
+	@given(lists(elements=text_strategy))
+	def test_parse_columns_two_files(self, list_with_texts):
+		bm, _, _ = self.test_get_config_identifiers()
+		with_gamma = True
+		d = usage.parse_columns_two_files(bm, with_gamma)
+		for k, v in d.items():
+			assert k in bm
+			assert v in bm
+			assert k == v
+		with_gamma = False
+		d = usage.parse_columns_two_files(bm, with_gamma)
+		for k, v in d.items():
+			assert k in bm
+			assert v in bm
+			assert k == v
+		assume(len(list_with_texts) > 3)
+		try:
+			usage.parse_columns_two_files(list_with_texts, with_gamma)
+			usage.parse_columns_two_files(list_with_texts, True)
+		except usage.ColumnException:
+			# This is fine and expected.
+			pass
+
+class TestVisualizations:
+
+	plt.rcParams["figure.max_open_warning"] = 100
+
+	@given(vector_strategy)
+	@settings(max_examples=5, deadline=None)
+	def test_visualize_plane(self, plane_normal):
+		fig = plt.figure(figsize=(9, 9))
+		ax = fig.gca(projection='3d')
+		visualizations.visualize_plane(plane_normal, ax)
+		fig.close()
+
+	@given(vector_strategy)
+	@settings(max_examples=5, deadline=None)
+	def test_visualize_vector(self, vector):
+		fig = plt.figure(figsize=(9, 9))
+		ax = fig.gca(projection='3d')
+		visualizations.visualize_vector(vector, ax)
+		fig.close()
+
+	@given(vector_strategy
+		, vector_strategy
+		, vector_strategy
+		, trend_strategy
+		, plunge_strategy
+		, alpha_strategy
+		, beta_strategy
+		, vector_strategy
+		, gamma_strategy)
+	@settings(max_examples=5, deadline=None)
+	def test_visualize_results(self
+							   , plane_normal
+							   , plane_vector
+							   , drillcore_vector
+							   , drillcore_trend
+							   , drillcore_plunge
+							   , alpha
+							   , beta
+							   , gamma_vector
+							   , gamma):
+		visualizations.visualize_results(plane_normal
+							   , plane_vector
+							   , drillcore_vector
+							   , drillcore_trend
+							   , drillcore_plunge
+							   , alpha
+							   , beta
+							   , gamma_vector
+							   , gamma)
+		plt.close()
+		visualizations.visualize_results(plane_normal
+										 , plane_vector
+										 , drillcore_vector
+										 , drillcore_trend
+										 , drillcore_plunge
+										 , alpha
+										 , beta)
+		plt.close()
+
+
+#parse_columns_two_files(["alpha", "beta", "gamma", "borehole_trend", "borehole_plunge", "depth", \
+	# "measurement_depth"], True)

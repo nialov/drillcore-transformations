@@ -34,10 +34,17 @@ class ColumnException(Exception):
 def check_config(method):
 	def inner(*args, **kwargs):
 		assert Path(_CONFIG).exists()
+		if not Path(_CONFIG).exists():
+			raise FileNotFoundError("config.ini file not found. Run usage.initialize_config().")
 		result = method(*args, **kwargs)
 		return result
 	return inner
 
+def get_config_identifiers():
+	base_measurements = [_ALPHA, _BETA, _GAMMA, _MEASUREMENT_DEPTH, _DEPTH, _BOREHOLE_TREND, _BOREHOLE_PLUNGE]
+	headers = [_MEASUREMENTS, _DEPTHS, _BOREHOLE, _CONVENTIONS]
+	conf = [_CONFIG]
+	return base_measurements, headers, conf
 
 def find_config():
 	print(Path(_CONFIG).absolute())
@@ -64,7 +71,7 @@ def initialize_config():
 	# Borehole trend and plunge identifiers
 	config[_BOREHOLE] = {}
 	config[_BOREHOLE][_BOREHOLE_TREND] = json.dumps([_BOREHOLE_TREND, "BOREHOLE_TREND", "AZIMUTH", "azimuth", "BEARING", "bearing"])
-	config[_BOREHOLE][_BOREHOLE_PLUNGE] = json.dumps([_BOREHOLE_PLUNGE, "BOREHOLE_PLUNGE", "INCLINATION", "inclination", "PLUNGE", "plunge"])
+	config[_BOREHOLE][_BOREHOLE_PLUNGE] = json.dumps([_BOREHOLE_PLUNGE, "BOREHOLE_PLUNGE", "INCLINATION", "inclination", "PLUNGE", "plunge", "DIP"])
 
 	# Convention related settings
 	config[_CONVENTIONS] = {}
@@ -103,6 +110,8 @@ def add_column_name(header, base_column, name):
 	:param name: Name of the new column you want to add.
 	:type name: str
 	"""
+	if "%" in name:
+		name = name.replace("%", "")
 	assert header in [_MEASUREMENTS, _DEPTHS, _BOREHOLE]
 	config = configparser.ConfigParser()
 	configname = _CONFIG
@@ -115,7 +124,7 @@ def add_column_name(header, base_column, name):
 	assert isinstance(column_list, list)
 	if name in column_list:
 		print("Given column name is already in the config. No changes required.")
-		return
+		return False
 	column_list.append(name)
 	config[header][base_column] = json.dumps(column_list)
 	save_config(config)
@@ -190,6 +199,9 @@ def parse_columns_two_files(columns, with_gamma):
 	:return: Matched columns as a dictionary.
 	:rtype: dict
 	"""
+	if len(columns) < 4:
+		raise ColumnException("Invalid, too short, columns list:\n"
+							  f"{columns}")
 	# depths file
 	find_columns_d = [_DEPTH]
 	find_columns_bh = [_BOREHOLE_TREND, _BOREHOLE_PLUNGE]
@@ -210,9 +222,17 @@ def parse_columns_two_files(columns, with_gamma):
 		col = parse_column(_MEASUREMENTS, f, columns)
 		matched_dict[f] = col
 	if with_gamma:
-		assert len(matched_dict) == 7
+		if not len(matched_dict) == 7:
+			raise ColumnException(f"Invalid column dictionary length.\n"
+								  f"with_gamma == {with_gamma}\n"
+								  f"dict:\n"
+								  f"{matched_dict}")
 	else:
-		assert len(matched_dict) == 6
+		if not len(matched_dict) == 6:
+			raise ColumnException(f"Invalid column dictionary length.\n"
+								  f"with_gamma == {with_gamma}\n"
+								  f"dict:\n"
+								  f"{matched_dict}")
 	return matched_dict
 
 
@@ -294,7 +314,6 @@ def apply_conventions(df, col_dict):
 			col_dict[conv[0]] = new_column
 
 	return df
-
 
 
 def transform_csv(filename, output=None, with_gamma=False):
