@@ -112,9 +112,7 @@ def vector_from_dip_and_dir(dip, dir):
 	"""
 	# Print warning if dip is negative.
 	if dip < 0:
-		print(f"Warning!\n"
-			  f"Dip is negative. Dip: {dip}\n"
-			  f"In {__name__}")
+		print(f"Warning!\n" + f"Dip is negative. Dip: {dip}\n" + f"In {__name__}")
 
 	nx = np.sin(np.deg2rad(dir)) * np.cos(np.deg2rad(dip))
 	ny = np.cos(np.deg2rad(dir)) * np.cos(np.deg2rad(dip))

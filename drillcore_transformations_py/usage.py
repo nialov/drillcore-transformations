@@ -156,15 +156,15 @@ def parse_column(header, base_column, columns):
 
 	# Check for errors
 	if len(matching_columns) == 0:
-		raise ColumnException(f"{base_column} of {header} was not recognized in columns of given file. \n"
-							  f"Columns:{columns}\n"
-							  f"Column identifiers in config.ini: {column_identifiers}\n"
-						f"You must add it to config.ini as an identifier for recognition. \n"
+		raise ColumnException(f"{base_column} of {header} was not recognized in columns of given file. \n" +
+							  f"Columns:{columns}\n" +
+							  f"Column identifiers in config.ini: {column_identifiers}\n" +
+						f"You must add it to config.ini as an identifier for recognition. \n" +
 						f"{Path('config.ini').absolute()}\n")
 	if len(matching_columns) > 1:
-		raise ColumnException(f"Multiple {base_column} type column names were found in identifiers. \n"
-						f"Check config.ini file for identical identifiers. \n"
-						f"{Path('config.ini').absolute()}\n"
+		raise ColumnException(f"Multiple {base_column} type column names were found in identifiers. \n" +
+						f"Check config.ini file for identical identifiers. \n" +
+						f"{Path('config.ini').absolute()}\n" +
 						f"(E.g. alpha_measurement is in both ALPHA and BETA)\n")
 
 	# Column in config.ini & given columns that matches given base_column
