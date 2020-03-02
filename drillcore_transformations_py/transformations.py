@@ -10,7 +10,7 @@ def calc_global_normal_vector(alpha, beta, trend, plunge):
 	Calculates the normal vector of a measured plane based on alpha and beta measurements and the trend and plunge
 	of the drillcore.
 	Help and code snippets from:
-	https://www.researchgate.net/publication/256939047_Orientation_uncertainty_goes_bananas_An_algorithm_to_visualise_the_uncertainty_sample_space_on_stereonets_for_oriented_objects_measured_in_drillcores
+	https://tinyurl.com/tqr84ww
 
 	:param alpha: Alpha of the measured plane in degrees.
 	:type alpha: float
@@ -215,8 +215,6 @@ def transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
 	if np.NaN in (alpha, beta, drillcore_trend, drillcore_plunge):
 		return np.NaN, np.NaN
 	try:
-		# Achieve clockwise measurement rotation of beta.
-		beta = -beta
 		# plane normal vector
 		# >>> timeit.timeit(lambda: calc_global_normal_vector(41, 195, 44, 85), number=1000)
 		# 0.04800009999996746
@@ -245,29 +243,30 @@ def transform_with_gamma(alpha, beta, drillcore_trend, drillcore_plunge, gamma):
 	:param gamma: Linear feature on a plane. Measured in clockwise direction from ellipse long axis at DOWN hole end.
 	:type gamma: float
 	:return: Plane dip and direction + Linear feature plunge and trend.
-	:rtype: Tuple
+	:rtype: tuple[float, float, float, float]
 	"""
-	# Achieve clockwise measurement rotation of beta.
-	beta = -beta
+	if np.NaN in (alpha, beta, drillcore_trend, drillcore_plunge):
+		return np.NaN, np.NaN, np.NaN, np.NaN
+	try:
+		# plane normal vector
+		plane_normal = calc_global_normal_vector(alpha, beta, drillcore_trend, drillcore_plunge)
 
-	# plane normal vector
-	plane_normal = calc_global_normal_vector(alpha, beta, drillcore_trend, drillcore_plunge)
+		# plane direction of dip and dip
+		plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
 
-	# plane direction of dip and dip
-	plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
+		# Vector in the direction of plane dir and dip
+		plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
 
-	# Vector in the direction of plane dir and dip
-	plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
+		# Gamma vector
+		gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, gamma)
 
-	# Gamma vector
-	# Rotates with right-hand curl. Needs to be reversed to achieve clockwise(!) gamma measurement
-	rotation = -np.deg2rad(gamma)
-	gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, rotation)
+		# Gamma trend and plunge
+		gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
 
-	# Gamma trend and plunge
-	gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
-
-	return plane_dip, plane_dir, gamma_plunge, gamma_trend
+		return plane_dip, plane_dir, gamma_plunge, gamma_trend
+	except ValueError as e:
+		print(str(e))
+		return np.NaN, np.NaN, np.NaN, np.NaN
 
 
 def transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge, with_gamma=False, gamma=None):
@@ -287,27 +286,22 @@ def transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge,
 	:param gamma: Linear feature on a plane. Measured in clockwise direction from ellipse long axis at DOWN hole end.
 	:type gamma: float
 	:return: Plane dip and direction + Linear feature plunge and trend.
-	:rtype: Tuple
+	:rtype: tuple[float, float, float, float] | tuple[float, float]
 	"""
-	# Achieve clockwise measurement rotation of beta.
-	beta = -beta
-	# drillcore vector
-	drillcore_vector = vector_from_dip_and_dir(drillcore_plunge, drillcore_trend)
+	if with_gamma:
+		plane_dip, plane_dir, gamma_plunge, gamma_trend = transform_with_gamma(alpha, beta, drillcore_trend, drillcore_plunge, gamma)
+	else:
+		plane_dip, plane_dir = transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge)
 
+	drillcore_vector = vector_from_dip_and_dir(drillcore_plunge, drillcore_trend)
 	# plane normal vector
 	plane_normal = calc_global_normal_vector(alpha, beta, drillcore_trend, drillcore_plunge)
-
-	# plane direction of dip and dip
-	plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
-
 	# Vector in the direction of plane dir and dip
 	plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
 
 	if with_gamma:
-		# Gamma vector
-		# Rotates with right-hand curl. Needs to be reversed to achieve clockwise(!) gamma measurement
-		rotation = -np.deg2rad(gamma)
-		gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, rotation)
+
+		gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, gamma)
 
 		# Gamma trend and plunge
 		gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
@@ -320,23 +314,3 @@ def transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge,
 	visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, -beta)
 	return plane_dip, plane_dir
 
-
-def main(alpha, beta, drillcore_trend, drillcore_plunge, with_gamma, gamma):
-	transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge, with_gamma, gamma)
-
-
-if __name__ == "__main__":
-	num = 5
-	with_gamma = True
-	# alphas = np.linspace(0, 90, num)
-	# betas = np.linspace(0, 360, num)
-	# drillcore_trends = np.linspace(0, 360, num)
-	# drillcore_plunges = np.linspace(0, 90, num)
-	# gammas = np.linspace(0, 360, num)
-	# for a in zip(alphas, betas, drillcore_trends, drillcore_plunges, gammas):
-	#
-	# 	main(a[0], a[1], a[2], a[3], True, a[4])
-
-	alpha, beta, drillcore_trend, drillcore_plunge, gamma = 22.5, 90, 90, 22.5, 180
-
-	main(alpha, beta, drillcore_trend, drillcore_plunge, with_gamma, gamma)

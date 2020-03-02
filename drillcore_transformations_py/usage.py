@@ -7,24 +7,26 @@ import json
 from drillcore_transformations_py.transformations import transform_with_gamma, transform_without_gamma
 
 # Identifiers within the module. DO NOT CHANGE TO MATCH YOUR DATA FILE COLUMNS.
-# Matching your data file to module identifiers is done in the config file (column_names.ini).
+# Matching your data file to module identifiers is done in the config file (config.ini).
 _ALPHA, _BETA, _GAMMA, _MEASUREMENT_DEPTH, _DEPTH, _BOREHOLE_TREND, _BOREHOLE_PLUNGE = \
 	"alpha", "beta", "gamma", "measurement_depth", "depth", "borehole_trend", "borehole_plunge"
 
 # Headers within config.
-_MEASUREMENTS, _DEPTHS, _BOREHOLE = "MEASUREMENTS", "DEPTHS", "BOREHOLE"
+_MEASUREMENTS, _DEPTHS, _BOREHOLE, _CONVENTIONS = "MEASUREMENTS", "DEPTHS", "BOREHOLE", "CONVENTIONS"
 
 # Config filename
-_CONFIG = "column_names.ini"
+_CONFIG = "config.ini"
+
 
 class ColumnException(Exception):
 	"""
 	ColumnException is raised when there are errors with the columns of your data. These can be related to not
-	recognizing the column or if multiple columns match identifiers in column_names.ini.
+	recognizing the column or if multiple columns match identifiers in config.ini.
 
-	Most issues can be fixed by checking the column_names.ini config file and adding your data file column names
+	Most issues can be fixed by checking the config.ini config file and adding your data file column names
 	as identifiers or by removing identical identifiers.
 	"""
+
 
 def check_config(method):
 	def inner(*args, **kwargs):
@@ -33,12 +35,14 @@ def check_config(method):
 		return result
 	return inner
 
+
 def find_config():
 	print(Path(_CONFIG).absolute())
 
+
 def initialize_config():
 	"""
-	Creates a configfile with default names for alpha, beta, etc. Filename will be column_names.ini. Manual editing
+	Creates a configfile with default names for alpha, beta, etc. Filename will be config.ini. Manual editing
 	of this file is allowed but editing methods are also present for adding column names.
 	"""
 	config = configparser.ConfigParser()
@@ -56,8 +60,16 @@ def initialize_config():
 
 	# Borehole trend and plunge identifiers
 	config[_BOREHOLE] = {}
-	config[_BOREHOLE][_BOREHOLE_TREND] = json.dumps([_BOREHOLE_TREND, "BOREHOLE_TREND", "AZIMUTH"])
-	config[_BOREHOLE][_BOREHOLE_PLUNGE] = json.dumps([_BOREHOLE_PLUNGE, "BOREHOLE_PLUNGE", "INCLINATION", "inclination"])
+	config[_BOREHOLE][_BOREHOLE_TREND] = json.dumps([_BOREHOLE_TREND, "BOREHOLE_TREND", "AZIMUTH", "azimuth", "BEARING", "bearing"])
+	config[_BOREHOLE][_BOREHOLE_PLUNGE] = json.dumps([_BOREHOLE_PLUNGE, "BOREHOLE_PLUNGE", "INCLINATION", "inclination", "PLUNGE", "plunge"])
+
+	# Convention related settings
+	config[_CONVENTIONS] = {}
+	config[_CONVENTIONS][_ALPHA] = "negative"
+	config[_CONVENTIONS][_BETA] = "negative"
+	config[_CONVENTIONS][_GAMMA] = "negative"
+	config[_CONVENTIONS][_BOREHOLE_TREND] = "none"
+	config[_CONVENTIONS][_BOREHOLE_PLUNGE] = "none"
 
 	# Write to .ini file. Will overwrite old one or make a new one.
 	with open(_CONFIG, "w+") as configfile:
@@ -67,7 +79,7 @@ def initialize_config():
 def add_column_name(header, base_column, name):
 	"""
 	Method for adding a column name to recognize measurement type. E.g. if your alpha measurements are in a column
-	that is named "alpha_measurements" you can add it to the column_names.ini file with:
+	that is named "alpha_measurements" you can add it to the config.ini file with:
 
 	>>>add_column_name(_MEASUREMENTS, _ALPHA, "alpha_measurements")
 
@@ -92,7 +104,7 @@ def add_column_name(header, base_column, name):
 	config = configparser.ConfigParser()
 	configname = _CONFIG
 	if not Path(configname).exists():
-		print("column_names.ini configfile not found. Making a new one with default values.")
+		print("config.ini configfile not found. Making a new one with default values.")
 		initialize_config()
 	assert Path(configname).exists()
 	config.read(configname)
@@ -115,7 +127,7 @@ def save_config(config):
 @check_config
 def parse_column(header, base_column, columns):
 	"""
-	Finds a given base_column in given columns by trying to match it to identifiers in column_names.ini
+	Finds a given base_column in given columns by trying to match it to identifiers in config.ini
 
 	Example:
 
@@ -143,23 +155,23 @@ def parse_column(header, base_column, columns):
 	if len(matching_columns) == 0:
 		raise ColumnException(f"{base_column} of {header} was not recognized in columns of given file. \n"
 							  f"Columns:{columns}\n"
-							  f"Column identifiers in column_names.ini: {column_identifiers}\n"
-						f"You must add it to column_names.ini as an identifier for recognition. \n"
-						f"{Path('column_names.ini').absolute()}\n")
+							  f"Column identifiers in config.ini: {column_identifiers}\n"
+						f"You must add it to config.ini as an identifier for recognition. \n"
+						f"{Path('config.ini').absolute()}\n")
 	if len(matching_columns) > 1:
 		raise ColumnException(f"Multiple {base_column} type column names were found in identifiers. \n"
-						f"Check column_names.ini file for identical identifiers. \n"
-						f"{Path('column_names.ini').absolute()}\n"
+						f"Check config.ini file for identical identifiers. \n"
+						f"{Path('config.ini').absolute()}\n"
 						f"(E.g. alpha_measurement is in both ALPHA and BETA)\n")
 
-	# Column in column_names.ini & given columns that matches given base_column
+	# Column in config.ini & given columns that matches given base_column
 	return matching_columns[0]
 
 
 @check_config
 def parse_columns_two_files(columns, with_gamma):
 	"""
-	Matches columns to column bases in column_names.ini. Used when there's a separate file with depth data.
+	Matches columns to column bases in config.ini. Used when there's a separate file with depth data.
 
 	Example:
 
@@ -204,7 +216,7 @@ def parse_columns_two_files(columns, with_gamma):
 @check_config
 def parse_columns_one_file(columns, with_gamma):
 	"""
-	Matches columns to column bases in column_names.ini. Used when there is only one data file with all required
+	Matches columns to column bases in config.ini. Used when there is only one data file with all required
 	data. I.e. at minimum: alpha, beta, borehole trend, borehole plunge
 
 	If gamma data exists => with_gamma should be given as True
@@ -248,12 +260,46 @@ def parse_columns_one_file(columns, with_gamma):
 def round_outputs(number):
 	return round(number, 2)
 
+def apply_conventions(df, col_dict):
+	"""
+	Applies conventions from the config.ini file to given DataFrame. col_dict is used to identify the correct columns.
+
+	Recognized conventions are: "negative"
+
+	:param df: DataFrame
+	:type df: pandas.DataFrame
+	:param col_dict: Dictionary with identifiers for measurement data.
+	:type col_dict: dict
+	:return: DataFrame with applied conventions in new columns.
+	:rtype: pandas.DataFrame
+	"""
+
+	config = configparser.ConfigParser()
+	config.read(_CONFIG)
+	alpha_convention = _ALPHA, config[_CONVENTIONS][_ALPHA]
+	beta_convention = _BETA, config[_CONVENTIONS][_BETA]
+	trend_convention = _BOREHOLE_TREND, config[_CONVENTIONS][_BOREHOLE_TREND]
+	plunge_convention = _BOREHOLE_PLUNGE, config[_CONVENTIONS][_BOREHOLE_PLUNGE]
+	gamma_convention = _GAMMA, None
+	if _GAMMA in col_dict:
+		gamma_convention = _GAMMA, config[_CONVENTIONS][_GAMMA]
+
+	for conv in (alpha_convention, beta_convention, trend_convention, plunge_convention, gamma_convention):
+		if conv[1] == "negative":
+			new_column = f"{col_dict[conv[0]]}_negative"
+			df[new_column] = -df[col_dict[conv[0]]]
+			col_dict[conv[0]] = new_column
+
+	return df
+
+
+
 def transform_csv(filename, output=None, with_gamma=False):
 	"""
 	Transforms data from a given .csv file. File must have columns with alpha and beta measurements and borehole trend
 	and plunge.
 
-	Saves new .csv file in the same directory.
+	Saves new .csv file in the given path.
 
 	:param filename: Path to file for reading.
 	:type filename: str
@@ -262,19 +308,22 @@ def transform_csv(filename, output=None, with_gamma=False):
 	:param with_gamma: Do gamma calculations or not
 	:type with_gamma: bool
 	"""
-	df = pd.read_csv(filename, sep=';')
-	col_dict = parse_columns_one_file(df.columns.tolist(), with_gamma)
+	measurements = pd.read_csv(filename, sep=';')
+	col_dict = parse_columns_one_file(measurements.columns.tolist(), with_gamma)
+	# Check and apply conventions
+	measurements = apply_conventions(measurements, col_dict)
+
 	# Creates and calculates new columns
 	if with_gamma:
-		df[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']] = df.apply(
+		measurements[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']] = measurements.apply(
 			lambda row: pd.Series(transform_with_gamma(
 				row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]], row[col_dict[_BOREHOLE_PLUNGE]], row[col_dict[_GAMMA]])), axis=1)
-		df[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']] = df[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']].applymap(round_outputs)
+		measurements[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']] = measurements[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']].applymap(round_outputs)
 	else:
-		df[['plane_dip', 'plane_dir']] = df.apply(
+		measurements[['plane_dip', 'plane_dir']] = measurements.apply(
 			lambda row: pd.Series(transform_without_gamma(
 				row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]], row[col_dict[_BOREHOLE_PLUNGE]])), axis=1)
-		df[['plane_dip', 'plane_dir']] = df[['plane_dip', 'plane_dir']].applymap(round_outputs)
+		measurements[['plane_dip', 'plane_dir']] = measurements[['plane_dip', 'plane_dir']].applymap(round_outputs)
 
 	# Savename
 	if output is not None:
@@ -284,18 +333,30 @@ def transform_csv(filename, output=None, with_gamma=False):
 		savedir = str(Path(filename).parent)
 		savepath = Path(savedir + "/" + savename)
 	# Save new .csv. Overwrites old and creates new if needed.
-	df.to_csv(savepath, sep=';', mode='w+')
+	measurements.to_csv(savepath, sep=';', mode='w+')
 
 def transform_excel(measurement_filename, with_gamma, output=None):
 	measurements = pd.read_excel(measurement_filename)
 	col_dict = parse_columns_two_files(measurements.columns.tolist(), with_gamma)
+	# Check and apply conventions
+	measurements = apply_conventions(measurements, col_dict)
 
-	# ALPHA must be reversed to achieve correct result.
-	measurements[['plane_dip', 'plane_dir']] = measurements.apply(
-		lambda row: pd.Series(transform_without_gamma(
-			-row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]], row[col_dict[_BOREHOLE_PLUNGE]])), axis=1)
-	measurements[['plane_dip', 'plane_dir']] = \
-		measurements[['plane_dip', 'plane_dir']].applymap(round_outputs)
+
+	if with_gamma:
+		measurements[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']] = measurements.apply(
+			lambda row: pd.Series(transform_with_gamma(
+				row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]],
+				row[col_dict[_BOREHOLE_PLUNGE]], row[col_dict[_GAMMA]])), axis=1)
+		measurements[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']] = \
+			measurements[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']].applymap(round_outputs)
+	else:
+		# ALPHA must be reversed to achieve correct result.
+		measurements[['plane_dip', 'plane_dir']] = measurements.apply(
+			lambda row: pd.Series(transform_without_gamma(
+				row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]],
+				row[col_dict[_BOREHOLE_PLUNGE]])), axis=1)
+		measurements[['plane_dip', 'plane_dir']] = \
+			measurements[['plane_dip', 'plane_dir']].applymap(round_outputs)
 
 	# Savename
 	if output is not None:
@@ -311,6 +372,9 @@ def transform_csv_two_files(measurement_filename, depth_filename, with_gamma, ou
 	measurements = pd.read_csv(measurement_filename, sep=';')
 	depth = pd.read_csv(depth_filename, sep=';')
 	col_dict = parse_columns_two_files(measurements.columns.tolist() + depth.columns.tolist(), with_gamma)
+	# Check and apply conventions
+	measurements = apply_conventions(measurements, col_dict)
+
 	trend_plunge = []
 	for idx, row in measurements.iterrows():
 		val = row[col_dict[_MEASUREMENT_DEPTH]]
@@ -334,7 +398,7 @@ def transform_csv_two_files(measurement_filename, depth_filename, with_gamma, ou
 	# ALPHA must be reversed to achieve correct result.
 	measurements[['plane_dip', 'plane_dir']] = measurements.apply(
 		lambda row: pd.Series(transform_without_gamma(
-			-row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]], row[col_dict[_BOREHOLE_PLUNGE]])), axis=1)
+			row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]], row[col_dict[_BOREHOLE_PLUNGE]])), axis=1)
 	measurements[['plane_dip', 'plane_dir']] = \
 		measurements[['plane_dip', 'plane_dir']].applymap(round_outputs)
 
@@ -353,6 +417,10 @@ def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, 
 	measurements = pd.read_excel(measurement_filename)
 	depth = pd.read_excel(depth_filename)
 	col_dict = parse_columns_two_files(measurements.columns.tolist() + depth.columns.tolist(), with_gamma)
+
+	# Check and apply conventions
+	measurements = apply_conventions(measurements, col_dict)
+
 	trend_plunge = []
 	for idx, row in measurements.iterrows():
 		val = row[col_dict[_MEASUREMENT_DEPTH]]
@@ -373,12 +441,20 @@ def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, 
 	# dict must be updated with new fields in measurements file.
 	col_dict[_BOREHOLE_TREND], col_dict[_BOREHOLE_PLUNGE] = "borehole_trend", "borehole_plunge"
 
-	# ALPHA must be reversed to achieve correct result.
-	measurements[['plane_dip', 'plane_dir']] = measurements.apply(
-		lambda row: pd.Series(transform_without_gamma(
-			-row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]], row[col_dict[_BOREHOLE_PLUNGE]])), axis=1)
-	measurements[['plane_dip', 'plane_dir']] = \
-		measurements[['plane_dip', 'plane_dir']].applymap(round_outputs)
+	if with_gamma:
+		measurements[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']] = measurements.apply(
+			lambda row: pd.Series(transform_with_gamma(
+				row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]],
+				row[col_dict[_BOREHOLE_PLUNGE]], row[col_dict[_GAMMA]])), axis=1)
+		measurements[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']] = \
+			measurements[['plane_dip', 'plane_dir', 'gamma_plunge', 'gamma_trend']].applymap(round_outputs)
+	else:
+		# ALPHA must be reversed to achieve correct result.
+		measurements[['plane_dip', 'plane_dir']] = measurements.apply(
+			lambda row: pd.Series(transform_without_gamma(
+				row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]], row[col_dict[_BOREHOLE_PLUNGE]])), axis=1)
+		measurements[['plane_dip', 'plane_dir']] = \
+			measurements[['plane_dip', 'plane_dir']].applymap(round_outputs)
 
 	# Savename
 	if output is not None:

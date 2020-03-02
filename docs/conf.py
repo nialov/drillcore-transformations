@@ -17,12 +17,12 @@
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 #
-import drillcore_transformations_py
-import guzzle_sphinx_theme
 
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
+import drillcore_transformations_py
+import guzzle_sphinx_theme
 
 
 # -- General configuration ---------------------------------------------

@@ -22,7 +22,8 @@ numpy = "*"
 matplotlib = "*"
 sympy = "*"
 xlrd = "*"
-
+openpyxl = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.8"
