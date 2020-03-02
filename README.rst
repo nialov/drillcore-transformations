@@ -20,16 +20,24 @@ Drillcore Transformations allows for alpha, beta and gamma structural drillcore 
 
 
 * Free software: GNU General Public License v3
-* Documentation: https://drillcore-transformations.readthedocs.io.
+* **Documentation and Help**: https://drillcore-transformations.readthedocs.io.
 
 
 Features
 --------
 
-* TODO
+* Transform measurements from drillcore.
+* Supports alpha, beta and gamma measurements.
+* Supports .csv and .xlsx files.
+* Supports adding the column names of your data files to a custom-built config.ini file for each user.
+* TODO: Convention support
+* Currently supported convention explanation found in `Documentation and Help <https://drillcore-transformations.readthedocs.io>`_
 
 Credits
 -------
+
+* PhD Jussi Mattila for tips, code snippets and sample materials.
+* Authors of `Orientation uncertainty goes bananas <https://tinyurl.com/tqr84ww>`_ for great article and complementary excel-file.
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
