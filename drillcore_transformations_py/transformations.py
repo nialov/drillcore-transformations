@@ -346,3 +346,6 @@ def transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge,
 	visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, -beta)
 	return plane_dip, plane_dir
 
+def convention_testing():
+	# TODO: convention testing
+	pass

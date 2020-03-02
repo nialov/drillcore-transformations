@@ -1,9 +1,10 @@
 from hypothesis import given, assume, settings
-from hypothesis.strategies import floats, functions, text, booleans, lists
+from hypothesis.strategies import floats, functions, text, lists
 from hypothesis.extra.numpy import arrays
 import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
+import os, sys
 
 import drillcore_transformations_py.transformations as transformations
 import drillcore_transformations_py.usage as usage
@@ -140,6 +141,29 @@ class TestUsage:
 			# This is fine and expected.
 			pass
 
+	def test_transform_csv_two_files(self, tmp_path):
+		ms_file = Path("sample_data/measurement_sample.csv")
+		d_file = Path("sample_data/depth_sample.csv")
+		temp_file = tmp_path / "csv_ms_transformed.csv"
+		usage.transform_csv_two_files(ms_file, d_file, False, temp_file)
+		assert temp_file.exists()
+
+	# TODO: Move sample data inside package?
+	def test_transform_excel_two_files_xlsx(self, tmp_path):
+		ms_file = Path("sample_data/measurement_sample.xlsx")
+		d_file = Path("sample_data/depth_sample.xlsx")
+		temp_file = tmp_path / "xlsx_ms_transformed.csv"
+		usage.transform_excel_two_files(ms_file, d_file, False, temp_file)
+		assert temp_file.exists()
+
+	# TODO: Move sample data inside package?
+	def test_transform_excel_two_files_xls(self, tmp_path):
+		ms_file = Path("sample_data/measurement_sample.xls")
+		d_file = Path("sample_data/depth_sample.xls")
+		temp_file = tmp_path / "xls_ms_transformed.csv"
+		usage.transform_excel_two_files(ms_file, d_file, False, temp_file)
+		assert temp_file.exists()
+
 class TestVisualizations:
 
 	plt.rcParams["figure.max_open_warning"] = 100
@@ -147,18 +171,20 @@ class TestVisualizations:
 	@given(vector_strategy)
 	@settings(max_examples=5, deadline=None)
 	def test_visualize_plane(self, plane_normal):
+		assume(not np.all(plane_normal == 0))
 		fig = plt.figure(figsize=(9, 9))
 		ax = fig.gca(projection='3d')
 		visualizations.visualize_plane(plane_normal, ax)
-		fig.close()
+		plt.close()
 
 	@given(vector_strategy)
 	@settings(max_examples=5, deadline=None)
 	def test_visualize_vector(self, vector):
+		assume(not np.all(vector == 0))
 		fig = plt.figure(figsize=(9, 9))
 		ax = fig.gca(projection='3d')
 		visualizations.visualize_vector(vector, ax)
-		fig.close()
+		plt.close()
 
 	@given(vector_strategy
 		, vector_strategy

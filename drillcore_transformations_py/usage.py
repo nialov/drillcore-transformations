@@ -479,13 +479,12 @@ def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, 
 			measurements[['plane_dip', 'plane_dir']].applymap(round_outputs)
 
 	# Savename
+	savedir = Path(measurement_filename).parent
 	if output is not None:
 		savepath = Path(output)
 	else:
 		savename = Path(measurement_filename).stem.split('.')[0] + '_transformed.csv'
-		savedir = str(Path(measurement_filename).parent)
-		savepath = Path(savedir + "/" + savename)
+		savepath = savedir / savename
 	# Save new .csv. Overwrites old and creates new if needed.
 	measurements.to_csv(savepath, sep=';', mode='w+')
-
 
