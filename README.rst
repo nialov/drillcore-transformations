@@ -1,6 +1,6 @@
-========================
+=========================
 Drillcore Transformations
-========================
+=========================
 
 
 .. image:: https://img.shields.io/pypi/v/drillcore_transformations.svg
