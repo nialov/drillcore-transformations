@@ -14,7 +14,7 @@ requirements = ['pip', 'Click', 'numpy', 'pandas', 'matplotlib', 'sympy', 'numpy
 
 setup_requirements = []
 
-test_requirements = ['pytest', 'hypothesis', 'numpy']
+test_requirements = ['pytest', 'hypothesis', 'numpy', 'yamllint', 'sphinx']
 
 setup(
     author="Nikolas Ovaskainen",
