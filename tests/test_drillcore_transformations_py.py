@@ -92,14 +92,12 @@ class TestTransformations:
 		assert np.allclose((plane_dip, plane_dir, gamma_plunge, gamma_trend)
 						   , (45.00000000000001, 0.0, -36.39247, 137.48165))
 
+
 class TestUsage:
-
-
 
 	@given(function_strategy)
 	def test_check_config(self, method):
 		usage.check_config(method)
-
 
 	def test_get_config_identifiers(self):
 		base_measurements, headers, conf = usage.get_config_identifiers()
@@ -113,10 +111,17 @@ class TestUsage:
 		self.test_check_config()
 
 	@given(text_strategy)
-	def test_add_column_name(self, name):
-		base_measurements, headers, conf = self.test_get_config_identifiers()
-		usage.add_column_name(headers[0], base_measurements[0], name)
-		assert not usage.add_column_name(headers[0], base_measurements[0], base_measurements[0])
+	def test_add_and_remove_column_name(self, name):
+		try:
+			base_measurements, headers, conf = self.test_get_config_identifiers()
+			usage.add_column_name(headers[0], base_measurements[0], name)
+			assert not usage.add_column_name(headers[0], base_measurements[0], base_measurements[0])
+			# testing removal
+			usage.remove_column_name(headers[0], base_measurements[0], name)
+			assert not usage.remove_column_name(headers[0], base_measurements[0], "prettysurethisisnotinthelist")
+		except:
+			self.test_initialize_config()
+			raise
 
 	@given(lists(elements=text_strategy))
 	def test_parse_columns_two_files(self, list_with_texts):
