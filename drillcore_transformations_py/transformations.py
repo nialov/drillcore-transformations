@@ -74,7 +74,7 @@ def rotate_vector_about_vector(vector, about_vector, amount):
 	"""
 	if np.all(vector == 0) or np.all(about_vector == 0):
 		return np.array([0., 0., 0.])
-	if np.allclose(vector/np.linalg.norm(vector), about_vector / np.linalg.norm(about_vector)):
+	if np.allclose(vector / np.linalg.norm(vector), about_vector / np.linalg.norm(about_vector)):
 		return vector
 	if np.all(np.cross(vector, about_vector) == 0):
 		return vector
@@ -321,7 +321,8 @@ def transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge,
 	:rtype: tuple[float, float, float, float] | tuple[float, float]
 	"""
 	if with_gamma:
-		plane_dip, plane_dir, gamma_plunge, gamma_trend = transform_with_gamma(alpha, beta, drillcore_trend, drillcore_plunge, gamma)
+		plane_dip, plane_dir, gamma_plunge, gamma_trend = transform_with_gamma(alpha, beta, drillcore_trend,
+																			   drillcore_plunge, gamma)
 	else:
 		plane_dip, plane_dir = transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge)
 
@@ -332,7 +333,6 @@ def transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge,
 	plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
 
 	if with_gamma:
-
 		gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, gamma)
 
 		# Gamma trend and plunge
@@ -345,7 +345,3 @@ def transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge,
 
 	visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, -beta)
 	return plane_dip, plane_dir
-
-def convention_testing():
-	# TODO: convention testing
-	pass
