@@ -20,6 +20,9 @@ _MEASUREMENTS, _DEPTHS, _BOREHOLE, _CONVENTIONS = "MEASUREMENTS", "DEPTHS", "BOR
 # Config filename
 _CONFIG = "config.ini"
 
+# Conventions in config
+_MEASUREMENT_CONVENTIONS = ["negative", "none"]
+
 
 class ColumnException(Exception):
 	"""
@@ -54,6 +57,8 @@ def initialize_config():
 	"""
 	Creates a configfile with default names for alpha, beta, etc. Filename will be config.ini. Manual editing
 	of this file is allowed but editing methods are also present for adding column names.
+
+	Will overwrite if needed.
 	"""
 	config = configparser.ConfigParser()
 
@@ -82,6 +87,7 @@ def initialize_config():
 	config[_CONVENTIONS][_BOREHOLE_PLUNGE] = "none"
 
 	# Write to .ini file. Will overwrite old one or make a new one.
+
 	with open(_CONFIG, "w+") as configfile:
 		config.write(configfile)
 
@@ -128,6 +134,49 @@ def add_column_name(header, base_column, name):
 	column_list.append(name)
 	config[header][base_column] = json.dumps(column_list)
 	save_config(config)
+
+def remove_column_name(header, base_column, name):
+	"""
+	Method for removing a column name from config.ini
+
+	>>>remove_column_name(_MEASUREMENTS, _ALPHA, "alpha_measurements")
+
+	:param header: Input the the header in which under the name is.
+	:type header: str
+	:param base_column: Which type of measurement is the column name.
+		Base types for measurements are:
+		"alpha" "beta" "gamma" "measurement_depth"
+		Base types for depths are:
+		"depth"
+		Base types for borehole are:
+		"borehole_trend" "borehole_plunge"
+	:type base_column: str
+	:param name: Name of the new column you want to remove.
+	:type name: str
+	"""
+	if "%" in name:
+		name = name.replace("%", "")
+	if header not in [_MEASUREMENTS, _DEPTHS, _BOREHOLE]:
+		raise ColumnException("Given header was not a base header.\n"
+							  f"header: {header}\n")
+	config = configparser.ConfigParser()
+	configname = _CONFIG
+	if not Path(configname).exists():
+		print("config.ini configfile not found. Making a new one with default values.")
+		initialize_config()
+	assert Path(configname).exists()
+	config.read(configname)
+	column_list = json.loads(config.get(header, base_column))
+	assert isinstance(column_list, list)
+	if name in column_list:
+		column_list.remove(name)
+	else:
+		print(f"Could not remove name: {name}.\n"
+			  f"It was not found in the config.ini under header: {header} and base_column: {base_column}")
+		return False
+	config[header][base_column] = json.dumps(column_list)
+	save_config(config)
+
 
 
 def save_config(config):
@@ -283,18 +332,20 @@ def parse_columns_one_file(columns, with_gamma):
 def round_outputs(number):
 	return round(number, 2)
 
+
 def apply_conventions(df, col_dict):
 	"""
 	Applies conventions from the config.ini file to given DataFrame. col_dict is used to identify the correct columns.
 
-	Recognized conventions are: "negative"
+	Recognized conventions are: "negative" "none"
 
 	:param df: DataFrame
 	:type df: pandas.DataFrame
 	:param col_dict: Dictionary with identifiers for measurement data.
 	:type col_dict: dict
 	:return: DataFrame with applied conventions in new columns.
-	:rtype: pandas.DataFrame
+		Modified col_dict.
+	:rtype: tuple[pandas.DataFrame, dict]
 	"""
 
 	config = configparser.ConfigParser()
@@ -303,7 +354,7 @@ def apply_conventions(df, col_dict):
 	beta_convention = _BETA, config[_CONVENTIONS][_BETA]
 	trend_convention = _BOREHOLE_TREND, config[_CONVENTIONS][_BOREHOLE_TREND]
 	plunge_convention = _BOREHOLE_PLUNGE, config[_CONVENTIONS][_BOREHOLE_PLUNGE]
-	gamma_convention = _GAMMA, None
+	gamma_convention = _GAMMA, "none"
 	if _GAMMA in col_dict:
 		gamma_convention = _GAMMA, config[_CONVENTIONS][_GAMMA]
 
@@ -313,8 +364,51 @@ def apply_conventions(df, col_dict):
 			df[new_column] = -df[col_dict[conv[0]]]
 			col_dict[conv[0]] = new_column
 
-	return df
+	return df, col_dict
 
+
+def apply_conventions_manual(df, col_dict, convention_dict):
+	"""
+	Applies conventions from manual input to given DataFrame by creating new columns with conventioned data.
+	col_dict is used to identify the correct columns.
+
+	Recognized conventions are: "negative" "none"
+
+	:param df: DataFrame
+	:type df: pandas.DataFrame
+	:param col_dict: Dictionary with identifiers for measurement data.
+	:type col_dict: dict
+	:param convention_dict: Dictionary with conventions
+	:type convention_dict: dict
+	:return: DataFrame with applied conventions in new columns.
+	:rtype: pandas.DataFrame
+	"""
+	if _GAMMA in col_dict:
+		pass
+
+	for conv in convention_dict.items():
+		if conv[1] == "negative":
+			# Check if column with negative data already exists.
+			if "negative" in f"{col_dict[conv[0]]}":
+				# Convention has already been applied to column.
+				return df, col_dict
+			else:
+				# Conventioned column doesn't exist.
+				new_column = f"{col_dict[conv[0]]}_negative"
+				df[new_column] = -df[col_dict[conv[0]]]
+				col_dict[conv[0]] = new_column
+		elif conv[1] == "none":
+
+			# TODO: Do it better.
+			if "negative" in f"{col_dict[conv[0]]}":
+				new_column = f"{col_dict[conv[0]]}".replace("_negative", "")
+			else:
+				new_column = f"{col_dict[conv[0]]}"
+			col_dict[conv[0]] = new_column
+
+		else:
+			print(f"weird conv: {conv}")
+	return df, col_dict
 
 def transform_csv(filename, output=None, with_gamma=False):
 	"""
@@ -333,7 +427,7 @@ def transform_csv(filename, output=None, with_gamma=False):
 	measurements = pd.read_csv(filename, sep=';')
 	col_dict = parse_columns_one_file(measurements.columns.tolist(), with_gamma)
 	# Check and apply conventions
-	measurements = apply_conventions(measurements, col_dict)
+	measurements, col_dict = apply_conventions(measurements, col_dict)
 
 	# Creates and calculates new columns
 	if with_gamma:
@@ -357,11 +451,12 @@ def transform_csv(filename, output=None, with_gamma=False):
 	# Save new .csv. Overwrites old and creates new if needed.
 	measurements.to_csv(savepath, sep=';', mode='w+')
 
+
 def transform_excel(measurement_filename, with_gamma, output=None):
 	measurements = pd.read_excel(measurement_filename)
 	col_dict = parse_columns_two_files(measurements.columns.tolist(), with_gamma)
 	# Check and apply conventions
-	measurements = apply_conventions(measurements, col_dict)
+	measurements, col_dict = apply_conventions(measurements, col_dict)
 
 
 	if with_gamma:
@@ -390,12 +485,13 @@ def transform_excel(measurement_filename, with_gamma, output=None):
 	# Save new .csv. Overwrites old and creates new if needed.
 	measurements.to_csv(savepath, sep=';', mode='w+')
 
+
 def transform_csv_two_files(measurement_filename, depth_filename, with_gamma, output=None):
 	measurements = pd.read_csv(measurement_filename, sep=';')
 	depth = pd.read_csv(depth_filename, sep=';')
 	col_dict = parse_columns_two_files(measurements.columns.tolist() + depth.columns.tolist(), with_gamma)
 	# Check and apply conventions
-	measurements = apply_conventions(measurements, col_dict)
+	measurements, col_dict = apply_conventions(measurements, col_dict)
 
 	trend_plunge = []
 	for idx, row in measurements.iterrows():
@@ -441,7 +537,7 @@ def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, 
 	col_dict = parse_columns_two_files(measurements.columns.tolist() + depth.columns.tolist(), with_gamma)
 
 	# Check and apply conventions
-	measurements = apply_conventions(measurements, col_dict)
+	measurements, col_dict = apply_conventions(measurements, col_dict)
 
 	trend_plunge = []
 	for idx, row in measurements.iterrows():
@@ -485,6 +581,67 @@ def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, 
 	else:
 		savename = Path(measurement_filename).stem.split('.')[0] + '_transformed.csv'
 		savepath = savedir / savename
+	# Save new .csv. Overwrites old and creates new if needed.
+	measurements.to_csv(savepath, sep=';', mode='w+')
+
+
+def convention_testing_csv(filename, with_gamma=False, output=None):
+
+	measurements = pd.read_csv(filename, sep=';')
+	col_dict = parse_columns_one_file(measurements.columns.tolist(), with_gamma=with_gamma)
+	borehole_trend_convention = "none"
+	for convention in _MEASUREMENT_CONVENTIONS:
+		alpha_convention = convention
+		for convention in _MEASUREMENT_CONVENTIONS:
+			beta_convention = convention
+			for convention in _MEASUREMENT_CONVENTIONS:
+				borehole_plunge_convention = convention
+				for idx, convention in enumerate(_MEASUREMENT_CONVENTIONS):
+					if with_gamma:
+						gamma_convention = convention
+					else:
+						gamma_convention = "none"
+						if idx != 0:
+							break
+					convention_dict = dict()
+					convention_dict[_ALPHA] = alpha_convention
+					convention_dict[_BETA] = beta_convention
+					convention_dict[_BOREHOLE_TREND] = borehole_trend_convention
+					convention_dict[_BOREHOLE_PLUNGE] = borehole_plunge_convention
+					if with_gamma:
+						convention_dict[_GAMMA] = gamma_convention
+
+					measurements, col_dict = apply_conventions_manual(measurements, col_dict, convention_dict)
+
+					# Current convention setup as a string
+					conventions = [alpha_convention, beta_convention, borehole_trend_convention, borehole_plunge_convention, gamma_convention]
+					curr = "|".join(conventions).replace("negative", "-")
+
+					# Creates and calculates new columns
+					if with_gamma:
+						measurements[[f'plane_dip__{curr}', f'plane_dir__{curr}', f'gamma_plunge__{curr}', f'gamma_trend_{curr}']] = measurements.apply(
+							lambda row: pd.Series(transform_with_gamma(
+								row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]],
+								row[col_dict[_BOREHOLE_PLUNGE]], row[col_dict[_GAMMA]])), axis=1)
+						measurements[[f'plane_dip_{curr}', f'plane_dir_{curr}', f'gamma_plunge_{curr}', f'gamma_trend_{curr}']] = measurements[
+							[f'plane_dip_{curr}', f'plane_dir_{curr}', f'gamma_plunge_{curr}', f'gamma_trend_{curr}']].applymap(round_outputs)
+					else:
+						measurements[[f'plane_dip_{curr}', f'plane_dir_{curr}']] = measurements.apply(
+							lambda row: pd.Series(transform_without_gamma(
+								row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]],
+								row[col_dict[_BOREHOLE_PLUNGE]])), axis=1)
+						measurements[[f'plane_dip_{curr}', f'plane_dir_{curr}']] = measurements[[f'plane_dip_{curr}', f'plane_dir_{curr}']].applymap(
+							round_outputs)
+	# Savename
+	if output is not None:
+		if Path(output).is_absolute():
+			savepath = Path(output)
+		else:
+			savepath = Path(filename).parent / Path(output)
+	else:
+		savename = Path(filename).stem.split('.')[0] + '_convention_test.csv'
+		savedir = str(Path(filename).parent)
+		savepath = Path(savedir + "/" + savename)
 	# Save new .csv. Overwrites old and creates new if needed.
 	measurements.to_csv(savepath, sep=';', mode='w+')
 
