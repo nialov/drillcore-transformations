@@ -17,6 +17,7 @@ guzzle-sphinx-theme = "*"
 pytest = "*"
 hypothesis = "*"
 yamllint = "*"
+pytest-cov = "*"
 
 [packages]
 pip = "*"
@@ -26,7 +27,6 @@ matplotlib = "*"
 sympy = "*"
 xlrd = "*"
 openpyxl = "*"
-
 
 [requires]
 python_version = "3.8"
