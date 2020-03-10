@@ -18,8 +18,8 @@ _ALPHA, _BETA, _GAMMA, _MEASUREMENT_DEPTH, _DEPTH, _BOREHOLE_TREND, _BOREHOLE_PL
 # Headers within config.
 _MEASUREMENTS, _DEPTHS, _BOREHOLE, _CONVENTIONS = "MEASUREMENTS", "DEPTHS", "BOREHOLE", "CONVENTIONS"
 
-# Config filename
-_CONFIG = "config.ini"
+# Config absolute path
+_CONFIG = (Path(__file__).parent / Path("config.ini")).absolute()
 
 # Conventions in config
 _MEASUREMENT_CONVENTIONS = ["negative", "none"]
@@ -37,8 +37,8 @@ class ColumnException(Exception):
 
 def check_config(method):
 	def inner(*args, **kwargs):
-		assert Path(_CONFIG).exists()
-		if not Path(_CONFIG).exists():
+		assert _CONFIG.exists()
+		if not _CONFIG.exists():
 			raise FileNotFoundError("config.ini file not found. Run usage.initialize_config().")
 		result = method(*args, **kwargs)
 		return result
@@ -54,7 +54,7 @@ def get_config_identifiers():
 
 
 def find_config():
-	print(Path(_CONFIG).absolute())
+	print(_CONFIG)
 
 
 def initialize_config():
@@ -93,9 +93,7 @@ def initialize_config():
 	config[_CONVENTIONS][_BOREHOLE_PLUNGE] = "none"
 
 	# Write to .ini file. Will overwrite old one or make a new one.
-
-	with open(_CONFIG, "w+") as configfile:
-		config.write(configfile)
+	save_config(config)
 
 
 def add_column_name(header, base_column, name):
@@ -212,7 +210,7 @@ def parse_column(header, base_column, columns):
 	:raises ColumnException: When there are problems with identifying columns.
 	"""
 	config = configparser.ConfigParser()
-	assert Path(_CONFIG).exists()
+	assert _CONFIG.exists()
 	config.read(_CONFIG)
 	column_identifiers = json.loads(config.get(header, base_column))
 	assert isinstance(column_identifiers, list)

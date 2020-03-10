@@ -4,7 +4,6 @@ from hypothesis.extra.numpy import arrays
 import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
-import os, sys
 
 import drillcore_transformations.transformations as transformations
 import drillcore_transformations.usage as usage
@@ -102,8 +101,9 @@ class TestUsage:
 
 	def test_get_config_identifiers(self):
 		base_measurements, headers, conf = usage.get_config_identifiers()
-		for s in base_measurements + headers + conf:
+		for s in base_measurements + headers:
 			assert isinstance(s, str)
+		assert isinstance(*conf, Path)
 		return base_measurements, headers, conf
 
 	def test_initialize_config(self):
