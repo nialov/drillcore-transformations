@@ -6,9 +6,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import os, sys
 
-import drillcore_transformations_py.transformations as transformations
-import drillcore_transformations_py.usage as usage
-import drillcore_transformations_py.visualizations as visualizations
+import drillcore_transformations.transformations as transformations
+import drillcore_transformations.usage as usage
+import drillcore_transformations.visualizations as visualizations
 
 alpha_strategy = floats(min_value=-90, max_value=90)
 beta_strategy = floats(min_value=-360, max_value=360)
