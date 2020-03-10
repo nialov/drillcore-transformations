@@ -6,7 +6,7 @@ To use Drillcore Transformations in a project:
 
 .. code-block:: python
 
-    import drillcore_transformations_py as dtp
+    import drillcore_transformations as dtp
 
 
 Config
@@ -54,7 +54,7 @@ To reset the config file to defaults and **erase** all modifications:
 
 Transforming data
 ------------------
-Methods for transforming data in .csv or .xlsx format are found in drillcore_transformations_py.drillcore_transformations.usage:
+Methods for transforming data in .csv or .xlsx format are found in drillcore_transformations.drillcore_transformations.usage:
 
 .. code-block:: python
 
