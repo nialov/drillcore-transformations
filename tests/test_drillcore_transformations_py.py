@@ -1,5 +1,5 @@
 from hypothesis import given, assume, settings
-from hypothesis.strategies import floats, functions, text, lists
+from hypothesis.strategies import floats, functions, text, lists, dictionaries
 from hypothesis.extra.numpy import arrays
 import numpy as np
 from pathlib import Path
@@ -10,20 +10,21 @@ import drillcore_transformations_py.transformations as transformations
 import drillcore_transformations_py.usage as usage
 import drillcore_transformations_py.visualizations as visualizations
 
-alpha_strategy = floats(min_value=0, max_value=90)
-beta_strategy = floats(min_value=0, max_value=360)
+alpha_strategy = floats(min_value=-90, max_value=90)
+beta_strategy = floats(min_value=-360, max_value=360)
 trend_strategy = floats(min_value=0, max_value=90)
-plunge_strategy = floats(min_value=0, max_value=90)
-gamma_strategy = floats(min_value=0, max_value=360)
+plunge_strategy = floats(min_value=-90, max_value=90)
+gamma_strategy = floats(min_value=-360, max_value=360)
 vector_strategy = arrays(np.float, shape=3, elements=floats(-1, 1))
 amount_strategy = floats(0, np.pi * 2)
 dip_strategy = floats(min_value=0, max_value=90)
 dir_strategy = floats(min_value=0, max_value=360)
 function_strategy = functions()
 text_strategy = text()
+dict_strategy = dictionaries(text_strategy, text_strategy)
+
 
 class TestTransformations:
-
 
 	@given(alpha_strategy, beta_strategy, trend_strategy, plunge_strategy)
 	def test_calc_global_normal_vector(self, alpha, beta, trend, plunge):
@@ -168,6 +169,17 @@ class TestUsage:
 		temp_file = tmp_path / "xls_ms_transformed.csv"
 		usage.transform_excel_two_files(ms_file, d_file, False, temp_file)
 		assert temp_file.exists()
+
+	@given(dict_strategy)
+	def test_change_conventions(self, convention_dict):
+		self.test_initialize_config()
+		result = usage.change_conventions(convention_dict)
+		self.test_initialize_config()
+		assert result is False
+		none_result = usage.change_conventions({"alpha": "negative"})
+		self.test_initialize_config()
+		assert none_result is None
+
 
 class TestVisualizations:
 

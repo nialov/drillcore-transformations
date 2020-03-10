@@ -14,12 +14,12 @@ requirements = ['pip', 'Click', 'numpy', 'pandas', 'matplotlib', 'sympy', 'numpy
 
 setup_requirements = []
 
-test_requirements = ['pytest', 'hypothesis', 'numpy', 'yamllint', 'sphinx']
+test_requirements = ['pytest', 'hypothesis', 'numpy', 'yamllint', 'sphinx', 'tox', 'coverage', 'pytest-cov', 'guzzle-sphinx-theme', 'sphinx']
 
 setup(
     author="Nikolas Ovaskainen",
     author_email='nikolasovaskainen@gmail.com',
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
