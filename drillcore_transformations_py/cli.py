@@ -6,8 +6,7 @@ import click
 @click.command()
 def main(args=None):
     """Console script for drillcore_transformations_code."""
-    click.echo("Replace this message by putting your code into "
-               "drillcore_transformations_py.cli.main")
+    click.echo("NOT IMPLEMENTED, YET.")
     click.echo("See click documentation at https://click.palletsprojects.com/")
     return 0
 
