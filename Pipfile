@@ -11,13 +11,16 @@ tox = "*"
 coverage = "*"
 twine = "*"
 click = "*"
-Sphinx = "*"
 travis = "*"
 guzzle-sphinx-theme = "*"
 pytest = "*"
 hypothesis = "*"
 yamllint = "*"
 pytest-cov = "*"
+sphinx = "*"
+pytest = "*"
+readme-renderer = "*"
+pygments = "*"
 
 [packages]
 pip = "*"
@@ -32,6 +35,8 @@ hypothesis = "*"
 pyyaml = "*"
 bleach = "*"
 coverage = "*"
+
+click = "*"
 
 [requires]
 python_version = "3.8"
