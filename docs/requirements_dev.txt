@@ -56,7 +56,7 @@ requests-toolbelt==0.9.1
 six==1.14.0
 snowballstemmer==2.0.0
 sortedcontainers==2.1.0
-Sphinx==2.4.3
+Sphinx==2.4.4
 sphinxcontrib-applehelp==1.0.1
 sphinxcontrib-devhelp==1.0.1
 sphinxcontrib-htmlhelp==1.0.3
