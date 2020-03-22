@@ -9,6 +9,7 @@ from pathlib import Path
 import pandas as pd
 
 from drillcore_transformations.transformations import transform_with_gamma, transform_without_gamma
+from drillcore_transformations.visualizations import visualize_results
 
 # Identifiers within the module. DO NOT CHANGE TO MATCH YOUR DATA FILE COLUMNS.
 # Matching your data file to module identifiers is done in the config file (config.ini).
@@ -54,7 +55,12 @@ def get_config_identifiers():
 
 
 def find_config():
-	print(_CONFIG)
+	"""
+	Retuns config.ini file path.
+	:return: config.ini file path
+	:rtype: Path
+	"""
+	return _CONFIG
 
 
 def initialize_config():
@@ -416,7 +422,7 @@ def apply_conventions_manual(df, col_dict, convention_dict):
 	return df, col_dict
 
 
-def transform_csv(filename, output=None, with_gamma=False):
+def transform_csv(filename, with_gamma=False, output=None):
 	"""
 	Transforms data from a given .csv file. File must have columns with alpha and beta measurements and borehole trend
 	and plunge.
@@ -595,7 +601,7 @@ def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, 
 	measurements.to_csv(savepath, sep=';', mode='w+')
 
 
-def convention_testing_csv(filename, with_gamma=False, output=None):
+def convention_testing_csv(filename, with_gamma=False, output=None, visualize=False, img_dir=None):
 	measurements = pd.read_csv(filename, sep=';')
 	col_dict = parse_columns_one_file(measurements.columns.tolist(), with_gamma=with_gamma)
 	borehole_trend_convention = "none"
@@ -627,25 +633,38 @@ def convention_testing_csv(filename, with_gamma=False, output=None):
 								   borehole_plunge_convention, gamma_convention]
 					curr = "|".join(conventions).replace("negative", "-").replace("none", "0")
 
-					# Creates and calculates new columns
+					# Create and calculate new columns
+
+					# Transformed measured plane dip
+					plane_dip_curr = f'plane_dip_{curr}'
+					# Transformed measured plane dir
+					plane_dir_curr = f'plane_dir_{curr}'
+
 					if with_gamma:
-						measurements[[f'plane_dip__{curr}', f'plane_dir__{curr}', f'gamma_plunge__{curr}',
-									  f'gamma_trend_{curr}']] = measurements.apply(
+
+						# Transformed measured linear feature plunge
+						gamma_plunge_curr = f'gamma_plunge_{curr}'
+						# Transformed measured linear feature trend
+						gamma_trend_curr = f'gamma_trend_{curr}'
+
+						measurements[[plane_dip_curr, plane_dir_curr, gamma_plunge_curr,
+									  gamma_trend_curr]] = measurements.apply(
 							lambda row: pd.Series(transform_with_gamma(
 								row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]],
-								row[col_dict[_BOREHOLE_PLUNGE]], row[col_dict[_GAMMA]])), axis=1)
+								row[col_dict[_BOREHOLE_PLUNGE]], row[col_dict[_GAMMA]], visualize, img_dir, curr)), axis=1)
 						measurements[
-							[f'plane_dip_{curr}', f'plane_dir_{curr}', f'gamma_plunge_{curr}', f'gamma_trend_{curr}']] = \
+							[plane_dip_curr, plane_dir_curr, gamma_plunge_curr, gamma_trend_curr]] = \
 							measurements[
-								[f'plane_dip_{curr}', f'plane_dir_{curr}', f'gamma_plunge_{curr}',
-								 f'gamma_trend_{curr}']].applymap(round_outputs)
+								[plane_dip_curr, plane_dir_curr, gamma_plunge_curr,
+								 gamma_trend_curr]].applymap(round_outputs)
+
 					else:
-						measurements[[f'plane_dip_{curr}', f'plane_dir_{curr}']] = measurements.apply(
+						measurements[[plane_dip_curr, plane_dir_curr]] = measurements.apply(
 							lambda row: pd.Series(transform_without_gamma(
 								row[col_dict[_ALPHA]], row[col_dict[_BETA]], row[col_dict[_BOREHOLE_TREND]],
 								row[col_dict[_BOREHOLE_PLUNGE]])), axis=1)
-						measurements[[f'plane_dip_{curr}', f'plane_dir_{curr}']] = measurements[
-							[f'plane_dip_{curr}', f'plane_dir_{curr}']].applymap(
+						measurements[[plane_dip_curr, plane_dir_curr]] = measurements[
+							[plane_dip_curr, plane_dir_curr]].applymap(
 							round_outputs)
 	# Savename
 	if output is not None:
@@ -659,6 +678,7 @@ def convention_testing_csv(filename, with_gamma=False, output=None):
 		savepath = Path(savedir + "/" + savename)
 	# Save new .csv. Overwrites old and creates new if needed.
 	measurements.to_csv(savepath, sep=';', mode='w+')
+
 
 def change_conventions(convention_dict):
 	"""
