@@ -25,8 +25,8 @@ text_strategy = text()
 dict_strategy = dictionaries(text_strategy, text_strategy)
 
 # TODO: Move samples inside pkg?
-sample_csv = r"sample_data\Logging_sheet.csv"
-sample_csv_result = r"sample_data\Logging_sheet_transformed.csv"
+sample_csv = (Path(__file__).parent.parent / Path("sample_data/Logging_sheet.csv")).absolute()
+sample_csv_result = (Path(__file__).parent.parent / Path("sample_data/Logging_sheet_transformed.csv")).absolute()
 
 
 class TestTransformations:
@@ -253,9 +253,9 @@ class TestCli:
 
 	def test_transform(self):
 		runner = CliRunner()
-		result = runner.invoke(cli.transform, [sample_csv, "--gamma"])
+		result = runner.invoke(cli.transform, [str(sample_csv), "--gamma"])
 		assert result.exit_code == 0
-		assert Path(sample_csv_result).exists()
+		assert sample_csv_result.exists()
 
 	def test_conventions(self):
 		runner = CliRunner()
