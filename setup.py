@@ -30,7 +30,7 @@ setup(
     description="Drillcore Transformations allows for alpha, beta and gamma drillcore transformations.",
     entry_points={
         'console_scripts': [
-            'drillcore_transformations=drillcore_transformations.cli:main',
+            'drillcoretransform=drillcore_transformations.cli:cli',
         ],
     },
     install_requires=requirements,
