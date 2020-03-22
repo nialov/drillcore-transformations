@@ -4,10 +4,12 @@ from hypothesis.extra.numpy import arrays
 import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
+from click.testing import CliRunner
 
 import drillcore_transformations.transformations as transformations
 import drillcore_transformations.usage as usage
 import drillcore_transformations.visualizations as visualizations
+import drillcore_transformations.cli as cli
 
 alpha_strategy = floats(min_value=-90, max_value=90)
 beta_strategy = floats(min_value=-360, max_value=360)
@@ -21,6 +23,10 @@ dir_strategy = floats(min_value=0, max_value=360)
 function_strategy = functions()
 text_strategy = text()
 dict_strategy = dictionaries(text_strategy, text_strategy)
+
+# TODO: Move samples inside pkg?
+sample_csv = r"sample_data\Logging_sheet.csv"
+sample_csv_result = r"sample_data\Logging_sheet_transformed.csv"
 
 
 class TestTransformations:
@@ -243,5 +249,29 @@ class TestVisualizations:
 		plt.close()
 
 
-#parse_columns_two_files(["alpha", "beta", "gamma", "borehole_trend", "borehole_plunge", "depth", \
-	# "measurement_depth"], True)
+class TestCli:
+
+	def test_transform(self):
+		runner = CliRunner()
+		result = runner.invoke(cli.transform, [sample_csv, "--gamma"])
+		assert result.exit_code == 0
+		assert Path(sample_csv_result).exists()
+
+	def test_conventions(self):
+		runner = CliRunner()
+		result = runner.invoke(cli.conventions, [])
+		assert result.exit_code == 0
+		assert "Changing conventions" in result.output
+
+	def test_config(self):
+		runner = CliRunner()
+		result = runner.invoke(cli.config, ["--initialize"])
+		assert result.exit_code == 0
+		assert "Initializing new config.ini" in result.output
+
+		result = runner.invoke(cli.config, [])
+		assert result.exit_code == 0
+		assert "Config File Path" in result.output
+
+
+

@@ -71,7 +71,7 @@ def transform(measurementfile, depthfile=None, outputfile=None, gamma=False):
 @click.argument("base_column", type=click.Choice(base_measurements))
 @click.argument("name", type=click.STRING)
 @click.option("--remove", is_flag=True, help="If given, removes inputted column name from identifiers.")
-def modify(header, base_column, name, remove=False):
+def columnname(header, base_column, name, remove=False):
 	"""
 	Add/remove column identifiers in config.ini.
 
