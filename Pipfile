@@ -35,7 +35,6 @@ hypothesis = "*"
 pyyaml = "*"
 bleach = "*"
 coverage = "*"
-
 click = "*"
 
 [requires]
