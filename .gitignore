@@ -114,7 +114,6 @@ ENV/
 /drillcore_transformations/rotation_dev.py
 /drillcore_transformations/gamma_rotation.py
 /docs/test_build/
-/sample_data/Logging_sheet.csv
 /sample_data/Logging_sheet_orient_calculated.csv
 /sample_data/Logging_sheet_convention_test.csv
 /sample_data/Logging_sheet_transformed.csv
