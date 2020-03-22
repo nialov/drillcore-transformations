@@ -27,6 +27,11 @@ matplotlib = "*"
 sympy = "*"
 xlrd = "*"
 openpyxl = "*"
+virtualenv = "*"
+hypothesis = "*"
+pyyaml = "*"
+bleach = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.8"
