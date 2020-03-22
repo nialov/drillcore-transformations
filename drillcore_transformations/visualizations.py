@@ -1,9 +1,12 @@
 """
 Module for visualizing results.
 """
+import os
+
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+from pathlib import Path
 
 def visualize_vector(vector: np.array, ax: Axes3D, **kwargs):
 	vector = vector.round(decimals=2)
@@ -21,7 +24,7 @@ def visualize_plane(plane_normal, ax: Axes3D, **kwargs):
 	surf._facecolors2d = surf._facecolors3d
 	surf._edgecolors2d = surf._edgecolors3d
 
-def visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, beta, gamma_vector=None, gamma=None):
+def visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, beta, gamma_vector=None, gamma=None, img_dir=None, curr_conv=None):
 	"""
 	Visualizes alpha-beta measured plane and gamma measured linear feature if given.
 
@@ -42,7 +45,7 @@ def visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_tr
 
 	# Plot in 3D
 	visualize_vector(plane_normal, ax, label='normal of plane', color='red')
-	visualize_plane(plane_normal, ax, label='plane plane', color='red')
+	visualize_plane(plane_normal, ax, label='plane', color='red')
 	visualize_vector(plane_vector, ax, label=r'plunge vector of plane', color='brown', linewidth=2)
 	visualize_vector(drillcore_vector, ax, label='drillcore', color='black', linewidth=2)
 	if gamma_vector is not None:
@@ -68,3 +71,16 @@ def visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_tr
 							 f'beta {beta}\n')
 
 	plt.legend()
+
+	if img_dir is not None:
+		curr_conv = curr_conv.replace("|", "_")
+		if Path(img_dir).exists():
+			pass
+		else:
+			os.mkdir(img_dir)
+		num = 0
+		savename = Path(img_dir) / Path(curr_conv + f"_{num}.png")
+		while savename.exists():
+			num += 1
+			savename = Path(img_dir) / Path(curr_conv + f"_{num}")
+		plt.savefig(savename)
