@@ -1,4 +1,4 @@
-"""Top-level package for Borehole Transformations."""
+"""Top-level package for Drillcore Transformations."""
 
 __author__ = """Nikolas Ovaskainen"""
 __email__ = 'nikolasovaskainen@gmail.com'

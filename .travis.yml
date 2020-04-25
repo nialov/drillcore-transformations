@@ -1,8 +1,7 @@
----
 deploy:
-  distributions: "sdist bdist_wheel"
+  distributions: sdist bdist_wheel
   password:
-    secure: BBUCRbdw75E/aSadPOS2I7VIwYqaBdVUBPjwwUw/UMsfi86vUravpD5dMIQ90VFhoIPLSqisZdgvToGpVVL54yhJ6UP5a3stPceGhJOq2EoHl3MIydMeDJ9mMWp7+VvcxxrjapaW2EFM1Wt2+W9adW+1y1I/7YTnuFkftp+FLQF37Wi5ul1t5hMdj0O1PX0wTf0j04cWfxW3YEQPNTLOddDFyPdaAWRkxQz+ePxeqnKFRxDh8PFEE4BIzi0pVdJpgQPtoDjVhjJb1m9vY/ro/LmcBVRX4a9woH85GpYTBMKjLTLuw6b5jwLJy9E8nGmwdVo6i1rbgBWs1cwO3B8DiAnbs9zDrxg2Zw4DQm4jZCcbixRCRAiz/T3pi3CKhoiQMvf2DruZ9X3WlQDLsvWxuSoZXzo6W9effJmLLMx6Ye7tqMFQ+BfI9Tbw/uhXu2fbLXEDxV++b1/+htZVpzaa+JZVC1igKYIBlmso8QmxtbawlFFCQcdENv6/LU7E9Y1oYFiAAnV8X0H+lCbzxZZ4ALoAuI6+akb7PnTZkZsaQjMmTeFtBg4MsJgY8La9AnyqIxjyRugkLwalQDsx/s3K3Ad0NDXse5CvXMtGq2cuHjYjGAsGW354+M1SrNZ1PPo9QB79E+4RLN24tC2efk64TxpeYBQu5oQlZiaFlIussXQ=
+    secure: ZluogJPFRomJHd7dA2uUwGl2kwivzAfFVi46y8PgERWN7z01DgvJyF69R/jKoebcllojXc4k1+dEwVqGAxF//RNyn+GgdAL6xrmE4d1zPcGCKTfDW7bgBxoGGVqrQTFoUXRkgw7oTjkVifqgdI+augQAZjyV3UJaXxJa/XfCLjVzgBS2t/mSPrJw3MVYtnSYSZZrHuCIxf0SzHQaeBos5+J9kA30U9TG42PAVVBbcxUuCzXVWSyEiGM1axA0TnOZI48pvAF8OqCmrj5unF1Fq4wD60jNV8L/7v07ZyluEt7stLElz9rMLB8CoUlGTC+yaT+yzGR+OMWJOdLR3bWKP2bmc8JLOumD6JyiIIKmbFW/3mzXJ8WF84Bwlqn+w06aUG9mr8tCmCY2C7dWLUguUBjmA458J0PmHY6FKuCu+qbXVWN146Tnn1sf5s+i2fE6DFRr0kOtSpU66KCVR/AjsTuSvkYs5MrESOVKnjVAQsKcOxcmLy3OlglycQNVvdUQDJ48+PAWyBX4n0/h5Vzfor1CMFhyPsrnQVB62za2WyrsJXuRw/A7QgDhpiKMsy9eSaCA1I0wViPPbLaVv1Ktk+/4bosDaPy4+Qjdxw8WRkdsHxhXWXdaNuPHiQAfVi4rmK2TqP7gDjD1IDC3hOpg5ToRsAdLGtW29co5kMeo+fA=
   provider: pypi
   on:
     python: 3.8
@@ -12,11 +11,11 @@ deploy:
 env:
   global:
     secure: BBUCRbdw75E/aSadPOS2I7VIwYqaBdVUBPjwwUw/UMsfi86vUravpD5dMIQ90VFhoIPLSqisZdgvToGpVVL54yhJ6UP5a3stPceGhJOq2EoHl3MIydMeDJ9mMWp7+VvcxxrjapaW2EFM1Wt2+W9adW+1y1I/7YTnuFkftp+FLQF37Wi5ul1t5hMdj0O1PX0wTf0j04cWfxW3YEQPNTLOddDFyPdaAWRkxQz+ePxeqnKFRxDh8PFEE4BIzi0pVdJpgQPtoDjVhjJb1m9vY/ro/LmcBVRX4a9woH85GpYTBMKjLTLuw6b5jwLJy9E8nGmwdVo6i1rbgBWs1cwO3B8DiAnbs9zDrxg2Zw4DQm4jZCcbixRCRAiz/T3pi3CKhoiQMvf2DruZ9X3WlQDLsvWxuSoZXzo6W9effJmLLMx6Ye7tqMFQ+BfI9Tbw/uhXu2fbLXEDxV++b1/+htZVpzaa+JZVC1igKYIBlmso8QmxtbawlFFCQcdENv6/LU7E9Y1oYFiAAnV8X0H+lCbzxZZ4ALoAuI6+akb7PnTZkZsaQjMmTeFtBg4MsJgY8La9AnyqIxjyRugkLwalQDsx/s3K3Ad0NDXse5CvXMtGq2cuHjYjGAsGW354+M1SrNZ1PPo9QB79E+4RLN24tC2efk64TxpeYBQu5oQlZiaFlIussXQ=
-install: "pip install -U tox-travis"
+install: pip install -U tox-travis
 language: python
 python:
-  - 3.8
-  - 3.7
-  - 3.6
+- 3.8
+- 3.7
+- 3.6
 script: tox
 version: "~> 1.0"
