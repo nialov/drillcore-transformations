@@ -56,7 +56,7 @@ def get_config_identifiers():
 
 def find_config():
 	"""
-	Retuns config.ini file path.
+	Returns config.ini file path.
 	:return: config.ini file path
 	:rtype: Path
 	"""
@@ -602,6 +602,21 @@ def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, 
 
 
 def convention_testing_csv(filename, with_gamma=False, output=None, visualize=False, img_dir=None):
+	"""
+	Test multitudes of conventions on data in a .csv file.
+	TODO: Currently a crude, alpha, method, desperately needs improving and specifying.
+
+	:param filename: .csv file with data
+	:type filename: str
+	:param with_gamma: If data contains gamma measurements
+	:type with_gamma: bool
+	:param output: output file with tested conventions
+	:type output: str
+	:param visualize: Whether to visualize each calculation (not worth it unless only 1 row of data)
+	:type visualize: bool
+	:param img_dir: Directory to save visualization images
+	:type img_dir: str
+	"""
 	measurements = pd.read_csv(filename, sep=';')
 	col_dict = parse_columns_one_file(measurements.columns.tolist(), with_gamma=with_gamma)
 	borehole_trend_convention = "none"
