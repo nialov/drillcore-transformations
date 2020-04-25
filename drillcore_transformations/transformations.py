@@ -216,6 +216,22 @@ def calc_vector_trend_plunge(vector):
 	trend_degrees = np.rad2deg(trend_radians)
 	return round(trend_degrees, 5), round(plunge_degrees, 5)
 
+def calc_normal_vector_of_plane(dip, dir):
+	"""
+	Calculates normalized normal vector of plane based on dip and dip direction.
+
+	:param dip: Dip of the plane
+	:type dip: float
+	:param dir: Dip direction of the plane
+	:type dir: float
+	:return: Normalized normal vector of the plane
+	:rtype: numpy.ndarray
+	"""
+	plane_vector_1 = vector_from_dip_and_dir(dip, dir)
+	plane_vector_2 = vector_from_dip_and_dir(dip=0, dir=dir+90)
+	plane_normal = np.cross(plane_vector_1, plane_vector_2)
+	plane_normal = plane_normal if plane_normal[2] > 0 else -plane_normal
+	return plane_normal / np.linalg.norm(plane_normal)
 
 def transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
 	"""
@@ -315,48 +331,3 @@ def transform_with_gamma(alpha, beta, drillcore_trend, drillcore_plunge, gamma, 
 		print(str(e))
 		return np.NaN, np.NaN, np.NaN, np.NaN
 
-
-# def transform_with_visualization(alpha, beta, drillcore_trend, drillcore_plunge, with_gamma=False, gamma=None):
-# 	"""
-# 	Transforms alpha, beta and gamma measurements from core and visualizes in Matplotlib 3D-plot.
-#
-# 	:param alpha: Angle in degrees between drillcore axis and plane.
-# 	:type alpha: float
-# 	:param beta: Angle in degrees between TOP mark of core and ellipse long axis at DOWN hole end.
-# 	:type beta: float
-# 	:param drillcore_trend: Trend of the drillcore.
-# 	:type drillcore_trend: float
-# 	:param drillcore_plunge: Plunge of the drillcore.
-# 	:type drillcore_plunge: float
-# 	:param with_gamma: Visualize gamma measurement or not.
-# 	:type with_gamma: bool
-# 	:param gamma: Linear feature on a plane. Measured in clockwise direction from ellipse long axis at DOWN hole end.
-# 	:type gamma: float
-# 	:return: Plane dip and direction + Linear feature plunge and trend.
-# 	:rtype: tuple[float, float, float, float] | tuple[float, float]
-# 	"""
-# 	if with_gamma:
-# 		plane_dip, plane_dir, gamma_plunge, gamma_trend = transform_with_gamma(alpha, beta, drillcore_trend,
-# 																			   drillcore_plunge, gamma)
-# 	else:
-# 		plane_dip, plane_dir = transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge)
-#
-# 	drillcore_vector = vector_from_dip_and_dir(drillcore_plunge, drillcore_trend)
-# 	# plane normal vector
-# 	plane_normal = calc_global_normal_vector(alpha, beta, drillcore_trend, drillcore_plunge)
-# 	# Vector in the direction of plane dir and dip
-# 	plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
-#
-# 	if with_gamma:
-# 		gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, gamma)
-#
-# 		# Gamma trend and plunge
-# 		gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
-#
-# 		visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, -beta,
-# 						  gamma_vector, gamma)
-#
-# 		return plane_dip, plane_dir, gamma_plunge, gamma_trend
-#
-# 	visualize_results(plane_normal, plane_vector, drillcore_vector, drillcore_trend, drillcore_plunge, alpha, -beta)
-# 	return plane_dip, plane_dir
