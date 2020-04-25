@@ -24,7 +24,7 @@ def cli():
 	"--depthfile",
 	"-d",
 	type=click.Path(exists=True, readable=True, dir_okay=False, resolve_path=True),
-	help="Separate file that contains depth measurements."
+	help="Separate file that contains depth measurements. Optional."
 )
 @click.option(
 	"--outputfile",

@@ -156,6 +156,7 @@ class TestUsage:
 	def test_transform_csv_two_files(self, tmp_path):
 		ms_file = Path("sample_data/measurement_sample.csv")
 		d_file = Path("sample_data/depth_sample.csv")
+		assert ms_file.exists() and d_file.exists()
 		temp_file = tmp_path / "csv_ms_transformed.csv"
 		usage.transform_csv_two_files(ms_file, d_file, False, temp_file)
 		assert temp_file.exists()
@@ -164,6 +165,7 @@ class TestUsage:
 	def test_transform_excel_two_files_xlsx(self, tmp_path):
 		ms_file = Path("sample_data/measurement_sample.xlsx")
 		d_file = Path("sample_data/depth_sample.xlsx")
+		assert ms_file.exists() and d_file.exists()
 		temp_file = tmp_path / "xlsx_ms_transformed.csv"
 		usage.transform_excel_two_files(ms_file, d_file, False, temp_file)
 		assert temp_file.exists()
@@ -172,6 +174,7 @@ class TestUsage:
 	def test_transform_excel_two_files_xls(self, tmp_path):
 		ms_file = Path("sample_data/measurement_sample.xls")
 		d_file = Path("sample_data/depth_sample.xls")
+		assert ms_file.exists() and d_file.exists()
 		temp_file = tmp_path / "xls_ms_transformed.csv"
 		usage.transform_excel_two_files(ms_file, d_file, False, temp_file)
 		assert temp_file.exists()

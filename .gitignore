@@ -107,7 +107,6 @@ ENV/
 /drillcore_transformations/Transform_scripts.py
 /drillcore_transformations/Transform_workflow.py
 /drillcore_transformations/workflow.ipynb
-/requirements_dev.txt
 /drillcore_transformations/drillcore_transformations_dev.py
 
 /tests/test_gamma_rotation.py
@@ -117,3 +116,5 @@ ENV/
 /sample_data/Logging_sheet_orient_calculated.csv
 /sample_data/Logging_sheet_convention_test.csv
 /sample_data/Logging_sheet_transformed.csv
+/compiled/
+/notebooks/.ipynb_checkpoints/
