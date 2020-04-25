@@ -5,7 +5,7 @@ deploy:
   provider: pypi
   on:
     python: 3.8
-    repo: nialov/drillcore_transformations
+    repo: nialov/drillcore-transformations
     tags: true
   user: __token__
 env:
