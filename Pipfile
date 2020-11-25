@@ -30,6 +30,9 @@ pyyaml = "*"
 bleach = "*"
 hypothesis = "*"
 jupyter-sphinx = "*"
+pipenv-to-requirements = "*"
+pipenv-setup = "*"
+jupyterlab = "*"
 
 [packages]
 pip = "*"
