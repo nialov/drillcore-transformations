@@ -118,3 +118,4 @@ ENV/
 /sample_data/Logging_sheet_transformed.csv
 /compiled/
 /notebooks/.ipynb_checkpoints/
+docs
