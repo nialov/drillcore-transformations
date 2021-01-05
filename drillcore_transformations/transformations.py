@@ -368,3 +368,36 @@ def transform_with_gamma(
     except ValueError as e:
         print(str(e))
         return np.NaN, np.NaN, np.NaN, np.NaN
+
+
+def fix_to_numerical(values):
+    new_values = []
+    for val in values:
+        if isinstance(val, str):
+            if len(val) == 0:
+                val = np.nan
+            else:
+                val = val.strip(" ").replace("\xa0", "")
+        try:
+            val = float(val)
+        except ValueError:
+            val = np.nan
+        new_values.append(val)
+    return new_values
+
+
+def calc_difference_between_two_planes(dip_first, dir_first, dip_second, dir_second):
+    """
+    Calculate difference between two measured planes.
+
+    Result is in range [0, 180].
+    """
+    if any(np.isnan(np.array([dip_first, dir_first, dip_second, dir_second]))):
+        return np.nan
+    if np.isclose(dip_first, dip_second) and np.isclose(dir_first, dir_second):
+        return 0.0
+    vec_first = calc_normal_vector_of_plane(dip_first, dir_first)
+    vec_second = calc_normal_vector_of_plane(dip_second, dir_second)
+    diff = np.rad2deg(np.arccos(np.dot(vec_first, vec_second)))  # type: ignore
+    diff = diff if diff <= 90 else 180 - diff
+    return diff

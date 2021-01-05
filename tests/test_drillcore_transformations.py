@@ -127,6 +127,21 @@ class TestTransformations:
             (45.00000000000001, 0.0, -36.39247, 137.48165),
         )
 
+    @given(dip_strategy, dir_strategy, dip_strategy, dir_strategy)
+    def test_calc_difference_between_two_planes(
+        self, dip_first, dir_first, dip_second, dir_second
+    ):
+        result = transformations.calc_difference_between_two_planes(
+            dip_first, dir_first, dip_second, dir_second
+        )
+
+        if not 0 <= result <= 90:
+            assert np.isclose(result, 0) or np.isclose(result, 90)
+
+    def test_calc_difference_between_two_planes_nan(self):
+        result = transformations.calc_difference_between_two_planes(np.nan, 1, 5, 50)
+        assert np.isnan(result)
+
 
 class TestUsage:
     @given(function_strategy)

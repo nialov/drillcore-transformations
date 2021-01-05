@@ -669,9 +669,7 @@ def transform_csv_two_files(
     measurements.to_csv(savepath, sep=";", mode="w+")
 
 
-def transform_excel_two_files(
-    measurement_filename, depth_filename, with_gamma, output=None
-):
+def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, output):
     measurements = pd.read_excel(measurement_filename)
     depth = pd.read_excel(depth_filename)
     col_dict = parse_columns_two_files(
@@ -758,6 +756,92 @@ def transform_excel_two_files(
     else:
         savename = Path(measurement_filename).stem.split(".")[0] + "_transformed.csv"
         savepath = savedir / savename
+    # Save new .csv. Overwrites old and creates new if needed.
+    measurements.to_csv(savepath, sep=";", mode="w+")
+
+
+def transform_with_two_files(
+    measurements: pd.DataFrame, depth: pd.DataFrame, with_gamma, output=None
+):
+    col_dict = parse_columns_two_files(
+        measurements.columns.tolist() + depth.columns.tolist(), with_gamma
+    )
+
+    # Check and apply conventions
+    measurements, col_dict = apply_conventions(measurements, col_dict)
+
+    trend_plunge = []
+    for idx, row in measurements.iterrows():
+        val = row[col_dict[_MEASUREMENT_DEPTH]]
+        right = bisect.bisect(depth[col_dict[_DEPTH]].values, val)
+        if right == len(depth):
+            right = right - 1
+        # Check if index is -1 in which case right and left both work. Depth must be ordered!
+        left = right - 1 if right - 1 != -1 else right
+
+        # Check which is closer, left or right to value.
+        take = (
+            right
+            if depth[col_dict[_DEPTH]].iloc[right] - val
+            <= val - depth[col_dict[_DEPTH]].iloc[left]
+            else left
+        )
+        trend, plunge = depth[
+            [col_dict[_BOREHOLE_TREND], col_dict[_BOREHOLE_PLUNGE]]
+        ].iloc[take]
+        plunge = -plunge
+        trend_plunge.append((trend, plunge))
+
+    measurements["borehole_trend"], measurements["borehole_plunge"] = [
+        tr[0] for tr in trend_plunge
+    ], [tr[1] for tr in trend_plunge]
+    # dict must be updated with new fields in measurements file.
+    col_dict[_BOREHOLE_TREND], col_dict[_BOREHOLE_PLUNGE] = (
+        "borehole_trend",
+        "borehole_plunge",
+    )
+
+    if with_gamma:
+        measurements[
+            ["plane_dip", "plane_dir", "gamma_plunge", "gamma_trend"]
+        ] = measurements.apply(
+            lambda row: pd.Series(
+                transform_with_gamma(
+                    row[col_dict[_ALPHA]],
+                    row[col_dict[_BETA]],
+                    row[col_dict[_BOREHOLE_TREND]],
+                    row[col_dict[_BOREHOLE_PLUNGE]],
+                    row[col_dict[_GAMMA]],
+                )
+            ),
+            axis=1,
+        )
+        measurements[
+            ["plane_dip", "plane_dir", "gamma_plunge", "gamma_trend"]
+        ] = measurements[
+            ["plane_dip", "plane_dir", "gamma_plunge", "gamma_trend"]
+        ].applymap(
+            round_outputs
+        )
+    else:
+        # ALPHA must be reversed to achieve correct result.
+        measurements[["plane_dip", "plane_dir"]] = measurements.apply(
+            lambda row: pd.Series(
+                transform_without_gamma(
+                    row[col_dict[_ALPHA]],
+                    row[col_dict[_BETA]],
+                    row[col_dict[_BOREHOLE_TREND]],
+                    row[col_dict[_BOREHOLE_PLUNGE]],
+                )
+            ),
+            axis=1,
+        )
+        measurements[["plane_dip", "plane_dir"]] = measurements[
+            ["plane_dip", "plane_dir"]
+        ].applymap(round_outputs)
+
+    # Savename
+    savepath = Path(output)
     # Save new .csv. Overwrites old and creates new if needed.
     measurements.to_csv(savepath, sep=";", mode="w+")
 
