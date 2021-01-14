@@ -2,6 +2,7 @@
 Module with all calculations.
 """
 import numpy as np
+
 from drillcore_transformations.visualizations import visualize_results
 
 
@@ -66,12 +67,12 @@ def calc_global_normal_vector(alpha, beta, trend, plunge):
 
 def rotate_vector_about_vector(vector, about_vector, amount):
     """
-    Rotates a given vector about another vector.
+    Rotate a given vector about another vector.
 
     Implements Rodrigues' rotation formula:
     https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
 
-    Example:
+    E.g.
 
     >>> rotate_vector_about_vector(np.array([1, 0, 1]), np.array([0, 0, 1]), np.pi)
     array([-1.0000000e+00,  1.2246468e-16,  1.0000000e+00])
@@ -113,10 +114,12 @@ def rotate_vector_about_vector(vector, about_vector, amount):
 
 def vector_from_dip_and_dir(dip, dir):
     """
-    Assembles a normalized vector that always points downwards, if dip is positive, from dip and dip direction.
-    Credits to PhD Jussi Mattila for this snippet.
+    Assemble a normalized vector that always points downwards from dip data.
 
-    Example:
+    Assumes dip is positive. Uses dip and dip direction.  Credits to PhD Jussi
+    Mattila for this snippet.
+
+    E.g.
 
     >>> vector_from_dip_and_dir(45, 0)
     array([ 0.        ,  0.70710678, -0.70710678])
@@ -143,8 +146,10 @@ def vector_from_dip_and_dir(dip, dir):
 
 def calc_plane_dir_dip(normal):
     """
-    Calculate direction of dip and dip of a plane based on normal vector of plane. Normal vector should point upwards
-    but it will be reversed if not.
+    Calculate direction of dip and dip of a plane.
+
+    Based on normal vector of plane. Normal vector should point upwards but it
+    will be reversed if not.
 
     :param normal: Normal vector of a plane.
     :type normal: numpy.ndarray
@@ -401,3 +406,4 @@ def calc_difference_between_two_planes(dip_first, dir_first, dip_second, dir_sec
     diff = np.rad2deg(np.arccos(np.dot(vec_first, vec_second)))  # type: ignore
     diff = diff if diff <= 90 else 180 - diff
     return diff
+
