@@ -7,12 +7,12 @@ import json
 from pathlib import Path
 
 import pandas as pd
-
 from drillcore_transformations.transformations import (
     transform_with_gamma,
     transform_without_gamma,
 )
 from drillcore_transformations.visualizations import visualize_results
+
 
 # Identifiers within the module. DO NOT CHANGE TO MATCH YOUR DATA FILE COLUMNS.
 # Matching your data file to module identifiers is done in the config file (config.ini).
@@ -393,7 +393,8 @@ def round_outputs(number):
 
 def apply_conventions(df, col_dict):
     """
-    Applies conventions from the config.ini file to given DataFrame. col_dict is used to identify the correct columns.
+    Applies conventions from the config.ini file to given DataFrame. col_dict
+    is used to identify the correct columns.
 
     Recognized conventions are: "negative" "none"
 
@@ -1055,3 +1056,4 @@ def change_conventions(convention_dict):
             return False
 
     save_config(config)
+
