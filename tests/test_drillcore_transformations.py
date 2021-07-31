@@ -1,12 +1,12 @@
+"""
+Test drillcore_transformations.py.
+"""
 from pathlib import Path
 
-import drillcore_transformations.cli as cli
-import drillcore_transformations.transformations as transformations
-import drillcore_transformations.usage as usage
-import drillcore_transformations.visualizations as visualizations
 import matplotlib.pyplot as plt
 import numpy as np
 from click.testing import CliRunner
+from drillcore_transformations import cli, transformations, usage, visualizations
 from hypothesis import assume, given, settings
 from hypothesis.extra.numpy import arrays
 from hypothesis.strategies import dictionaries, floats, functions, lists, text
@@ -24,7 +24,6 @@ function_strategy = functions()
 text_strategy = text()
 dict_strategy = dictionaries(text_strategy, text_strategy)
 
-# TODO: Move samples inside pkg?
 sample_csv = (
     Path(__file__).parent.parent / Path("sample_data/Logging_sheet.csv")
 ).absolute()
@@ -34,14 +33,25 @@ sample_csv_result = (
 
 
 class TestTransformations:
+
+    """
+    Test Transformations.
+    """
+
     @given(alpha_strategy, beta_strategy, trend_strategy, plunge_strategy)
     def test_calc_global_normal_vector(self, alpha, beta, trend, plunge):
+        """
+        Test calc_global_normal_vector.
+        """
         vector = transformations.calc_global_normal_vector(alpha, beta, trend, plunge)
         assert np.isclose(np.linalg.norm(vector), 1)
         assert vector[2] >= 0
 
     @given(vector_strategy, vector_strategy, amount_strategy)
     def test_rotate_vector_about_vector(self, vector, about_vector, amount):
+        """
+        Test rotate_vector_about_vector.
+        """
         transformations.rotate_vector_about_vector(vector, about_vector, amount)
 
         # sample test
@@ -57,15 +67,21 @@ class TestTransformations:
         # 		assert not np.allclose(rotated_vector, vector)
 
     @given(dip_strategy, dir_strategy)
-    def test_vector_from_dip_and_dir(self, dip, dir):
-        vector = transformations.vector_from_dip_and_dir(dip, dir)
+    def test_vector_from_dip_and_dir(self, dip, dip_dir):
+        """
+        Test vector_from_dip_and_dir.
+        """
+        vector = transformations.vector_from_dip_and_dir(dip, dip_dir)
         assert np.isclose(np.linalg.norm(vector), 1.0)
         assert vector[2] <= np.float(0)
 
     @given(vector_strategy)
     def test_calc_plane_dir_dip(self, normal):
+        """
+        Test calc_plane_dir_dip.
+        """
         assume(not np.all(normal == 0))
-        assume(all([val > 1e-15 and val < 10e15 for val in normal]))
+        assume(all(10e15 > val > 1e-15 for val in normal))
         dir_degrees, dip_degrees = transformations.calc_plane_dir_dip(normal)
         assert dir_degrees >= 0.0
         assert dir_degrees <= 360.0
@@ -74,7 +90,10 @@ class TestTransformations:
 
     @given(vector_strategy)
     def test_calc_vector_trend_plunge(self, vector):
-        assume(all([val > 1e-15 and val < 10e15 for val in vector]))
+        """
+        Test calc_vector_trend_plunge.
+        """
+        assume(all(10e15 > val > 1e-15 for val in vector))
         assume(not np.all(vector == 0))
         dir_degrees, plunge_degrees = transformations.calc_vector_trend_plunge(vector)
         assert dir_degrees >= 0.0
@@ -86,6 +105,9 @@ class TestTransformations:
     def test_transform_without_gamma(
         self, alpha, beta, drillcore_trend, drillcore_plunge
     ):
+        """
+        Test transform_without_gamma.
+        """
         plane_dip, plane_dir = transformations.transform_without_gamma(
             alpha, beta, drillcore_trend, drillcore_plunge
         )
@@ -100,6 +122,9 @@ class TestTransformations:
     def test_transform_with_gamma(
         self, alpha, beta, drillcore_trend, drillcore_plunge, gamma
     ):
+        """
+        Test transform_with_gamma.
+        """
         (
             plane_dip,
             plane_dir,
@@ -131,6 +156,9 @@ class TestTransformations:
     def test_calc_difference_between_two_planes(
         self, dip_first, dir_first, dip_second, dir_second
     ):
+        """
+        Test calc_difference_between_two_planes.
+        """
         result = transformations.calc_difference_between_two_planes(
             dip_first, dir_first, dip_second, dir_second
         )
@@ -139,16 +167,30 @@ class TestTransformations:
             assert np.isclose(result, 0) or np.isclose(result, 90)
 
     def test_calc_difference_between_two_planes_nan(self):
+        """
+        Test calc_difference_between_two_planes with nan.
+        """
         result = transformations.calc_difference_between_two_planes(np.nan, 1, 5, 50)
         assert np.isnan(result)
 
 
 class TestUsage:
+
+    """
+    Test Usage.
+    """
+
     @given(function_strategy)
     def test_check_config(self, method):
+        """
+        Test check_config.
+        """
         usage.check_config(method)
 
     def test_get_config_identifiers(self):
+        """
+        Test get_config_identifiers.
+        """
         base_measurements, headers, conf = usage.get_config_identifiers()
         for s in base_measurements + headers:
             assert isinstance(s, str)
@@ -156,14 +198,20 @@ class TestUsage:
         return base_measurements, headers, conf
 
     def test_initialize_config(self):
-        _, _, conf = self.test_get_config_identifiers()
+        """
+        Test initialize_config.
+        """
+        _, _, _ = self.test_get_config_identifiers()
         usage.initialize_config()
         self.test_check_config()
 
     @given(text_strategy)
     def test_add_and_remove_column_name(self, name):
+        """
+        Test add_and_remove_column_name.
+        """
         try:
-            base_measurements, headers, conf = self.test_get_config_identifiers()
+            base_measurements, headers, _ = self.test_get_config_identifiers()
             usage.add_column_name(headers[0], base_measurements[0], name)
             assert not usage.add_column_name(
                 headers[0], base_measurements[0], base_measurements[0]
@@ -173,12 +221,15 @@ class TestUsage:
             assert not usage.remove_column_name(
                 headers[0], base_measurements[0], "prettysurethisisnotinthelist"
             )
-        except:
+        except Exception:
             self.test_initialize_config()
             raise
 
     @given(lists(elements=text_strategy))
     def test_parse_columns_two_files(self, list_with_texts):
+        """
+        Test parse_columns_two_files.
+        """
         bm, _, _ = self.test_get_config_identifiers()
         with_gamma = True
         d = usage.parse_columns_two_files(bm, with_gamma)
@@ -201,6 +252,9 @@ class TestUsage:
             pass
 
     def test_transform_csv_two_files(self, tmp_path):
+        """
+        Test transform_csv_two_files.
+        """
         ms_file = Path("sample_data/measurement_sample.csv")
         d_file = Path("sample_data/depth_sample.csv")
         assert ms_file.exists() and d_file.exists()
@@ -208,8 +262,10 @@ class TestUsage:
         usage.transform_csv_two_files(ms_file, d_file, False, temp_file)
         assert temp_file.exists()
 
-    # TODO: Move sample data inside package?
     def test_transform_excel_two_files_xlsx(self, tmp_path):
+        """
+        Test transform_excel_two_files_xlsx.
+        """
         ms_file = Path("sample_data/measurement_sample.xlsx")
         d_file = Path("sample_data/depth_sample.xlsx")
         assert ms_file.exists() and d_file.exists()
@@ -217,8 +273,10 @@ class TestUsage:
         usage.transform_excel_two_files(ms_file, d_file, False, temp_file)
         assert temp_file.exists()
 
-    # TODO: Move sample data inside package?
     def test_transform_excel_two_files_xls(self, tmp_path):
+        """
+        Test transform_excel_two_files_xls.
+        """
         ms_file = Path("sample_data/measurement_sample.xls")
         d_file = Path("sample_data/depth_sample.xls")
         assert ms_file.exists() and d_file.exists()
@@ -228,6 +286,9 @@ class TestUsage:
 
     @given(dict_strategy)
     def test_change_conventions(self, convention_dict):
+        """
+        Test change_conventions.
+        """
         self.test_initialize_config()
         result = usage.change_conventions(convention_dict)
         self.test_initialize_config()
@@ -239,11 +300,18 @@ class TestUsage:
 
 class TestVisualizations:
 
+    """
+    Test visualizations.py.
+    """
+
     plt.rcParams["figure.max_open_warning"] = 100
 
     @given(vector_strategy)
     @settings(max_examples=5, deadline=None)
     def test_visualize_plane(self, plane_normal):
+        """
+        Test visualize_plane.
+        """
         assume(not np.all(plane_normal == 0))
         fig = plt.figure(figsize=(9, 9))
         ax = fig.gca(projection="3d")
@@ -253,6 +321,9 @@ class TestVisualizations:
     @given(vector_strategy)
     @settings(max_examples=5, deadline=None)
     def test_visualize_vector(self, vector):
+        """
+        Test visualize_vector.
+        """
         assume(not np.all(vector == 0))
         fig = plt.figure(figsize=(9, 9))
         ax = fig.gca(projection="3d")
@@ -283,6 +354,9 @@ class TestVisualizations:
         gamma_vector,
         gamma,
     ):
+        """
+        Test visualize_results.
+        """
         visualizations.visualize_results(
             plane_normal,
             plane_vector,
@@ -308,19 +382,33 @@ class TestVisualizations:
 
 
 class TestCli:
+
+    """
+    Test cli.py.
+    """
+
     def test_transform(self):
+        """
+        Test transform.
+        """
         runner = CliRunner()
         result = runner.invoke(cli.transform, [str(sample_csv), "--gamma"])
         assert result.exit_code == 0
         assert sample_csv_result.exists()
 
     def test_conventions(self):
+        """
+        Test conventions.
+        """
         runner = CliRunner()
         result = runner.invoke(cli.conventions, [])
         assert result.exit_code == 0
         assert "Changing conventions" in result.output
 
     def test_config(self):
+        """
+        Test config.
+        """
         runner = CliRunner()
         result = runner.invoke(cli.config, ["--initialize"])
         assert result.exit_code == 0

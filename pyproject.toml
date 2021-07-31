@@ -24,7 +24,10 @@ include = ["CHANGELOG.md"]
 drillcore-transformations = "drillcore_transformations.cli:cli"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7.1"
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
 
 # Extras
 # Coverage
@@ -57,6 +60,7 @@ jupyterlab = "*"
 ipython = "*"
 pytest = "*"
 pre-commit = "*"
+hypothesis = "^6.14.5"
 
 [tool.poetry.extras]
 coverage = ["coverage", "coverage-badge"]

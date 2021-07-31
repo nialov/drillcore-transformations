@@ -11,7 +11,6 @@ from drillcore_transformations.transformations import (
     transform_with_gamma,
     transform_without_gamma,
 )
-from drillcore_transformations.visualizations import visualize_results
 
 # Identifiers within the module. DO NOT CHANGE TO MATCH YOUR DATA FILE COLUMNS.
 # Matching your data file to module identifiers is done in the config file (config.ini).
