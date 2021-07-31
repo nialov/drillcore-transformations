@@ -1,0 +1,11 @@
+# Changes here will be overwritten by Copier
+_commit: 5a5d4a6
+_src_path: https://github.com/nialov/nialov-py-template.git
+classifier: 'Topic :: Scientific/Engineering :: GIS'
+description: Transform structural drillcore measurements.
+email: nikolasovaskainen@gmail.com
+full_name: Nikolas Ovaskainen
+github_account: nialov
+keyword: data
+package: drillcore-transformations
+year: 2020

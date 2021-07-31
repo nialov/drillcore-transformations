@@ -1,15 +1,19 @@
 """
 Module with all calculations.
 """
-import numpy as np
+import logging
 
+import numpy as np
 from drillcore_transformations.visualizations import visualize_results
 
 
 def calc_global_normal_vector(alpha, beta, trend, plunge):
     """
-    Calculates the normal vector of a measured plane based on alpha and beta measurements and the trend and plunge
+    Calculate the normal vector of a measured plane.
+
+    Based on alpha and beta measurements and the trend and plunge
     of the drillcore.
+
     Help and code snippets from:
     https://tinyurl.com/tqr84ww
 
@@ -133,7 +137,7 @@ def vector_from_dip_and_dir(dip, dir):
     """
     # Print warning if dip is negative.
     if dip < 0:
-        print(f"Warning!\n" + f"Dip is negative. Dip: {dip}\n" + f"In {__name__}")
+        logging.error(f"Warning!\nDip is negative. Dip: {dip}\nIn {__name__}")
 
     nx = np.sin(np.deg2rad(dir)) * np.cos(np.deg2rad(dip))
     ny = np.cos(np.deg2rad(dir)) * np.cos(np.deg2rad(dip))
@@ -156,7 +160,6 @@ def calc_plane_dir_dip(normal):
     :return: Direction of dip and dip in degrees
     :rtype: tuple[float, float]
     """
-
     if np.all(normal == 0):
         return np.NaN, np.NaN
     if normal[2] < 0:
@@ -197,7 +200,9 @@ def calc_plane_dir_dip(normal):
 
 def calc_vector_trend_plunge(vector):
     """
-    Calculate trend and plunge of a vector. Does not assume that the data is axial and a negative plunge result implies
+    Calculate trend and plunge of a vector.
+
+    Does not assume that the data is axial and a negative plunge result implies
     that the gamma feature is pointed upwards.
 
     :param vector: vector vector of a plane.
@@ -205,7 +210,6 @@ def calc_vector_trend_plunge(vector):
     :return: Direction of dip and dip in degrees
     :rtype: tuple[float, float]
     """
-
     if np.all(vector == 0):
         return np.NaN, np.NaN
 
@@ -243,7 +247,7 @@ def calc_vector_trend_plunge(vector):
 
 def calc_normal_vector_of_plane(dip, dir):
     """
-    Calculates normalized normal vector of plane based on dip and dip direction.
+    Calculate normalized normal vector of plane based on dip and dip dir.
 
     :param dip: Dip of the plane
     :type dip: float
@@ -261,16 +265,17 @@ def calc_normal_vector_of_plane(dip, dir):
 
 def transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
     """
-    Transforms alpha and beta measurements from core.
+    Transform alpha and beta measurements from core.
 
-    Example:
+    E.g.
 
     >>> transform_without_gamma(45, 0, 0, 90)
     (45.00000000000001, 0.0)
 
     :param alpha: Angle in degrees between drillcore axis and plane.
     :type alpha: float
-    :param beta: Angle in degrees between TOP mark of core and ellipse long axis at DOWN hole end.
+    :param beta: Angle in degrees between TOP mark of core and ellipse long axis at
+        DOWN hole end.
     :type beta: float
     :param drillcore_trend: Trend of the drillcore.
     :type drillcore_trend: float
@@ -279,13 +284,9 @@ def transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
     :return: Plane dip and direction
     :rtype: Tuple
     """
-
     if np.NaN in (alpha, beta, drillcore_trend, drillcore_plunge):
         return np.NaN, np.NaN
     try:
-        # plane normal vector
-        # >>> timeit.timeit(lambda: calc_global_normal_vector(41, 195, 44, 85), number=1000)
-        # 0.04800009999996746
         plane_normal = calc_global_normal_vector(
             alpha, beta, drillcore_trend, drillcore_plunge
         )
@@ -308,25 +309,27 @@ def transform_with_gamma(
     curr_conv=None,
 ):
     """
-    Transforms alpha, beta and gamma measurements from core.
+    Transform alpha, beta and gamma measurements from core.
 
-    Example:
+    E.g.
 
     >>> transform_with_gamma(45, 0, 0, 90, 10)
     (45.00000000000001, 0.0, -36.39247, 137.48165)
 
     :param alpha: Angle in degrees between drillcore axis and plane.
     :type alpha: float
-    :param beta: Angle in degrees between TOP mark of core and ellipse long axis at DOWN hole end in counterclockwise
-            direction.
+    :param beta: Angle in degrees between TOP mark of core and ellipse
+        long axis at DOWN hole end in counterclockwise direction.
     :type beta: float
     :param drillcore_trend: Trend of the drillcore.
     :type drillcore_trend: float
     :param drillcore_plunge: Plunge of the drillcore.
     :type drillcore_plunge: float
-    :param gamma: Linear feature on a plane. Measured in clockwise direction from ellipse long axis at DOWN hole end.
+    :param gamma: Linear feature on a plane. Measured in clockwise direction
+        from ellipse long axis at DOWN hole end.
     :type gamma: float
-    :param visualize: Automatic visualization using 3D plots. WARNING: Will drastically increase code run-time.
+    :param visualize: Automatic visualization using 3D plots.
+        WARNING: Will drastically increase code run-time.
     :type visualize: bool
     :return: Plane dip and direction + Linear feature plunge and trend.
     :rtype: tuple[float, float, float, float]
@@ -376,6 +379,9 @@ def transform_with_gamma(
 
 
 def fix_to_numerical(values):
+    """
+    Fix values to numerical.
+    """
     new_values = []
     for val in values:
         if isinstance(val, str):
@@ -406,4 +412,3 @@ def calc_difference_between_two_planes(dip_first, dir_first, dip_second, dir_sec
     diff = np.rad2deg(np.arccos(np.dot(vec_first, vec_second)))  # type: ignore
     diff = diff if diff <= 90 else 180 - diff
     return diff
-

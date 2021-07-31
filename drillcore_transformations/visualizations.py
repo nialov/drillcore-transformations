@@ -2,11 +2,11 @@
 Module for visualizing results.
 """
 import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-from pathlib import Path
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def visualize_vector(vector: np.array, ax: Axes3D, **kwargs):

@@ -1,15 +1,15 @@
-from hypothesis import given, assume, settings
-from hypothesis.strategies import floats, functions, text, lists, dictionaries
-from hypothesis.extra.numpy import arrays
-import numpy as np
 from pathlib import Path
-import matplotlib.pyplot as plt
-from click.testing import CliRunner
 
+import drillcore_transformations.cli as cli
 import drillcore_transformations.transformations as transformations
 import drillcore_transformations.usage as usage
 import drillcore_transformations.visualizations as visualizations
-import drillcore_transformations.cli as cli
+import matplotlib.pyplot as plt
+import numpy as np
+from click.testing import CliRunner
+from hypothesis import assume, given, settings
+from hypothesis.extra.numpy import arrays
+from hypothesis.strategies import dictionaries, floats, functions, lists, text
 
 alpha_strategy = floats(min_value=-90, max_value=90)
 beta_strategy = floats(min_value=-360, max_value=360)

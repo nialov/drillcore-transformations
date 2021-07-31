@@ -13,7 +13,6 @@ from drillcore_transformations.transformations import (
 )
 from drillcore_transformations.visualizations import visualize_results
 
-
 # Identifiers within the module. DO NOT CHANGE TO MATCH YOUR DATA FILE COLUMNS.
 # Matching your data file to module identifiers is done in the config file (config.ini).
 _ALPHA, _BETA, _GAMMA, _MEASUREMENT_DEPTH, _DEPTH, _BOREHOLE_TREND, _BOREHOLE_PLUNGE = (
@@ -1056,4 +1055,3 @@ def change_conventions(convention_dict):
             return False
 
     save_config(config)
-
