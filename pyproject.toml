@@ -21,7 +21,7 @@ classifiers = [
 include = ["CHANGELOG.md"]
 
 [tool.poetry.scripts]
-drillcore-transformations = "drillcore-transformations.cli:app"
+drillcore-transformations = "drillcore_transformations.cli:cli"
 
 [tool.poetry.dependencies]
 python = "^3.8"
