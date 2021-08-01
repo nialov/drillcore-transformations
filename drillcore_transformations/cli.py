@@ -3,6 +3,7 @@ Console script for drillcore_transformations_code.
 """
 
 import click
+
 from drillcore_transformations import usage
 
 base_measurements, headers, conf = usage.get_config_identifiers()
@@ -24,7 +25,6 @@ def cli():
     """
     Transform drillcore structural measurements.
     """
-    pass
 
 
 @cli.command()

@@ -5,7 +5,7 @@ Most tasks employ nox to create a virtual session for testing.
 """
 from invoke import task
 
-PACKAGE_NAME = "drillcore-transformations"
+PACKAGE_NAME = "drillcore_transformations"
 
 
 @task

@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+
 from drillcore_transformations.transformations import (
     transform_with_gamma,
     transform_without_gamma,
@@ -40,16 +41,24 @@ _MEASUREMENT_CONVENTIONS = ["negative", "none"]
 
 
 class ColumnException(Exception):
-    """
-    ColumnException is raised when there are errors with the columns of your data. These can be related to not
-    recognizing the column or if multiple columns match identifiers in config.ini.
 
-    Most issues can be fixed by checking the config.ini config file and adding your data file column names
-    as identifiers or by removing identical identifiers.
+    """
+    Raise when there are errors with the columns of your data.
+
+    These can be related to not recognizing the column or if multiple columns
+    match identifiers in config.ini.
+
+    Most issues can be fixed by checking the config.ini config file and adding
+    your data file column names as identifiers or by removing identical
+    identifiers.
     """
 
 
 def check_config(method):
+    """
+    Check config.
+    """
+
     def inner(*args, **kwargs):
         assert _CONFIG.exists()
         if not _CONFIG.exists():
@@ -63,6 +72,9 @@ def check_config(method):
 
 
 def get_config_identifiers():
+    """
+    Get config identifiers.
+    """
     base_measurements = [
         _ALPHA,
         _BETA,
@@ -79,7 +91,8 @@ def get_config_identifiers():
 
 def find_config():
     """
-    Returns config.ini file path.
+    Return config.ini file path.
+
     :return: config.ini file path
     :rtype: Path
     """
@@ -88,8 +101,10 @@ def find_config():
 
 def initialize_config():
     """
-    Creates a configfile with default names for alpha, beta, etc. Filename will be config.ini. Manual editing
-    of this file is allowed but editing methods are also present for adding column names.
+    Create a configfile with default names for alpha, beta, etc.
+
+    Filename will be config.ini. Manual editing of this file is allowed but
+    editing methods are also present for adding column names.
 
     Will overwrite if needed.
     """
@@ -139,25 +154,28 @@ def initialize_config():
 
 def add_column_name(header, base_column, name):
     """
-    Method for adding a column name to recognize measurement type. E.g. if your
-    alpha measurements are in a column that is named "alpha_measurements" you
-    can add it to the config.ini file with:
+    Add a column name to recognize measurement type.
+
+    E.g. if your alpha measurements are in a column that is named
+    "alpha_measurements" you can add it to the config.ini file with:
 
     >>> add_column_name(_MEASUREMENTS, _ALPHA, "alpha_measurements")
+    True
 
     If the inputted column name is already in the config file, this will be
     printed out and config will not be changed.
 
-    :param header: You may add new column names to the measurements file and to the file containing measurement depth
-            information.
+    :param header: You may add new column names to the measurements file
+        and to the file containing measurement depth
+        information.
     :type header: str
     :param base_column: Which type of measurement is the column name.
-            Base types for measurements are:
-            "alpha" "beta" "gamma" "measurement_depth"
-            Base types for depths are:
-            "depth"
-            Base types for borehole are:
-            "borehole_trend" "borehole_plunge"
+        Base types for measurements are:
+        "alpha" "beta" "gamma" "measurement_depth"
+        Base types for depths are:
+        "depth"
+        Base types for borehole are:
+        "borehole_trend" "borehole_plunge"
     :type base_column: str
     :param name: Name of the new column you want to add.
     :type name: str
@@ -180,13 +198,15 @@ def add_column_name(header, base_column, name):
     column_list.append(name)
     config[header][base_column] = json.dumps(column_list)
     save_config(config)
+    return True
 
 
 def remove_column_name(header, base_column, name):
     """
-    Method for removing a column name from config.ini
+    Remove a column name from config.ini.
 
     >>> remove_column_name(_MEASUREMENTS, _ALPHA, "alpha_measurements")
+    True
 
     :param header: Input the the header in which under the name is.
     :type header: str
@@ -221,14 +241,19 @@ def remove_column_name(header, base_column, name):
     else:
         print(
             f"Could not remove name: {name}.\n"
-            f"It was not found in the config.ini under header: {header} and base_column: {base_column}"
+            f"It was not found in the config.ini under header: {header}"
+            f" and base_column: {base_column}"
         )
         return False
     config[header][base_column] = json.dumps(column_list)
     save_config(config)
+    return True
 
 
 def save_config(config):
+    """
+    Save config.ini.
+    """
     # Write to .ini file. Will overwrite or make a new one.
     with open(_CONFIG, "w+") as configfile:
         config.write(configfile)
@@ -237,11 +262,17 @@ def save_config(config):
 @check_config
 def parse_column(header, base_column, columns):
     """
-    Finds a given base_column in given columns by trying to match it to identifiers in config.ini
+    Find a given base_column in given columns.
 
-    Example:
+    Tries to match it to identifiers in config.ini.
 
-    >>> parse_column("BOREHOLE", _BOREHOLE_TREND, ["borehole_trend", "alpha", "beta", "borehole_plunge"])
+    E.g.
+
+    >>> parse_column(
+    ...     "BOREHOLE",
+    ...     _BOREHOLE_TREND,
+    ...     ["borehole_trend", "alpha", "beta", "borehole_plunge"],
+    ... )
     'borehole_trend'
 
     :param header: "MEASUREMENTS", "DEPTHS" or "BOREHOLE"
@@ -264,18 +295,18 @@ def parse_column(header, base_column, columns):
     # Check for errors
     if len(matching_columns) == 0:
         raise ColumnException(
-            f"{base_column} of {header} was not recognized in columns of given file. \n"
-            + f"Columns:{columns}\n"
-            + f"Column identifiers in config.ini: {column_identifiers}\n"
-            + f"You must add it to config.ini as an identifier for recognition. \n"
-            + f"{Path('config.ini').absolute()}\n"
+            "{base_column} of {header} was not recognized in columns of given file. \n"
+            f"Columns:{columns}\n"
+            f"Column identifiers in config.ini: {column_identifiers}\n"
+            "You must add it to config.ini as an identifier for recognition. \n"
+            f"{Path('config.ini').absolute()}\n"
         )
     if len(matching_columns) > 1:
         raise ColumnException(
             f"Multiple {base_column} type column names were found in identifiers. \n"
-            + f"Check config.ini file for identical identifiers. \n"
-            + f"{Path('config.ini').absolute()}\n"
-            + f"(E.g. alpha_measurement is in both ALPHA and BETA)\n"
+            "Check config.ini file for identical identifiers. \n"
+            f"{Path('config.ini').absolute()}\n"
+            "(E.g. alpha_measurement is in both ALPHA and BETA)\n"
         )
 
     # Column in config.ini & given columns that matches given base_column
@@ -285,13 +316,33 @@ def parse_column(header, base_column, columns):
 @check_config
 def parse_columns_two_files(columns, with_gamma):
     """
-    Matches columns to column bases in config.ini. Used when there's a separate file with depth data.
+    Match columns to column bases in config.ini.
 
-    Example:
+    Used when there's a separate file with depth data.
 
-    >>> parse_columns_two_files(["alpha", "beta", "gamma", "borehole_trend", "borehole_plunge", "depth", "measurement_depth"], True)
-    {'depth': 'depth', 'borehole_trend': 'borehole_trend', 'borehole_plunge':
-    'borehole_plunge', 'alpha': 'alpha', 'beta': 'beta', 'gamma': 'gamma', 'measurement_depth': 'measurement_depth'}
+    E.g.
+
+    >>> from pprint import pprint
+    >>> result = parse_columns_two_files(
+    ...     [
+    ...         "alpha",
+    ...         "beta",
+    ...         "gamma",
+    ...         "borehole_trend",
+    ...         "borehole_plunge",
+    ...         "depth",
+    ...         "measurement_depth",
+    ...     ],
+    ...     True,
+    ... )
+    >>> pprint(result)
+    {'alpha': 'alpha',
+     'beta': 'beta',
+     'borehole_plunge': 'borehole_plunge',
+     'borehole_trend': 'borehole_trend',
+     'depth': 'depth',
+     'gamma': 'gamma',
+     'measurement_depth': 'measurement_depth'}
 
     :param columns: Given columns
     :type columns: list
@@ -322,7 +373,7 @@ def parse_columns_two_files(columns, with_gamma):
         col = parse_column(_MEASUREMENTS, f, columns)
         matched_dict[f] = col
     if with_gamma:
-        if not len(matched_dict) == 7:
+        if len(matched_dict) != 7:
             raise ColumnException(
                 f"Invalid column dictionary length.\n"
                 f"with_gamma == {with_gamma}\n"
@@ -330,7 +381,7 @@ def parse_columns_two_files(columns, with_gamma):
                 f"{matched_dict}"
             )
     else:
-        if not len(matched_dict) == 6:
+        if len(matched_dict) != 6:
             raise ColumnException(
                 f"Invalid column dictionary length.\n"
                 f"with_gamma == {with_gamma}\n"
@@ -343,15 +394,24 @@ def parse_columns_two_files(columns, with_gamma):
 @check_config
 def parse_columns_one_file(columns, with_gamma):
     """
-    Matches columns to column bases in config.ini. Used when there is only one data file with all required
-    data. I.e. at minimum: alpha, beta, borehole trend, borehole plunge
+    Match columns to column bases in config.ini.
+
+    Used when there is only one data file with all required data. I.e. at
+    minimum: alpha, beta, borehole trend, borehole plunge
 
     If gamma data exists => with_gamma should be given as True
 
-    Example:
+    E.g.
 
-    >>> parse_columns_one_file(["alpha", "beta", "borehole_trend", "borehole_plunge"], False)
-    {'BOREHOLE_TREND': 'borehole_trend', 'BOREHOLE_PLUNGE': 'borehole_plunge', 'ALPHA': 'alpha', 'BETA': 'beta'}
+    >>> from pprint import pprint
+    >>> result = parse_columns_one_file(
+    ...     ["alpha", "beta", "borehole_trend", "borehole_plunge"], False
+    ... )
+    >>> pprint(result)
+    {'alpha': 'alpha',
+     'beta': 'beta',
+     'borehole_plunge': 'borehole_plunge',
+     'borehole_trend': 'borehole_trend'}
 
     :param columns: Given columns
     :type columns: list
@@ -375,8 +435,9 @@ def parse_columns_one_file(columns, with_gamma):
         col = parse_column(_MEASUREMENTS, f, columns)
         matched_dict[f] = col
 
-    # Check that all are found. Exceptions should be raised in parse_column if not successfully found i.e. this in
-    # only a backup/debug.
+    # Check that all are found.
+    # Exceptions should be raised in parse_column if not successfully found
+    # i.e. this in only a backup/debug.
     if with_gamma:
         assert len(matched_dict) == 5
     else:
@@ -386,13 +447,17 @@ def parse_columns_one_file(columns, with_gamma):
 
 
 def round_outputs(number):
+    """
+    Round number.
+    """
     return round(number, 2)
 
 
 def apply_conventions(df, col_dict):
     """
-    Applies conventions from the config.ini file to given DataFrame. col_dict
-    is used to identify the correct columns.
+    Apply conventions from the config.ini file to given DataFrame.
+
+    col_dict is used to identify the correct columns.
 
     Recognized conventions are: "negative" "none"
 
@@ -404,7 +469,6 @@ def apply_conventions(df, col_dict):
             Modified col_dict.
     :rtype: tuple[pandas.DataFrame, dict]
     """
-
     config = configparser.ConfigParser()
     config.read(_CONFIG)
     alpha_convention = _ALPHA, config[_CONVENTIONS][_ALPHA]
@@ -432,8 +496,10 @@ def apply_conventions(df, col_dict):
 
 def apply_conventions_manual(df, col_dict, convention_dict):
     """
-    Applies conventions from manual input to given DataFrame by creating new columns with conventioned data.
-    col_dict is used to identify the correct columns.
+    Apply conventions from manual input to given DataFrame.
+
+    Creates new columns with conventioned data.  col_dict is used to identify
+    the correct columns.
 
     Recognized conventions are: "negative" "none"
 
@@ -455,11 +521,10 @@ def apply_conventions_manual(df, col_dict, convention_dict):
             if "negative" in f"{col_dict[conv[0]]}":
                 # Convention has already been applied to column.
                 return df, col_dict
-            else:
-                # Conventioned column doesn't exist.
-                new_column = f"{col_dict[conv[0]]}_negative"
-                df[new_column] = -df[col_dict[conv[0]]]
-                col_dict[conv[0]] = new_column
+            # Conventioned column doesn't exist.
+            new_column = f"{col_dict[conv[0]]}_negative"
+            df[new_column] = -df[col_dict[conv[0]]]
+            col_dict[conv[0]] = new_column
         elif conv[1] == "none":
 
             # TODO: Do it better.
@@ -476,7 +541,9 @@ def apply_conventions_manual(df, col_dict, convention_dict):
 
 def transform_csv(filename, with_gamma=False, output=None):
     """
-    Transforms data from a given .csv file. File must have columns with alpha and beta measurements and borehole trend
+    Transform data from a given .csv file.
+
+    File must have columns with alpha and beta measurements and borehole trend
     and plunge.
 
     Saves new .csv file in the given output path.
@@ -544,6 +611,9 @@ def transform_csv(filename, with_gamma=False, output=None):
 
 
 def transform_excel(measurement_filename, with_gamma, output=None):
+    """
+    Transform excel file.
+    """
     measurements = pd.read_excel(measurement_filename)
     col_dict = parse_columns_two_files(measurements.columns.tolist(), with_gamma)
     # Check and apply conventions
@@ -602,8 +672,12 @@ def transform_excel(measurement_filename, with_gamma, output=None):
 def transform_csv_two_files(
     measurement_filename, depth_filename, with_gamma, output=None
 ):
+    """
+    Transform with two csv files.
+    """
     measurements = pd.read_csv(measurement_filename, sep=";")
     depth = pd.read_csv(depth_filename, sep=";")
+    assert isinstance(depth, pd.DataFrame)
     col_dict = parse_columns_two_files(
         measurements.columns.tolist() + depth.columns.tolist(), with_gamma
     )
@@ -611,12 +685,13 @@ def transform_csv_two_files(
     measurements, col_dict = apply_conventions(measurements, col_dict)
 
     trend_plunge = []
-    for idx, row in measurements.iterrows():
+    for _, row in measurements.iterrows():
         val = row[col_dict[_MEASUREMENT_DEPTH]]
         right = bisect.bisect(depth[col_dict[_DEPTH]].values, val)
         if right == len(depth):
             right = right - 1
-        # Check if index is -1 in which case right and left both work. Depth must be ordered!
+        # Check if index is -1 in which case right and left both work.
+        # Depth must be ordered!
         left = right - 1 if right - 1 != -1 else right
 
         # Check which is closer, left or right to value.
@@ -669,6 +744,9 @@ def transform_csv_two_files(
 
 
 def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, output):
+    """
+    Transform with two excel files.
+    """
     measurements = pd.read_excel(measurement_filename)
     depth = pd.read_excel(depth_filename)
     col_dict = parse_columns_two_files(
@@ -679,12 +757,13 @@ def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, 
     measurements, col_dict = apply_conventions(measurements, col_dict)
 
     trend_plunge = []
-    for idx, row in measurements.iterrows():
+    for _, row in measurements.iterrows():
         val = row[col_dict[_MEASUREMENT_DEPTH]]
         right = bisect.bisect(depth[col_dict[_DEPTH]].values, val)
         if right == len(depth):
             right = right - 1
-        # Check if index is -1 in which case right and left both work. Depth must be ordered!
+        # Check if index is -1 in which case right and left both work.
+        # Depth must be ordered!
         left = right - 1 if right - 1 != -1 else right
 
         # Check which is closer, left or right to value.
@@ -762,6 +841,9 @@ def transform_excel_two_files(measurement_filename, depth_filename, with_gamma, 
 def transform_with_two_files(
     measurements: pd.DataFrame, depth: pd.DataFrame, with_gamma, output=None
 ):
+    """
+    Transform with two loaded DataFrames.
+    """
     col_dict = parse_columns_two_files(
         measurements.columns.tolist() + depth.columns.tolist(), with_gamma
     )
@@ -770,12 +852,13 @@ def transform_with_two_files(
     measurements, col_dict = apply_conventions(measurements, col_dict)
 
     trend_plunge = []
-    for idx, row in measurements.iterrows():
+    for _, row in measurements.iterrows():
         val = row[col_dict[_MEASUREMENT_DEPTH]]
         right = bisect.bisect(depth[col_dict[_DEPTH]].values, val)
         if right == len(depth):
             right = right - 1
-        # Check if index is -1 in which case right and left both work. Depth must be ordered!
+        # Check if index is -1 in which case right and left both work.
+        # Depth must be ordered!
         left = right - 1 if right - 1 != -1 else right
 
         # Check which is closer, left or right to value.
@@ -850,6 +933,7 @@ def convention_testing_csv(
 ):
     """
     Test multitudes of conventions on data in a .csv file.
+
     TODO: Currently a crude, alpha, method, desperately needs improving and specifying.
 
     :param filename: .csv file with data
@@ -858,7 +942,8 @@ def convention_testing_csv(
     :type with_gamma: bool
     :param output: output file with tested conventions
     :type output: str
-    :param visualize: Whether to visualize each calculation (not worth it unless only 1 row of data)
+    :param visualize: Whether to visualize each calculation
+        (not worth it unless only 1 row of data)
     :type visualize: bool
     :param img_dir: Directory to save visualization images
     :type img_dir: str
@@ -998,8 +1083,8 @@ def change_conventions(convention_dict):
 
     :param convention_dict: Dictionary with new conventions.
     :type convention_dict: dict
-    :return: None if successful and False if key was not recognized or convention was not recognized or dictionary
-            was invalid.
+    :return: None if successful and False if key was not recognized or
+        convention was not recognized or dictionary was invalid.
     :rtype: None | bool
     """
     if len(convention_dict) == 0:
@@ -1009,11 +1094,11 @@ def change_conventions(convention_dict):
     ):
         print(
             "Given dictionary is too long / contains duplicate keys."
-            f"No changes were made to config.ini"
+            "No changes were made to config.ini"
         )
         return False
     if False in [isinstance(v, str) for v in convention_dict.values()]:
-        print("Invalid values is dictionary." f"No changes were made to config.ini")
+        print("Invalid values is dictionary. No changes were made to config.ini")
         return False
     config = configparser.ConfigParser()
     config.read(_CONFIG)

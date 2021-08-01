@@ -4,6 +4,7 @@ Module with all calculations.
 import logging
 
 import numpy as np
+
 from drillcore_transformations.visualizations import visualize_results
 
 
@@ -63,10 +64,7 @@ def calc_global_normal_vector(alpha, beta, trend, plunge):
         return np.array([-ng_1, -ng_2, -ng_3]) / np.linalg.norm(
             np.array([-ng_1, -ng_2, -ng_3])
         )
-    else:
-        return np.array([ng_1, ng_2, ng_3]) / np.linalg.norm(
-            np.array([ng_1, ng_2, ng_3])
-        )
+    return np.array([ng_1, ng_2, ng_3]) / np.linalg.norm(np.array([ng_1, ng_2, ng_3]))
 
 
 def rotate_vector_about_vector(vector, about_vector, amount):
@@ -116,7 +114,7 @@ def rotate_vector_about_vector(vector, about_vector, amount):
     return v_rot
 
 
-def vector_from_dip_and_dir(dip, dir):
+def vector_from_dip_and_dir(dip, dip_dir):
     """
     Assemble a normalized vector that always points downwards from dip data.
 
@@ -130,8 +128,8 @@ def vector_from_dip_and_dir(dip, dir):
 
     :param dip: Dip of a feature. Between [0, 90]
     :type dip: float
-    :param dir: Dip direction of feature.
-    :type dir: float
+    :param dip_dir: Dip direction of feature.
+    :type dip_dir: float
     :return: Normalized vector pointing in the direction and the dip.
     :rtype: numpy.ndarray
     """
@@ -139,8 +137,8 @@ def vector_from_dip_and_dir(dip, dir):
     if dip < 0:
         logging.error(f"Warning!\nDip is negative. Dip: {dip}\nIn {__name__}")
 
-    nx = np.sin(np.deg2rad(dir)) * np.cos(np.deg2rad(dip))
-    ny = np.cos(np.deg2rad(dir)) * np.cos(np.deg2rad(dip))
+    nx = np.sin(np.deg2rad(dip_dir)) * np.cos(np.deg2rad(dip))
+    ny = np.cos(np.deg2rad(dip_dir)) * np.cos(np.deg2rad(dip))
     nz = -np.sin(np.deg2rad(dip))
     n = np.array([nx, ny, nz])
     # Normalize output vector
@@ -245,7 +243,7 @@ def calc_vector_trend_plunge(vector):
     return round(trend_degrees, 5), round(plunge_degrees, 5)
 
 
-def calc_normal_vector_of_plane(dip, dir):
+def calc_normal_vector_of_plane(dip, dip_dir):
     """
     Calculate normalized normal vector of plane based on dip and dip dir.
 
@@ -256,8 +254,8 @@ def calc_normal_vector_of_plane(dip, dir):
     :return: Normalized normal vector of the plane
     :rtype: numpy.ndarray
     """
-    plane_vector_1 = vector_from_dip_and_dir(dip, dir)
-    plane_vector_2 = vector_from_dip_and_dir(dip=0, dir=dir + 90)
+    plane_vector_1 = vector_from_dip_and_dir(dip, dip_dir)
+    plane_vector_2 = vector_from_dip_and_dir(dip=0, dip_dir=dip_dir + 90)
     plane_normal = np.cross(plane_vector_1, plane_vector_2)
     plane_normal = plane_normal if plane_normal[2] > 0 else -plane_normal
     return plane_normal / np.linalg.norm(plane_normal)

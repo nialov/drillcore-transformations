@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "drillcore-transformations"
-version = "0.0.0"
+version = "0.2.5.post14.dev0+174318f"
 description = "Transform structural drillcore measurements."
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -28,6 +28,9 @@ python = "^3.7.1"
 numpy = "*"
 pandas = "*"
 matplotlib = "*"
+click = "*"
+openpyxl = "*"
+xlrd = "*"
 
 # Extras
 # Coverage
@@ -94,7 +97,7 @@ vcs = "git"
 [tool.pytest.ini_options]
 testpaths =[
     "tests",
-    "drillcore-transformations",
+    "drillcore_transformations",
     ]
 addopts = "--doctest-modules --pdbcls=IPython.terminal.debugger:Pdb"
 doctest_optionflags =[
@@ -107,7 +110,7 @@ filterwarnings =[]
 [tool.isort]
 profile = "black"
 multi_line_output = 3
-src_paths = ["drillcore-transformations", "tests"]
+src_paths = ["drillcore_transformations", "tests"]
 
 [tool.pylint.master]
 fail-under = "9.5"

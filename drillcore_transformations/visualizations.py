@@ -10,11 +10,17 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 def visualize_vector(vector: np.array, ax: Axes3D, **kwargs):
+    """
+    Visualize a vector with 3d plot.
+    """
     vector = vector.round(decimals=2)
     ax.plot([0, vector[0]], [0, vector[1]], [0, vector[2]], **kwargs)
 
 
 def visualize_plane(plane_normal, ax: Axes3D, **kwargs):
+    """
+    Visualize a plane with 3d plot.
+    """
     # Create plane for visualization
     xx, yy = np.meshgrid(np.linspace(-1, 1), np.linspace(-1, 1))
     d = -np.array([0, 0, 0]).dot(plane_normal)
@@ -22,7 +28,7 @@ def visualize_plane(plane_normal, ax: Axes3D, **kwargs):
     if plane_normal[2] == 0:
         plane_normal[2] = 0.00000000001
     zz = (-plane_normal[0] * xx - plane_normal[1] * yy - d) * 1.0 / plane_normal[2]
-    surf = ax.plot_surface(xx, yy, zz, alpha=0.2, **kwargs)
+    ax.plot_surface(xx, yy, zz, alpha=0.2, **kwargs)
     # surf._facecolors = surf._facecolor3d
     # surf._edgecolors = surf._edgecolor3d
 
@@ -41,7 +47,7 @@ def visualize_results(
     curr_conv=None,
 ):
     """
-    Visualizes alpha-beta measured plane and gamma measured linear feature if given.
+    Visualize alpha-beta measured plane and gamma measured linear feature.
 
     :param plane_normal: Normal of measured plane.
     :type plane_normal: numpy.ndarray
@@ -52,7 +58,6 @@ def visualize_results(
     :param gamma_vector:
     :type gamma_vector: numpy.ndarray
     """
-
     # 3D Figure
     fig = plt.figure(figsize=(9, 9))
     ax = fig.gca(projection="3d")

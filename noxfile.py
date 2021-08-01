@@ -8,7 +8,7 @@ from typing import List
 import nox
 
 # Variables
-PACKAGE_NAME = "drillcore-transformations"
+PACKAGE_NAME = "drillcore_transformations"
 
 # Paths
 DOCS_SRC_PATH = Path("docs_src")
@@ -34,7 +34,7 @@ REGULAR_NOTEBOOKS = Path(NOTEBOOKS_NAME).glob("*.ipynb")
 DOCS_RST_PATHS = DOCS_SRC_PATH.rglob("*.rst")
 ALL_NOTEBOOKS = list(DOCS_NOTEBOOKS) + list(REGULAR_NOTEBOOKS)
 
-PYTHON_VERSIONS = ["3.8", "3.9"]
+PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
 
 
 def filter_paths_to_existing(*iterables: str) -> List[str]:
