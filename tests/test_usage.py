@@ -123,6 +123,7 @@ def test_transform_excel_two_files_xls(tmp_path):
     assert temp_file.exists()
 
 
+@settings(deadline=None)
 @given(dict_strategy)
 def test_change_conventions(convention_dict):
     """
