@@ -89,7 +89,7 @@ def tests_pip(session):
     session.run("coverage", "run", "--source", PACKAGE_NAME, "-m", "pytest")
 
     # Fails with test coverage under 70
-    session.run("coverage", "report", "--fail-under", "70")
+    session.run("coverage", "report", "--fail-under", "60")
 
     # Make coverage-badge image
     if COVERAGE_SVG_PATH.exists():
@@ -99,7 +99,7 @@ def tests_pip(session):
     session.run("coverage-badge", "-o", str(COVERAGE_SVG_PATH))
 
     # Test that entrypoint works.
-    session.run(PACKAGE_NAME, "--help")
+    session.run(PACKAGE_NAME.replace("_", "-"), "--help")
 
 
 @nox.session(python=PYTHON_VERSIONS)
