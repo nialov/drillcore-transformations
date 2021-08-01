@@ -1103,39 +1103,35 @@ def change_conventions(convention_dict):
     config = configparser.ConfigParser()
     config.read(_CONFIG)
 
+    any_changes = False
     for key, val in convention_dict.items():
+        if len(key) == 0 or len(val) == 0:
+            continue
+
         if key in (_ALPHA, _BETA, _GAMMA):
             if val in _MEASUREMENT_CONVENTIONS:
                 config[_MEASUREMENTS][key] = val
+                any_changes = True
             else:
-                print(
-                    f"Given convention: {val} was not recognized as a convention."
-                    f"No changes were made to config.ini"
-                )
-                return False
+                print(f"Given convention: {val} was not recognized as a convention.")
+                continue
         elif key in (_BOREHOLE_TREND, _BOREHOLE_PLUNGE):
             if val in _MEASUREMENT_CONVENTIONS:
                 config[_BOREHOLE][key] = val
+                any_changes = True
             else:
-                print(
-                    f"Given convention: {val} was not recognized as a convention."
-                    f"No changes were made to config.ini"
-                )
-                return False
+                print(f"Given convention: {val} was not recognized as a convention.")
+                continue
         elif key in (_MEASUREMENT_DEPTH, _DEPTH):
             if val in _MEASUREMENT_CONVENTIONS:
                 config[_DEPTHS][key] = val
+                any_changes = True
             else:
-                print(
-                    f"Given convention: {val} was not recognized as a convention."
-                    f"No changes were made to config.ini"
-                )
-                return False
+                print(f"Given convention: {val} was not recognized as a convention.")
+                continue
         else:
-            print(
-                f"Given key: {key} was not recognized to belong under any header."
-                f"No changes were made to config.ini"
-            )
-            return False
+            print(f"Given key: {key} was not recognized to belong under any header.")
+            continue
 
     save_config(config)
+    return any_changes

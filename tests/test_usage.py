@@ -3,7 +3,7 @@ Test drillcore_transformations.py.
 """
 from pathlib import Path
 
-from hypothesis import assume, given
+from hypothesis import assume, given, settings
 from hypothesis.strategies import lists
 
 from drillcore_transformations import usage
@@ -38,6 +38,7 @@ def test_initialize_config():
     test_check_config()
 
 
+@settings(deadline=None)
 @given(text_strategy)
 def test_add_and_remove_column_name(name):
     """
@@ -131,6 +132,6 @@ def test_change_conventions(convention_dict):
     result = usage.change_conventions(convention_dict)
     test_initialize_config()
     assert result is False
-    none_result = usage.change_conventions({"alpha": "negative"})
+    true_result = usage.change_conventions({"alpha": "negative"})
     test_initialize_config()
-    assert none_result is None
+    assert true_result
