@@ -158,7 +158,7 @@ def calc_plane_dir_dip(normal):
     :return: Direction of dip and dip in degrees
     :rtype: tuple[float, float]
     """
-    if np.all(normal == 0) or all(10e15 > val > 1e-15 for val in normal):
+    if np.all(normal == 0):
         return np.NaN, np.NaN
     if normal[2] < 0:
         normal = -normal
