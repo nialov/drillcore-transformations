@@ -15,7 +15,7 @@ jobs:
     name: Test and check coverage of 🐍 code
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.8, 3.9]
         platform: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -34,7 +34,7 @@ jobs:
           path: .nox
           key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-ci-test
       - name: Test with invoke -> nox -> pytest
-        run: invoke ci-test --python ${{ matrix.python-version }} || echo failed
+        run: invoke ci-test --python ${{ matrix.python-version }}
 
   format-lint:
     runs-on: ubuntu-latest
