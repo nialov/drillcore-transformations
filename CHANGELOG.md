@@ -4,6 +4,8 @@
 
 #### Fixes
 
+-   remove unused error handling
+
 -   handle odd task failure
 
 -   fix all prepush found issues
@@ -11,7 +13,7 @@
 -   fix all errors from pylint and tests
 
 Full set of changes:
-[`v0.2.5...337c7b7`](git@github.com:nialov/drillcore-transformations/compare/v0.2.5...337c7b7)
+[`v0.2.5...e1a03da`](git@github.com:nialov/drillcore-transformations/compare/v0.2.5...e1a03da)
 
 ## v0.2.5 (2020-04-26)
 
