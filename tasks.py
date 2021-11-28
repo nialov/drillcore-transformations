@@ -8,7 +8,6 @@ import re
 from itertools import chain
 from pathlib import Path
 from time import strftime
-from warnings import warn
 
 from invoke import task
 
@@ -47,10 +46,7 @@ def update_version(c):
     """
     Update pyproject.toml and package/__init__.py version strings.
     """
-    try:
-        c.run("nox --session update_version")
-    except Exception:
-        logging.error("Unexpected error with update-version task.", exc_info=True)
+    c.run("nox --session update_version")
 
 
 @task(pre=[requirements, update_version])
@@ -187,7 +183,7 @@ def pre_commit(c, only_run=False, only_install=False):
 @task(pre=[prepush], post=[pre_commit])
 def tag(c, tag="", annotation=""):
     """
-    Make new tag and update version strings accordingly
+    Make new tag and update version strings accordingly.
     """
     if len(tag) == 0:
         raise ValueError("Tag string must be specified with '--tag=*'.")
