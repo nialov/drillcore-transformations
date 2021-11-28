@@ -5,7 +5,7 @@ Test drillcore_transformations.py.
 from warnings import warn
 
 import numpy as np
-from hypothesis import assume, given
+from hypothesis import HealthCheck, assume, given, settings
 
 from drillcore_transformations import transformations
 from tests import (
@@ -85,6 +85,7 @@ def test_calc_plane_dir_dip(normal):
     assert dip_degrees <= 90.0
 
 
+@settings(suppress_health_check=[HealthCheck.filter_too_much])
 @given(vector_strategy)
 def test_calc_vector_trend_plunge(vector):
     """
