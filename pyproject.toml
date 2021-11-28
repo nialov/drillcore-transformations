@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "drillcore-transformations"
-version = "0.2.5.post27.dev0+2b2739f"
+version = "0.2.5.post28.dev0+337c7b7"
 description = "Transform structural drillcore measurements."
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -58,7 +58,7 @@ mypy = {version = "*", optional = true}
 
 [tool.poetry.dev-dependencies]
 nox = "*"
-invoke = "*"
+invoke = "^1.6.0"
 jupyterlab = "*"
 ipython = "*"
 pytest = "*"
