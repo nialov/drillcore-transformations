@@ -1,11 +1,10 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 authors:
-
 - family-names: Ovaskainen
   given-names: Nikolas
 title: "drillcore-transformations"
-version: "0.2.5.post25.dev0+11391ee"
+version: "0.2.5.post27.dev0+2b2739f"
 date-released: "2021-11-28"
 keywords:
   - python
