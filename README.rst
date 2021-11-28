@@ -88,6 +88,9 @@ License
 
 Copyright © 2020, Nikolas Ovaskainen.
 
+-----
+
+
 .. |Documentation Status| image:: https://readthedocs.org/projects/drillcore-transformations/badge/?version=latest
    :target: https://drillcore-transformations.readthedocs.io/en/latest/?badge=latest
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/drillcore-transformations.svg

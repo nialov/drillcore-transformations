@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "drillcore-transformations"
-version = "0.2.5.post19.dev0+db40531"
+version = "0.2.5.post21.dev0+70c651b"
 description = "Transform structural drillcore measurements."
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -94,6 +94,19 @@ build-backend = "poetry.core.masonry.api"
 enable = true
 vcs = "git"
 
+[tool.poetry-dynamic-versioning.substitution]
+files = [
+    "*.py",
+    "*/__init__.py",
+    "*/__version__.py",
+    "*/_version.py",
+    "./CITATION.cff",
+]
+patterns = [
+    "(^__version__\\s*=\\s*['\"])[^'\"]*(['\"])",
+    "(^version:\\s*['\"])[^'\"]*(['\"])",
+]
+
 [tool.pytest.ini_options]
 testpaths =[
     "tests",
@@ -126,6 +139,7 @@ disable = [
     "R0902",
     "R0913",
     "R0914",
+    "R1735",
     "W0212",
     "W0621",
     "W0703",

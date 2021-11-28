@@ -12,6 +12,7 @@ dev/
 *.html
 *.pickle
 sample_data
+*.rej
 
 # We do not want to include requirements.txt
 # It is merely for backwards compatible pip installs

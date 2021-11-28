@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath("."))
 
 # -- Project information -----------------------------------------------------
 
-project = "drillcore_transformations".replace("_", "-")
+project = "drillcore-transformations"
 copyright = "2020, Nikolas Ovaskainen"
 author = "Nikolas Ovaskainen"
 
