@@ -64,9 +64,19 @@ def test_calc_plane_dir_dip(normal):
     """
     Test calc_plane_dir_dip.
     """
-    assume(not np.all(normal == 0))
-    assume(all(10e15 > val > 1e-15 for val in normal))
-    dir_degrees, dip_degrees = transformations.calc_plane_dir_dip(normal)
+    fails = False
+    if np.all(normal == 0) or all(10e15 > val > 1e-15 for val in normal):
+        fails = True
+    try:
+        dir_degrees, dip_degrees = transformations.calc_plane_dir_dip(normal)
+    except ValueError:
+        if fails:
+            return
+        else:
+            raise
+    if fails:
+        assert all([np.isnan(val) for val in [dir_degrees, dip_degrees]])
+        return
     assert dir_degrees >= 0.0
     assert dir_degrees <= 360.0
     assert dip_degrees >= 0.0
