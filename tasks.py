@@ -3,10 +3,12 @@ Invoke tasks.
 
 Most tasks employ nox to create a virtual session for testing.
 """
+import logging
 import re
 from itertools import chain
 from pathlib import Path
 from time import strftime
+from warnings import warn
 
 from invoke import task
 
@@ -45,7 +47,10 @@ def update_version(c):
     """
     Update pyproject.toml and package/__init__.py version strings.
     """
-    c.run("nox --session update_version")
+    try:
+        c.run("nox --session update_version")
+    except Exception:
+        logging.error("Unexpected error with update-version task.", exc_info=True)
 
 
 @task(pre=[requirements, update_version])
