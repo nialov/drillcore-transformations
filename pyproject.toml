@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "drillcore-transformations"
-version = "0.2.5.post34.dev0+e1a03da"
+version = "0.2.5.post36.dev0+e7ab07d"
 description = "Transform structural drillcore measurements."
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
