@@ -13,7 +13,7 @@
 -   fix all errors from pylint and tests
 
 Full set of changes:
-[`v0.2.5...e7ab07d`](git@github.com:nialov/drillcore-transformations/compare/v0.2.5...e7ab07d)
+[`v0.2.5...c81b19d`](git@github.com:nialov/drillcore-transformations/compare/v0.2.5...c81b19d)
 
 ## v0.2.5 (2020-04-26)
 

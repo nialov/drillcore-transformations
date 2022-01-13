@@ -2,4 +2,4 @@
 
 __author__ = """Nikolas Ovaskainen"""
 __email__ = "nikolasovaskainen@gmail.com"
-__version__ = "0.2.5.post36.dev0+e7ab07d"
+__version__ = "0.2.5.post39.dev0+c81b19d"
