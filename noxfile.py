@@ -152,9 +152,9 @@ def format_and_lint(session):
         *existing_paths,
     )
 
-    # Format notebooks
+    # Format notebooks with black (must be installed with black[jupyter])
     for notebook in ALL_NOTEBOOKS:
-        session.run("black-nb", str(notebook))
+        session.run("black", str(notebook))
 
     # Format code blocks in documentation files
     session.run(
@@ -181,6 +181,11 @@ def format_and_lint(session):
 
     # Lint Python files with black (all should be formatted.)
     session.run("black", "--check", *existing_paths)
+
+    for notebook in ALL_NOTEBOOKS:
+        # Lint notebooks with black (all should be formatted.)
+        session.run("black", "--check", str(notebook))
+
     session.run(
         "isort",
         "--check-only",
@@ -192,10 +197,6 @@ def format_and_lint(session):
         "pylint",
         *existing_paths,
     )
-
-    for notebook in ALL_NOTEBOOKS:
-        # Lint notebooks with black-nb (all should be formatted.)
-        session.run("black-nb", "--check", str(notebook))
 
 
 @nox.session(reuse_venv=True, **VENV_PARAMS)
@@ -222,8 +223,7 @@ def requirements(session):
     )
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
-def docs(session):
+def _docs(session, auto_build: bool):
     """
     Make documentation.
 
@@ -254,11 +254,14 @@ def docs(session):
     try:
         # Create docs in ./docs folder
         session.run(
-            "sphinx-build",
+            "sphinx-build" if not auto_build else "sphinx-autobuild",
             "./docs_src",
             "./docs",
-            "-b",
-            "html",
+            *(
+                ["--open-browser", "--ignore=**/auto_examples/**", "--watch=README.rst"]
+                if auto_build
+                else []
+            ),
         )
 
     finally:
@@ -266,6 +269,24 @@ def docs(session):
         auto_examples_path = Path(DOCS_AUTO_EXAMPLES)
         if auto_examples_path.exists():
             rmtree(auto_examples_path)
+
+
+@nox.session(reuse_venv=True, **VENV_PARAMS)
+def docs(session):
+    """
+    Make documentation.
+
+    Installation mimics readthedocs install.
+    """
+    _docs(session=session, auto_build=False)
+
+
+@nox.session(reuse_venv=True, **VENV_PARAMS)
+def auto_docs(session):
+    """
+    Make documentation and start sphinx-autobuild service.
+    """
+    _docs(session=session, auto_build=True)
 
 
 @nox.session(reuse_venv=True, **VENV_PARAMS)
@@ -451,3 +472,12 @@ def changelog(session):
     print(changelog_path.read_text(UTF8))
 
     assert changelog_path.exists()
+
+
+@nox.session(reuse_venv=True, **VENV_PARAMS)
+def codespell(session):
+    """
+    Check spelling in code.
+    """
+    session.install("codespell")
+    session.run("codespell", PACKAGE_NAME, DOCS_EXAMPLES)
