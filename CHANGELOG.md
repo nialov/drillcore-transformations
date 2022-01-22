@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (2022-01-13)
+## Unreleased (2022-01-22)
 
 #### Fixes
 
@@ -13,7 +13,7 @@
 -   fix all errors from pylint and tests
 
 Full set of changes:
-[`v0.2.5...c81b19d`](git@github.com:nialov/drillcore-transformations/compare/v0.2.5...c81b19d)
+[`v0.2.5...edc3649`](git@github.com:nialov/drillcore-transformations/compare/v0.2.5...edc3649)
 
 ## v0.2.5 (2020-04-26)
 
