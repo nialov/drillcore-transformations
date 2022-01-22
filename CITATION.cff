@@ -4,7 +4,7 @@ authors:
 - family-names: Ovaskainen
   given-names: Nikolas
 title: "drillcore-transformations"
-version: "0.2.5.post40.dev0+edc3649"
+version: "0.2.6"
 date-released: "2022-01-22"
 keywords:
   - python
