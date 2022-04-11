@@ -34,7 +34,7 @@ _MEASUREMENTS, _DEPTHS, _BOREHOLE, _CONVENTIONS = (
 )
 
 # Config absolute path
-_CONFIG = (Path(__file__).parent / Path("config.ini")).absolute()
+_CONFIG = Path("config.ini").absolute()
 
 # Conventions in config
 _MEASUREMENT_CONVENTIONS = ["negative", "none"]
@@ -52,23 +52,6 @@ class ColumnException(Exception):
     your data file column names as identifiers or by removing identical
     identifiers.
     """
-
-
-def check_config(method):
-    """
-    Check config.
-    """
-
-    def inner(*args, **kwargs):
-        assert _CONFIG.exists()
-        if not _CONFIG.exists():
-            raise FileNotFoundError(
-                "config.ini file not found. Run usage.initialize_config()."
-            )
-        result = method(*args, **kwargs)
-        return result
-
-    return inner
 
 
 def get_config_identifiers():
@@ -99,7 +82,7 @@ def find_config():
     return _CONFIG
 
 
-def initialize_config():
+def initialize_config(config_path: Path = _CONFIG):
     """
     Create a configfile with default names for alpha, beta, etc.
 
@@ -149,18 +132,15 @@ def initialize_config():
     config[_CONVENTIONS][_BOREHOLE_PLUNGE] = "none"
 
     # Write to .ini file. Will overwrite old one or make a new one.
-    save_config(config)
+    save_config(config, config_path=config_path)
 
 
-def add_column_name(header, base_column, name):
+def add_column_name(header, base_column, name, config_path: Path = _CONFIG):
     """
     Add a column name to recognize measurement type.
 
     E.g. if your alpha measurements are in a column that is named
     "alpha_measurements" you can add it to the config.ini file with:
-
-    >>> add_column_name(_MEASUREMENTS, _ALPHA, "alpha_measurements")
-    True
 
     If the inputted column name is already in the config file, this will be
     printed out and config will not be changed.
@@ -184,12 +164,11 @@ def add_column_name(header, base_column, name):
         name = name.replace("%", "")
     assert header in [_MEASUREMENTS, _DEPTHS, _BOREHOLE]
     config = configparser.ConfigParser()
-    configname = _CONFIG
-    if not Path(configname).exists():
+    if not Path(config_path).exists():
         print("config.ini configfile not found. Making a new one with default values.")
         initialize_config()
-    assert Path(configname).exists()
-    config.read(configname)
+    assert Path(config_path).exists()
+    config.read(config_path)
     column_list = json.loads(config.get(header, base_column))
     assert isinstance(column_list, list)
     if name in column_list:
@@ -197,16 +176,13 @@ def add_column_name(header, base_column, name):
         return False
     column_list.append(name)
     config[header][base_column] = json.dumps(column_list)
-    save_config(config)
+    save_config(config, config_path=config_path)
     return True
 
 
-def remove_column_name(header, base_column, name):
+def remove_column_name(header, base_column, name, config_path: Path = _CONFIG):
     """
     Remove a column name from config.ini.
-
-    >>> remove_column_name(_MEASUREMENTS, _ALPHA, "alpha_measurements")
-    True
 
     :param header: Input the the header in which under the name is.
     :type header: str
@@ -228,12 +204,11 @@ def remove_column_name(header, base_column, name):
             "Given header was not a base header.\n" f"header: {header}\n"
         )
     config = configparser.ConfigParser()
-    configname = _CONFIG
-    if not Path(configname).exists():
+    if not Path(config_path).exists():
         print("config.ini configfile not found. Making a new one with default values.")
         initialize_config()
-    assert Path(configname).exists()
-    config.read(configname)
+    assert Path(config_path).exists()
+    config.read(config_path)
     column_list = json.loads(config.get(header, base_column))
     assert isinstance(column_list, list)
     if name in column_list:
@@ -246,34 +221,24 @@ def remove_column_name(header, base_column, name):
         )
         return False
     config[header][base_column] = json.dumps(column_list)
-    save_config(config)
+    save_config(config, config_path=config_path)
     return True
 
 
-def save_config(config):
+def save_config(config, config_path: Path):
     """
     Save config.ini.
     """
     # Write to .ini file. Will overwrite or make a new one.
-    with open(_CONFIG, "w+") as configfile:
+    with open(config_path, "w+") as configfile:
         config.write(configfile)
 
 
-@check_config
-def parse_column(header, base_column, columns):
+def parse_column(header, base_column, columns, config_path: Path = _CONFIG):
     """
     Find a given base_column in given columns.
 
     Tries to match it to identifiers in config.ini.
-
-    E.g.
-
-    >>> parse_column(
-    ...     "BOREHOLE",
-    ...     _BOREHOLE_TREND,
-    ...     ["borehole_trend", "alpha", "beta", "borehole_plunge"],
-    ... )
-    'borehole_trend'
 
     :param header: "MEASUREMENTS", "DEPTHS" or "BOREHOLE"
     :type header: str
@@ -286,8 +251,8 @@ def parse_column(header, base_column, columns):
     :raises ColumnException: When there are problems with identifying columns.
     """
     config = configparser.ConfigParser()
-    assert _CONFIG.exists()
-    config.read(_CONFIG)
+    assert config_path.exists()
+    config.read(config_path)
     column_identifiers = json.loads(config.get(header, base_column))
     assert isinstance(column_identifiers, list)
     matching_columns = list(set(column_identifiers) & set(columns))
@@ -313,36 +278,11 @@ def parse_column(header, base_column, columns):
     return matching_columns[0]
 
 
-@check_config
 def parse_columns_two_files(columns, with_gamma):
     """
     Match columns to column bases in config.ini.
 
     Used when there's a separate file with depth data.
-
-    E.g.
-
-    >>> from pprint import pprint
-    >>> result = parse_columns_two_files(
-    ...     [
-    ...         "alpha",
-    ...         "beta",
-    ...         "gamma",
-    ...         "borehole_trend",
-    ...         "borehole_plunge",
-    ...         "depth",
-    ...         "measurement_depth",
-    ...     ],
-    ...     True,
-    ... )
-    >>> pprint(result)
-    {'alpha': 'alpha',
-     'beta': 'beta',
-     'borehole_plunge': 'borehole_plunge',
-     'borehole_trend': 'borehole_trend',
-     'depth': 'depth',
-     'gamma': 'gamma',
-     'measurement_depth': 'measurement_depth'}
 
     :param columns: Given columns
     :type columns: list
@@ -391,7 +331,6 @@ def parse_columns_two_files(columns, with_gamma):
     return matched_dict
 
 
-@check_config
 def parse_columns_one_file(columns, with_gamma):
     """
     Match columns to column bases in config.ini.
@@ -400,18 +339,6 @@ def parse_columns_one_file(columns, with_gamma):
     minimum: alpha, beta, borehole trend, borehole plunge
 
     If gamma data exists => with_gamma should be given as True
-
-    E.g.
-
-    >>> from pprint import pprint
-    >>> result = parse_columns_one_file(
-    ...     ["alpha", "beta", "borehole_trend", "borehole_plunge"], False
-    ... )
-    >>> pprint(result)
-    {'alpha': 'alpha',
-     'beta': 'beta',
-     'borehole_plunge': 'borehole_plunge',
-     'borehole_trend': 'borehole_trend'}
 
     :param columns: Given columns
     :type columns: list
@@ -1077,7 +1004,7 @@ def convention_testing_csv(
     measurements.to_csv(savepath, sep=";", mode="w+")
 
 
-def change_conventions(convention_dict):
+def change_conventions(convention_dict, config_path: Path = _CONFIG):
     """
     Change config.ini conventions by passing a dictionary.
 
@@ -1101,7 +1028,7 @@ def change_conventions(convention_dict):
         print("Invalid values is dictionary. No changes were made to config.ini")
         return False
     config = configparser.ConfigParser()
-    config.read(_CONFIG)
+    config.read(config_path)
 
     any_changes = False
     for key, val in convention_dict.items():
@@ -1133,5 +1060,5 @@ def change_conventions(convention_dict):
             print(f"Given key: {key} was not recognized to belong under any header.")
             continue
 
-    save_config(config)
+    save_config(config, config_path=config_path)
     return any_changes

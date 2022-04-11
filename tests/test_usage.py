@@ -26,14 +26,6 @@ def change_dir(path: Path):
         os.chdir(current_path)
 
 
-@given(function_strategy)
-def test_check_config(method):
-    """
-    Test check_config.
-    """
-    usage.check_config(method)
-
-
 def test_get_config_identifiers():
     """
     Test get_config_identifiers.
@@ -45,13 +37,14 @@ def test_get_config_identifiers():
     return base_measurements, headers, conf
 
 
-def test_initialize_config():
+def test_initialize_config(tmp_path):
     """
     Test initialize_config.
     """
     _, _, _ = test_get_config_identifiers()
-    usage.initialize_config()
-    test_check_config()
+    config_path = tmp_path / "config.ini"
+    usage.initialize_config(config_path=config_path)
+    assert config_path.exists()
 
 
 @settings(deadline=None)
@@ -62,17 +55,28 @@ def test_add_and_remove_column_name(name):
     """
     with TemporaryDirectory() as tmp_path_str:
         tmp_path = Path(tmp_path_str)
-        copy(usage._CONFIG, tmp_path / usage._CONFIG.name)
+        config_path = tmp_path / usage._CONFIG.name
+        copy(usage._CONFIG, config_path)
         with change_dir(tmp_path):
             base_measurements, headers, _ = test_get_config_identifiers()
-            usage.add_column_name(headers[0], base_measurements[0], name)
+            usage.add_column_name(
+                headers[0], base_measurements[0], name, config_path=config_path
+            )
             assert not usage.add_column_name(
-                headers[0], base_measurements[0], base_measurements[0]
+                headers[0],
+                base_measurements[0],
+                base_measurements[0],
+                config_path=config_path,
             )
             # testing removal
-            usage.remove_column_name(headers[0], base_measurements[0], name)
+            usage.remove_column_name(
+                headers[0], base_measurements[0], name, config_path=config_path
+            )
             assert not usage.remove_column_name(
-                headers[0], base_measurements[0], "prettysurethisisnotinthelist"
+                headers[0],
+                base_measurements[0],
+                "prettysurethisisnotinthelist",
+                config_path=config_path,
             )
 
 
@@ -140,15 +144,13 @@ def test_transform_excel_two_files_xls(tmp_path):
 
 
 @settings(deadline=None)
-@given(dict_strategy)
+@given(convention_dict=dict_strategy)
 def test_change_conventions(convention_dict):
     """
     Test change_conventions.
     """
-    test_initialize_config()
-    result = usage.change_conventions(convention_dict)
-    test_initialize_config()
-    assert result is False
-    true_result = usage.change_conventions({"alpha": "negative"})
-    test_initialize_config()
-    assert true_result
+    with TemporaryDirectory() as tmp_path_str:
+        tmp_path = Path(tmp_path_str)
+        test_initialize_config(tmp_path=tmp_path)
+        result = usage.change_conventions(convention_dict)
+        assert isinstance(result, bool) or result is None
