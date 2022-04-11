@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier
-_commit: 7c5f339
+_commit: e159344
 _src_path: https://github.com/nialov/nialov-py-template.git
 classifier: 'Topic :: Scientific/Engineering :: GIS'
 description: Transform structural drillcore measurements.

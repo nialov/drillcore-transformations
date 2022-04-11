@@ -15,8 +15,8 @@ keywords = [
 ]
 # See https://pypi.org/classifiers/
 classifiers = [
-    "Programming Language :: Python :: 3 :: Only",
-    "Topic :: Scientific/Engineering :: GIS"
+    "Topic :: Scientific/Engineering :: GIS",
+    "Programming Language :: Python :: 3 :: Only"
 ]
 include = ["CHANGELOG.md"]
 
@@ -45,25 +45,23 @@ sphinx-gallery = {version = "*", optional = true}
 sphinx-autodoc-typehints = {version = "*", optional = true}
 sphinx-autobuild = {version = "*", optional = true}
 
-# Linting and formatting
+# Linting
 pylint = {version = "*", optional = true}
 rstcheck = {version = "*", optional = true}
-black = {version = "*", optional = true, extras = ["jupyter"]}
-blacken-docs = {version = "*", optional = true}
-blackdoc = {version = "*", optional = true}
-isort = {version = "*", optional = true}
 
 # Typecheck
 mypy = {version = "*", optional = true}
 
 [tool.poetry.dev-dependencies]
-nox = "*"
-invoke = "^1.6.0"
-jupyterlab = "*"
-ipython = "*"
-pytest = "*"
-pre-commit = "*"
+doit = "*"
 hypothesis = "^6.14.5"
+invoke = "^1.6.0"
+ipython = "*"
+jupyterlab = "*"
+nox = "*"
+pre-commit = "*"
+pytest = "*"
+toml = "^0.10.2"
 
 [tool.poetry.extras]
 coverage = ["coverage", "coverage-badge"]
@@ -72,16 +70,13 @@ docs = [
     "sphinx-rtd-theme",
     "nbsphinx",
     "sphinx-gallery",
-    "sphinx-autodoc-typehints"
+    "sphinx-autodoc-typehints",
+    "sphinx-autobuild"
 ]
-format-lint = [
+lint = [
     "pylint",
     "rstcheck",
     "sphinx",
-    "black",
-    "isort",
-    "blacken-docs",
-    "blackdoc"
 ]
 typecheck = ["mypy"]
 
@@ -131,7 +126,7 @@ fail-under = "9.5"
 output-format = "text"
 
 [tool.pylint.messages_control]
-max-line-length = 90
+max-line-length = 100
 disable = [
     "C0103",
     "C0302",
