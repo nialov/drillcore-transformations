@@ -1,13 +1,29 @@
 """
 Test drillcore_transformations.py.
 """
+import os
+from contextlib import contextmanager
 from pathlib import Path
+from shutil import copy
+from tempfile import TemporaryDirectory
 
 from hypothesis import assume, given, settings
 from hypothesis.strategies import lists
 
 from drillcore_transformations import usage
 from tests import dict_strategy, function_strategy, text_strategy
+
+
+@contextmanager
+def change_dir(path: Path):
+    """
+    Change dir to path.
+    """
+    current_path = Path(".").resolve()
+    try:
+        yield os.chdir(path)
+    finally:
+        os.chdir(current_path)
 
 
 @given(function_strategy)
@@ -25,7 +41,7 @@ def test_get_config_identifiers():
     base_measurements, headers, conf = usage.get_config_identifiers()
     for s in base_measurements + headers:
         assert isinstance(s, str)
-    assert isinstance(*conf, Path)
+    assert all(isinstance(path, Path) for path in conf)
     return base_measurements, headers, conf
 
 
@@ -39,25 +55,25 @@ def test_initialize_config():
 
 
 @settings(deadline=None)
-@given(text_strategy)
+@given(name=text_strategy)
 def test_add_and_remove_column_name(name):
     """
     Test add_and_remove_column_name.
     """
-    try:
-        base_measurements, headers, _ = test_get_config_identifiers()
-        usage.add_column_name(headers[0], base_measurements[0], name)
-        assert not usage.add_column_name(
-            headers[0], base_measurements[0], base_measurements[0]
-        )
-        # testing removal
-        usage.remove_column_name(headers[0], base_measurements[0], name)
-        assert not usage.remove_column_name(
-            headers[0], base_measurements[0], "prettysurethisisnotinthelist"
-        )
-    except Exception:
-        test_initialize_config()
-        raise
+    with TemporaryDirectory() as tmp_path_str:
+        tmp_path = Path(tmp_path_str)
+        copy(usage._CONFIG, tmp_path / usage._CONFIG.name)
+        with change_dir(tmp_path):
+            base_measurements, headers, _ = test_get_config_identifiers()
+            usage.add_column_name(headers[0], base_measurements[0], name)
+            assert not usage.add_column_name(
+                headers[0], base_measurements[0], base_measurements[0]
+            )
+            # testing removal
+            usage.remove_column_name(headers[0], base_measurements[0], name)
+            assert not usage.remove_column_name(
+                headers[0], base_measurements[0], "prettysurethisisnotinthelist"
+            )
 
 
 @given(lists(elements=text_strategy))
