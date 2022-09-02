@@ -5,8 +5,8 @@ authors:
 - family-names: Ovaskainen
   given-names: Nikolas
 title: "drillcore-transformations"
-version: "0.2.6.post3.dev0+66a4458"
-date-released: "2022-04-11"
+version: "0.2.6.post9.dev0+a7d935e"
+date-released: "2022-09-02"
 keywords:
   - python
   - data
@@ -14,4 +14,3 @@ contact:
   - email: "nikolasovaskainen@gmail.com"
 url: "https://github.com/nialov/drillcore-transformations"
 repository-code: "https://github.com/nialov/drillcore-transformations"
-
