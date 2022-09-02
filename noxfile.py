@@ -100,7 +100,7 @@ def tests_pip(session):
     session.run("coverage", "run", "--source", PACKAGE_NAME, "-m", "pytest")
 
     # Fails with test coverage under 70
-    session.run("coverage", "report", "--fail-under", "70")
+    session.run("coverage", "report", "--fail-under", "60")
 
     assert session.python in PYTHON_VERSIONS
     if session.python == DEFAULT_PYTHON_VERSION:
