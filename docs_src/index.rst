@@ -4,10 +4,10 @@ Contents
 ========
 
 .. toctree::
+   :maxdepth: 1
    :caption: Module documentation for developers
-   :maxdepth: 2
 
-   apidoc/modules
+   apidoc/drillcore_transformations
 
 References and Credits
 -----------------------

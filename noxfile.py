@@ -75,8 +75,8 @@ def install_dev(session, extras: str = ""):
     """
     Install all package and dev dependencies.
     """
-    session.install(f".{extras}")
     session.install("-r", str(DEV_REQUIREMENTS_PATH))
+    session.install(f".{extras}")
 
 
 @nox.session(python=PYTHON_VERSIONS, reuse_venv=True, **VENV_PARAMS)
@@ -100,7 +100,7 @@ def tests_pip(session):
     session.run("coverage", "run", "--source", PACKAGE_NAME, "-m", "pytest")
 
     # Fails with test coverage under 70
-    session.run("coverage", "report", "--fail-under", "60")
+    session.run("coverage", "report", "--fail-under", "70")
 
     assert session.python in PYTHON_VERSIONS
     if session.python == DEFAULT_PYTHON_VERSION:
@@ -147,12 +147,18 @@ def notebooks(session):
         print("No notebooks found.")
         return
 
+    # Remove .ipynb_checkpoints directories
+    for checkpoints_dir in NOTEBOOKS_PATH.rglob(".ipynb_checkpoints/"):
+        rmtree(checkpoints_dir)
+
     # Install dev dependencies
     install_dev(session=session)
 
     # Test notebook(s)
     for notebook_path in NOTEBOOKS:
-        execute_notebook(session=session, notebook=notebook_path)
+        if notebook_path.exists():
+            # Might have been removed by .ipynb_checkpoints rmtree!
+            execute_notebook(session=session, notebook=notebook_path)
 
 
 def setup_lint(session) -> List[str]:
@@ -256,7 +262,6 @@ def _docs(session, auto_build: bool):
             str(DOCS_PATH),
             *(
                 [
-                    "--open-browser",
                     f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
                     "--watch=README.rst",
                     f"--watch={PACKAGE_NAME}/",
@@ -300,7 +305,7 @@ def update_version(session):
     session.install("poetry-dynamic-versioning")
 
     # Run poetry-dynamic-versioning to update version tag in pyproject.toml
-    # and drillcore-transformations/__init__.py
+    # and drillcore_transformations/__init__.py
     session.run("poetry-dynamic-versioning")
 
 
@@ -322,7 +327,7 @@ def build(session):
 @nox.session(reuse_venv=True, **VENV_PARAMS)
 def profile_performance(session):
     """
-    Profile drillcore-transformations runtime performance.
+    Profile drillcore_transformations runtime performance.
 
     User must implement the actual performance utility.
     """
@@ -464,7 +469,7 @@ def changelog(session):
     assert changelog_path.exists()
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def codespell(session):
     """
     Check spelling in code.

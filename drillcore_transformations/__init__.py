@@ -1,4 +1,8 @@
-"""Top-level package for Drillcore Transformations."""
+"""
+drillcore_transformations.
+
+Transform structural drillcore measurements.
+"""
 
 __author__ = """Nikolas Ovaskainen"""
 __email__ = "nikolasovaskainen@gmail.com"

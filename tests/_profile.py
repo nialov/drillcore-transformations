@@ -1,11 +1,11 @@
 """
-Script for profiling ``drillcore-transformations`` performance.
+Script for profiling ``drillcore_transformations`` performance.
 """
 
 
 def perf_profile():
     """
-    Profile ``drillcore-transformations`` performance.
+    Profile ``drillcore_transformations`` performance.
     """
     return
 

@@ -229,13 +229,19 @@ def task_build():
     """
     Build package with poetry.
 
-    Runs always without dependencies or targets.
+    Runs always without strict dependencies or targets.
     """
-    command = "nox --session build"
-    return {
-        ACTIONS: [command],
-        TASK_DEP: [resolve_task_name(task_pre_commit), resolve_task_name(task_ci_test)],
-    }
+    # python_version = "" if len(python) == 0 else f"-p {python}"
+    for python_version in [DEFAULT_PYTHON_VERSION]:
+        # command = f"nox --session tests_pip -p {python_version}"
+        command = f"nox --session build -p {python_version}"
+        yield {
+            NAME: python_version,
+            ACTIONS: [command],
+            TASK_DEP: [
+                resolve_task_name(task_pre_commit),
+            ],
+        }
 
 
 def task_typecheck():
@@ -290,8 +296,11 @@ def update_citation():
         line if "date-released" not in line else f'date-released: "{date}"'
         for line in citation_lines
     ]
-    new_lines.append("\n")
-    CITATION_CFF_PATH.write_text("\n".join(new_lines), encoding=UTF8)
+    # new_lines.append("\n")
+
+    # Write back to CITATION.cff including newline at end
+    with CITATION_CFF_PATH.open("w", newline="\n", encoding=UTF8) as openfile:
+        openfile.write("\n".join(new_lines))
 
 
 def task_citation():
@@ -384,7 +393,8 @@ def use_tag(tag: str):
 
         new_lines.append("\n")
         # Write results to file
-        path.write_text("\n".join(new_lines), encoding=UTF8)
+        with path.open("w", newline="\n", encoding=UTF8) as openfile:
+            openfile.write("\n".join(new_lines))
 
     # Iterate over all files determined from VERSION_PATHS
     for path_name in VERSION_PATHS:

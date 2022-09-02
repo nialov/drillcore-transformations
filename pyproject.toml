@@ -34,7 +34,7 @@ xlrd = "*"
 
 # Extras
 # Coverage
-coverage = {version = "^5.0", optional = true}
+coverage = {version = "*", optional = true}
 coverage-badge = {version = "*", optional = true}
 
 # Docs
@@ -48,11 +48,14 @@ sphinx-autobuild = {version = "*", optional = true}
 # Linting
 pylint = {version = "*", optional = true}
 rstcheck = {version = "*", optional = true}
+markupsafe = {version = "*", optional = true}
 
 # Typecheck
 mypy = {version = "*", optional = true}
 
 [tool.poetry.dev-dependencies]
+# TODO: copier could be installed outside the poetry environment
+copier = "*"
 doit = "*"
 hypothesis = "^6.14.5"
 invoke = "^1.6.0"
@@ -61,7 +64,7 @@ jupyterlab = "*"
 nox = "*"
 pre-commit = "*"
 pytest = "*"
-toml = "^0.10.2"
+toml = "*"
 
 [tool.poetry.extras]
 coverage = ["coverage", "coverage-badge"]
@@ -77,6 +80,7 @@ lint = [
     "pylint",
     "rstcheck",
     "sphinx",
+    "markupsafe",
 ]
 typecheck = ["mypy"]
 
@@ -106,7 +110,7 @@ testpaths =[
     "tests",
     "drillcore_transformations",
     ]
-addopts = "--doctest-modules --pdbcls=IPython.terminal.debugger:Pdb"
+addopts = "--doctest-modules"
 doctest_optionflags =[
     "NUMBER",
     "NORMALIZE_WHITESPACE",
