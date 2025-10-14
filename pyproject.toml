@@ -47,7 +47,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths =[
-    "src/drillcore_transformations",
+    "src/drillcore_transformations/**.py",
     "src/drillcore_transformations/tests",
     ]
 addopts = "--doctest-modules"
