@@ -283,9 +283,6 @@ def transform_with_gamma(
     drillcore_trend: float,
     drillcore_plunge: float,
     gamma: float,
-    visualize: bool = False,
-    img_dir=None,
-    curr_conv=None,
 ) -> tuple[float, float, float, float]:
     """
     Transform alpha, beta and gamma measurements from core.
@@ -302,8 +299,6 @@ def transform_with_gamma(
     :param drillcore_plunge: Plunge of the drillcore.
     :param gamma: Linear feature on a plane. Measured in clockwise direction
         from ellipse long axis at DOWN hole end.
-    :param visualize: Automatic visualization using 3D plots.
-        WARNING: Will drastically increase code run-time.
     :return: Plane dip and direction + Linear feature plunge and trend.
     """
     if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
@@ -325,24 +320,6 @@ def transform_with_gamma(
 
         # Gamma trend and plunge
         gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
-
-        if visualize:
-            drillcore_vector = vector_from_dip_and_dir(
-                drillcore_plunge, drillcore_trend
-            )
-            visualize_results(
-                plane_normal,
-                plane_vector,
-                drillcore_vector,
-                drillcore_trend,
-                drillcore_plunge,
-                alpha,
-                beta,
-                gamma_vector,
-                gamma,
-                img_dir,
-                curr_conv,
-            )
 
         return plane_dip, plane_dir, gamma_plunge, gamma_trend
     except ValueError as e:
