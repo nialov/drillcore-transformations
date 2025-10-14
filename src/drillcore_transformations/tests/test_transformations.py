@@ -58,7 +58,7 @@ def test_vector_from_dip_and_dir(dip, dip_dir):
     """
     vector = transformations.vector_from_dip_and_dir(dip, dip_dir)
     assert np.isclose(np.linalg.norm(vector), 1.0)
-    assert vector[2] <= np.float(0)
+    assert vector[2] <= 0.0
 
 
 @given(vector_strategy)
