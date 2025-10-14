@@ -328,7 +328,9 @@ def transform_with_gamma(
         return np.nan, np.nan, np.nan, np.nan
 
 
-def fix_to_numerical(values: list) -> list:
+from typing import Any
+
+def fix_to_numerical(values: list[Any]) -> list[float]:
     """
     Fix values to numerical.
     """
@@ -360,6 +362,6 @@ def calc_difference_between_two_planes(
         return 0.0
     vec_first = calc_normal_vector_of_plane(dip_first, dir_first)
     vec_second = calc_normal_vector_of_plane(dip_second, dir_second)
-    diff = np.rad2deg(np.arccos(np.dot(vec_first, vec_second)))  # type: ignore
+    diff = np.rad2deg(np.arccos(np.dot(vec_first, vec_second)))
     diff = diff if diff <= 90 else 180 - diff
-    return diff
+    return float(diff)
