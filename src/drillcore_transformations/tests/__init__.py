@@ -21,8 +21,8 @@ text_strategy = text()
 dict_strategy = dictionaries(text_strategy, text_strategy)
 
 # sample_csv = (
-#     Path(__file__).parent.parent / Path("sample_data/Logging_sheet.csv")
+#     Path(__file__).parent / Path("sample_data/Logging_sheet.csv")
 # ).absolute()
 # sample_csv_result = (
-#     Path(__file__).parent.parent / Path("sample_data/Logging_sheet_transformed.csv")
+#     Path(__file__).parent / Path("sample_data/Logging_sheet_transformed.csv")
 # ).absolute()
