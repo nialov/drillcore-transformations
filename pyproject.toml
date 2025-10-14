@@ -33,7 +33,6 @@ test = [
 ]
 
 [project.scripts]
-drillcore-transformations = "drillcore_transformations.cli:cli"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
