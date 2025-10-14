@@ -57,3 +57,6 @@ doctest_optionflags =[
     ]
 
 filterwarnings =[]
+
+[tool.mypy]
+files = "src/drillcore_transformations"
