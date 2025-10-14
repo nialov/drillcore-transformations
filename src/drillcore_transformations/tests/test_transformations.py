@@ -8,7 +8,7 @@ import numpy as np
 from hypothesis import HealthCheck, assume, given, settings
 
 from drillcore_transformations import transformations
-from tests import (
+from drillcore_transformations.tests import (
     alpha_strategy,
     amount_strategy,
     beta_strategy,

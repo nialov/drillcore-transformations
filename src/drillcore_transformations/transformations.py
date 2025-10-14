@@ -1,11 +1,10 @@
 """
 Module with all calculations.
 """
+
 import logging
 
 import numpy as np
-
-from drillcore_transformations.visualizations import visualize_results
 
 
 def calc_global_normal_vector(alpha, beta, trend, plunge):
