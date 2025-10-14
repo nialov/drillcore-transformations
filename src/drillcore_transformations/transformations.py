@@ -30,10 +30,6 @@ def calc_global_normal_vector(
     :param plunge: Plunge of the drillcore
     :return: Normalized normal vector of a plane. Always points upwards (z >= 0)
     """
-    # Due to differences in nomenclature, some dumb transformations are made.
-    beta = beta - 180
-    trend = trend - 180
-
     # Degrees to radians
     alpha = np.deg2rad(alpha)
     beta = np.deg2rad(beta)
