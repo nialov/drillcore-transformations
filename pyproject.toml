@@ -60,3 +60,5 @@ filterwarnings =[]
 
 [tool.mypy]
 files = "src/drillcore_transformations"
+strict = true
+plugins = ["numpy.typing.mypy_plugin"]
