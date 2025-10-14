@@ -158,8 +158,8 @@ def test_calc_difference_between_two_planes(
         dip_first, dir_first, dip_second, dir_second
     )
 
-    if not 0 <= result <= 90:
-        assert np.isclose(result, 0) or np.isclose(result, 90)
+    if not 0.0 <= result <= 90.0:
+        assert np.isclose(result, 0.0) or np.isclose(result, 90.0)
 
 
 def test_calc_difference_between_two_planes_nan():
