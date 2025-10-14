@@ -2,7 +2,7 @@
 Module with all calculations.
 """
 
-from typing import Any
+from typing import Any, NamedTuple, Optional
 import logging
 
 import numpy as np
@@ -10,6 +10,13 @@ import numpy.typing as npt
 from functools import partial
 
 array_float64 = partial(np.array, dtype=np.float64)
+
+class Measurement(NamedTuple):
+    alpha: float
+    beta: float
+    drillcore_trend: float
+    drillcore_plunge: float
+    gamma: Optional[float] = None
 
 
 def calc_global_normal_vector(
@@ -30,6 +37,8 @@ def calc_global_normal_vector(
     :param plunge: Plunge of the drillcore
     :return: Normalized normal vector of a plane. Always points upwards (z >= 0)
     """
+    beta = beta - 180
+    trend = trend - 180
     # Degrees to radians
     alpha = np.deg2rad(alpha)
     beta = np.deg2rad(beta)
@@ -302,6 +311,9 @@ def transform_with_gamma(
         from ellipse long axis at DOWN hole end.
     :return: Plane dip and direction + Linear feature plunge and trend.
     """
+
+    # drillcore_plunge = -drillcore_plunge
+    # drillcore_trend = drillcore_plunge - 90
     if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
         return np.nan, np.nan, np.nan, np.nan
     try:
