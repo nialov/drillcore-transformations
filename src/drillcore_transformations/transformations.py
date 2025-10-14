@@ -2,10 +2,14 @@
 Module with all calculations.
 """
 
+from typing import Any
 import logging
 
 import numpy as np
 import numpy.typing as npt
+from functools import partial
+
+array_float64 = partial(np.array, dtype=np.float64)
 
 
 def calc_global_normal_vector(
@@ -58,10 +62,10 @@ def calc_global_normal_vector(
 
     # Always return a normalized vector pointing upwards.
     if ng_3 < 0:
-        return np.array([-ng_1, -ng_2, -ng_3], dtype=np.float64) / np.linalg.norm(
-            np.array([-ng_1, -ng_2, -ng_3], dtype=np.float64)
+        return array_float64([-ng_1, -ng_2, -ng_3]) / np.linalg.norm(
+            array_float64([-ng_1, -ng_2, -ng_3])
         )
-    return np.array([ng_1, ng_2, ng_3], dtype=np.float64) / np.linalg.norm(np.array([ng_1, ng_2, ng_3], dtype=np.float64))
+    return array_float64([ng_1, ng_2, ng_3]) / np.linalg.norm(array_float64([ng_1, ng_2, ng_3]))
 
 
 def rotate_vector_about_vector(
@@ -87,7 +91,7 @@ def rotate_vector_about_vector(
     :return: Rotated vector.
     """
     if np.all(vector == 0) or np.all(about_vector == 0):
-        return np.array([0.0, 0.0, 0.0], dtype=np.float64)
+        return array_float64([0.0, 0.0, 0.0])
     if np.allclose(
         vector / np.linalg.norm(vector), about_vector / np.linalg.norm(about_vector)
     ):
@@ -105,7 +109,7 @@ def rotate_vector_about_vector(
             + about_vector * np.dot(about_vector, vector) * (1 - np.cos(amount_rad))
         )
     except ValueError:
-        return np.array([np.nan, np.nan, np.nan], dtype=np.float64)
+        return array_float64([np.nan, np.nan, np.nan])
     return np.asarray(v_rot, dtype=np.float64)
 
 
@@ -132,7 +136,7 @@ def vector_from_dip_and_dir(dip: float, dip_dir: float) -> npt.NDArray[np.float6
     nx = np.sin(np.deg2rad(dip_dir)) * np.cos(np.deg2rad(dip))
     ny = np.cos(np.deg2rad(dip_dir)) * np.cos(np.deg2rad(dip))
     nz = -np.sin(np.deg2rad(dip))
-    n = np.array([nx, ny, nz], dtype=np.float64)
+    n = array_float64([nx, ny, nz])
     # Normalize output vector
     n = n / np.linalg.norm(n)
     return n
@@ -328,25 +332,6 @@ def transform_with_gamma(
         return np.nan, np.nan, np.nan, np.nan
 
 
-from typing import Any
-
-def fix_to_numerical(values: list[Any]) -> list[float]:
-    """
-    Fix values to numerical.
-    """
-    new_values = []
-    for val in values:
-        if isinstance(val, str):
-            if len(val) == 0:
-                val = np.nan
-            else:
-                val = val.strip(" ").replace("\xa0", "")
-        try:
-            val = float(val)
-        except ValueError:
-            val = np.nan
-        new_values.append(val)
-    return new_values
 
 def calc_difference_between_two_planes(
     dip_first: float, dir_first: float, dip_second: float, dir_second: float
