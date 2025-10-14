@@ -22,7 +22,9 @@ from drillcore_transformations.tests import (
 
 
 @given(alpha_strategy, beta_strategy, trend_strategy, plunge_strategy)
-def test_calc_global_normal_vector(alpha, beta, trend, plunge):
+def test_calc_global_normal_vector(
+    alpha: float, beta: float, trend: float, plunge: float
+) -> None:
     """
     Test calc_global_normal_vector.
     """
@@ -32,7 +34,9 @@ def test_calc_global_normal_vector(alpha, beta, trend, plunge):
 
 
 @given(vector_strategy, vector_strategy, amount_strategy)
-def test_rotate_vector_about_vector(vector, about_vector, amount):
+def test_rotate_vector_about_vector(
+    vector: np.ndarray, about_vector: np.ndarray, amount: float
+) -> None:
     """
     Test rotate_vector_about_vector.
     """
@@ -52,7 +56,7 @@ def test_rotate_vector_about_vector(vector, about_vector, amount):
 
 
 @given(dip_strategy, dir_strategy)
-def test_vector_from_dip_and_dir(dip, dip_dir):
+def test_vector_from_dip_and_dir(dip: float, dip_dir: float) -> None:
     """
     Test vector_from_dip_and_dir.
     """
@@ -62,7 +66,7 @@ def test_vector_from_dip_and_dir(dip, dip_dir):
 
 
 @given(vector_strategy)
-def test_calc_plane_dir_dip(normal):
+def test_calc_plane_dir_dip(normal: np.ndarray) -> None:
     """
     Test calc_plane_dir_dip.
     """
@@ -87,7 +91,7 @@ def test_calc_plane_dir_dip(normal):
 
 @settings(suppress_health_check=[HealthCheck.filter_too_much])
 @given(vector_strategy)
-def test_calc_vector_trend_plunge(vector):
+def test_calc_vector_trend_plunge(vector: np.ndarray) -> None:
     """
     Test calc_vector_trend_plunge.
     """
@@ -101,7 +105,9 @@ def test_calc_vector_trend_plunge(vector):
 
 
 @given(alpha_strategy, beta_strategy, trend_strategy, plunge_strategy)
-def test_transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
+def test_transform_without_gamma(
+    alpha: float, beta: float, drillcore_trend: float, drillcore_plunge: float
+) -> None:
     """
     Test transform_without_gamma.
     """
@@ -115,7 +121,9 @@ def test_transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge)
 
 
 @given(alpha_strategy, beta_strategy, trend_strategy, plunge_strategy, gamma_strategy)
-def test_transform_with_gamma(alpha, beta, drillcore_trend, drillcore_plunge, gamma):
+def test_transform_with_gamma(
+    alpha: float, beta: float, drillcore_trend: float, drillcore_plunge: float, gamma: float
+) -> None:
     """
     Test transform_with_gamma.
     """
@@ -149,8 +157,8 @@ def test_transform_with_gamma(alpha, beta, drillcore_trend, drillcore_plunge, ga
 
 @given(dip_strategy, dir_strategy, dip_strategy, dir_strategy)
 def test_calc_difference_between_two_planes(
-    dip_first, dir_first, dip_second, dir_second
-):
+    dip_first: float, dir_first: float, dip_second: float, dir_second: float
+) -> None:
     """
     Test calc_difference_between_two_planes.
     """
@@ -162,7 +170,7 @@ def test_calc_difference_between_two_planes(
         assert np.isclose(result, 0.0) or np.isclose(result, 90.0)
 
 
-def test_calc_difference_between_two_planes_nan():
+def test_calc_difference_between_two_planes_nan() -> None:
     """
     Test calc_difference_between_two_planes with nan.
     """
