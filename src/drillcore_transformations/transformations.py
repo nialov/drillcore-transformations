@@ -196,7 +196,7 @@ def calc_vector_trend_plunge(vector: np.ndarray) -> tuple[float, float]:
     :return: Direction of dip and dip in degrees
     """
     if np.all(vector == 0):
-        return np.NaN, np.NaN
+        return np.nan, np.nan
 
     if vector[2] > 0:
         plunge_radians = np.arcsin(vector[2])
@@ -326,8 +326,6 @@ def transform_with_gamma(
         print(str(e))
         return np.nan, np.nan, np.nan, np.nan
 
-
-def fix_to_numerical(values: list) -> list:
     """
     Fix values to numerical.
     """
