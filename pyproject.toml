@@ -29,7 +29,8 @@ Repository = "https://github.com/nialov/drillcore-transformations"
 [project.optional-dependencies]
 test = [
     "pytest",
-    "hypothesis"
+    "hypothesis",
+    "mypy"
 ]
 
 [project.scripts]
