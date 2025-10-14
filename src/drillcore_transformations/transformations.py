@@ -104,7 +104,7 @@ def rotate_vector_about_vector(
             + about_vector * np.dot(about_vector, vector) * (1 - np.cos(amount_rad))
         )
     except ValueError:
-        return np.array([np.NaN, np.NaN, np.NaN])
+        return np.array([np.nan, np.nan, np.nan])
     return v_rot
 
 
@@ -326,6 +326,8 @@ def transform_with_gamma(
         print(str(e))
         return np.nan, np.nan, np.nan, np.nan
 
+
+def fix_to_numerical(values: list) -> list:
     """
     Fix values to numerical.
     """
@@ -342,7 +344,6 @@ def transform_with_gamma(
             val = np.nan
         new_values.append(val)
     return new_values
-
 
 def calc_difference_between_two_planes(
     dip_first: float, dir_first: float, dip_second: float, dir_second: float
