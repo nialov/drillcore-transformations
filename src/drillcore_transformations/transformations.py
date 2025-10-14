@@ -158,7 +158,7 @@ def calc_plane_dir_dip(normal):
     :rtype: tuple[float, float]
     """
     if np.all(normal == 0):
-        return np.NaN, np.NaN
+        return np.nan, np.nan
     if normal[2] < 0:
         normal = -normal
 
@@ -281,8 +281,8 @@ def transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
     :return: Plane dip and direction
     :rtype: Tuple
     """
-    if np.NaN in (alpha, beta, drillcore_trend, drillcore_plunge):
-        return np.NaN, np.NaN
+    if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
+        return np.nan, np.nan
     try:
         plane_normal = calc_global_normal_vector(
             alpha, beta, drillcore_trend, drillcore_plunge
@@ -292,7 +292,7 @@ def transform_without_gamma(alpha, beta, drillcore_trend, drillcore_plunge):
         return plane_dip, plane_dir
     except ValueError as e:
         print(str(e))
-        return np.NaN, np.NaN
+        return np.nan, np.nan
 
 
 def transform_with_gamma(
@@ -331,8 +331,8 @@ def transform_with_gamma(
     :return: Plane dip and direction + Linear feature plunge and trend.
     :rtype: tuple[float, float, float, float]
     """
-    if np.NaN in (alpha, beta, drillcore_trend, drillcore_plunge):
-        return np.NaN, np.NaN, np.NaN, np.NaN
+    if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
+        return np.nan, np.nan, np.nan, np.nan
     try:
         # plane normal vector
         plane_normal = calc_global_normal_vector(
@@ -372,7 +372,7 @@ def transform_with_gamma(
         return plane_dip, plane_dir, gamma_plunge, gamma_trend
     except ValueError as e:
         print(str(e))
-        return np.NaN, np.NaN, np.NaN, np.NaN
+        return np.nan, np.nan, np.nan, np.nan
 
 
 def fix_to_numerical(values):
