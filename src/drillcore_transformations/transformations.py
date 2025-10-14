@@ -5,11 +5,12 @@ Module with all calculations.
 import logging
 
 import numpy as np
+import numpy.typing as npt
 
 
 def calc_global_normal_vector(
     alpha: float, beta: float, trend: float, plunge: float
-) -> np.ndarray:
+) -> npt.NDArray[np.float64]:
     """
     Calculate the normal vector of a measured plane.
 
@@ -57,15 +58,15 @@ def calc_global_normal_vector(
 
     # Always return a normalized vector pointing upwards.
     if ng_3 < 0:
-        return np.array([-ng_1, -ng_2, -ng_3]) / np.linalg.norm(
-            np.array([-ng_1, -ng_2, -ng_3])
+        return np.array([-ng_1, -ng_2, -ng_3], dtype=np.float64) / np.linalg.norm(
+            np.array([-ng_1, -ng_2, -ng_3], dtype=np.float64)
         )
-    return np.array([ng_1, ng_2, ng_3]) / np.linalg.norm(np.array([ng_1, ng_2, ng_3]))
+    return np.array([ng_1, ng_2, ng_3], dtype=np.float64) / np.linalg.norm(np.array([ng_1, ng_2, ng_3], dtype=np.float64))
 
 
 def rotate_vector_about_vector(
-    vector: np.ndarray, about_vector: np.ndarray, amount: float
-) -> np.ndarray:
+    vector: npt.NDArray[np.float64], about_vector: npt.NDArray[np.float64], amount: float
+) -> npt.NDArray[np.float64]:
     """
     Rotate a given vector about another vector.
 
@@ -86,7 +87,7 @@ def rotate_vector_about_vector(
     :return: Rotated vector.
     """
     if np.all(vector == 0) or np.all(about_vector == 0):
-        return np.array([0.0, 0.0, 0.0])
+        return np.array([0.0, 0.0, 0.0], dtype=np.float64)
     if np.allclose(
         vector / np.linalg.norm(vector), about_vector / np.linalg.norm(about_vector)
     ):
@@ -104,11 +105,11 @@ def rotate_vector_about_vector(
             + about_vector * np.dot(about_vector, vector) * (1 - np.cos(amount_rad))
         )
     except ValueError:
-        return np.array([np.nan, np.nan, np.nan])
-    return v_rot
+        return np.array([np.nan, np.nan, np.nan], dtype=np.float64)
+    return np.asarray(v_rot, dtype=np.float64)
 
 
-def vector_from_dip_and_dir(dip: float, dip_dir: float) -> np.ndarray:
+def vector_from_dip_and_dir(dip: float, dip_dir: float) -> npt.NDArray[np.float64]:
     """
     Assemble a normalized vector that always points downwards from dip data.
 
@@ -131,13 +132,13 @@ def vector_from_dip_and_dir(dip: float, dip_dir: float) -> np.ndarray:
     nx = np.sin(np.deg2rad(dip_dir)) * np.cos(np.deg2rad(dip))
     ny = np.cos(np.deg2rad(dip_dir)) * np.cos(np.deg2rad(dip))
     nz = -np.sin(np.deg2rad(dip))
-    n = np.array([nx, ny, nz])
+    n = np.array([nx, ny, nz], dtype=np.float64)
     # Normalize output vector
     n = n / np.linalg.norm(n)
     return n
 
 
-def calc_plane_dir_dip(normal: np.ndarray) -> tuple[float, float]:
+def calc_plane_dir_dip(normal: npt.NDArray[np.float64]) -> tuple[float, float]:
     """
     Calculate direction of dip and dip of a plane.
 
@@ -185,7 +186,7 @@ def calc_plane_dir_dip(normal: np.ndarray) -> tuple[float, float]:
     return dir_degrees, dip_degrees
 
 
-def calc_vector_trend_plunge(vector: np.ndarray) -> tuple[float, float]:
+def calc_vector_trend_plunge(vector: npt.NDArray[np.float64]) -> tuple[float, float]:
     """
     Calculate trend and plunge of a vector.
 
@@ -230,7 +231,7 @@ def calc_vector_trend_plunge(vector: np.ndarray) -> tuple[float, float]:
     return round(trend_degrees, 5), round(plunge_degrees, 5)
 
 
-def calc_normal_vector_of_plane(dip: float, dip_dir: float) -> np.ndarray:
+def calc_normal_vector_of_plane(dip: float, dip_dir: float) -> npt.NDArray[np.float64]:
     """
     Calculate normalized normal vector of plane based on dip and dip dir.
 
