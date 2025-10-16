@@ -2,8 +2,7 @@
 Module with all calculations.
 """
 
-from typing import Any, NamedTuple, Optional
-import logging
+from typing import NamedTuple, Optional
 
 import numpy as np
 import numpy.typing as npt
