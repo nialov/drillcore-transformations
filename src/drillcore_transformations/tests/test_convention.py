@@ -46,10 +46,17 @@ measurement_validations_lope_202510 = (
     ),
     MeasurementValidation(
         measurement=transformations.Measurement(
-            alpha=15, beta=166, drillcore_plunge=-85, drillcore_trend=53
+            alpha=15, beta=168, drillcore_plunge=-85, drillcore_trend=53
         ),
         compass_dip=73,
         compass_dir=216,
+    ),
+    MeasurementValidation(
+        measurement=transformations.Measurement(
+            alpha=21, beta=159, drillcore_plunge=-85, drillcore_trend=53
+        ),
+        compass_dip=61,
+        compass_dir=213,
     ),
 )
 # alfa beta dip dir
