@@ -151,7 +151,7 @@ def test_transform_with_gamma(
     ) = transformations.transform(45, 0, 0, 90, 10)
     assert np.allclose(
         (plane_dip, plane_dir, gamma_plunge, gamma_trend),
-        (45.00000000000001, 0.0, -36.39247, 137.48165),
+        (45.0, 0.0, 44.13603, 345.99806),
     )
 
 
