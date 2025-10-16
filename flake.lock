@@ -2808,6 +2808,10 @@
           "nix-extra",
           "flake-parts"
         ],
+        "git-hooks": [
+          "nix-extra",
+          "git-hooks"
+        ],
         "import-tree": "import-tree",
         "nix-extra": "nix-extra",
         "nixpkgs": [
