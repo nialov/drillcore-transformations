@@ -5,6 +5,7 @@ let
     actionsCheckout
     DeterminateSystemsNixInstallerAction
     cachixCachixAction
+    runNixFlakeCheck
     ;
 
   baseNixSteps = [
@@ -41,21 +42,26 @@ in
             pull_request = { };
           };
           jobs = {
-            uv-pytest = {
+            nix-flake-check = {
               steps = baseNixSteps ++ [
-                {
-                  run = ''
-                    nix run .#fhs -- -c 'uv sync --all-extras'
-                  '';
-                }
-                {
-                  run = ''
-                    nix run .#fhs -- -c 'uv run pytest -v'
-                  '';
-                }
-
+                runNixFlakeCheck
               ];
             };
+            # uv-pytest = {
+            #   steps = baseNixSteps ++ [
+            #     {
+            #       run = ''
+            #         nix run .#fhs -- -c 'uv sync --all-extras'
+            #       '';
+            #     }
+            #     {
+            #       run = ''
+            #         nix run .#fhs -- -c 'uv run pytest -v'
+            #       '';
+            #     }
+
+            #   ];
+            # };
           };
         };
       };
