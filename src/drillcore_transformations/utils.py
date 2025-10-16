@@ -17,7 +17,10 @@ def calc_difference_between_two_planes(
         return 0.0
     vec_first = calc_normal_vector_of_plane(dip_first, dir_first)
     vec_second = calc_normal_vector_of_plane(dip_second, dir_second)
-    diff = np.rad2deg(np.arccos(np.dot(vec_first, vec_second)))
+    dot = np.dot(vec_first, vec_second)
+    # Clamp the dot product to [-1, 1] to avoid invalid values due to floating-point errors.
+    dot = np.clip(dot, -1.0, 1.0)
+    diff = np.rad2deg(np.arccos(dot))
     diff = diff if diff <= 90 else 180 - diff
     return float(diff)
 
