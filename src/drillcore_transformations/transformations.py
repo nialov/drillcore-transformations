@@ -11,6 +11,7 @@ from functools import partial
 
 array_float64 = partial(np.array, dtype=np.float64)
 
+
 class Measurement(NamedTuple):
     alpha: float
     beta: float
@@ -37,6 +38,7 @@ def calc_global_normal_vector(
     :param plunge: Plunge of the drillcore
     :return: Normalized normal vector of a plane. Always points upwards (z >= 0)
     """
+    # TODO: Should not be here
     beta = beta - 180
     trend = trend - 180
     # Degrees to radians
@@ -70,11 +72,15 @@ def calc_global_normal_vector(
         return array_float64([-ng_1, -ng_2, -ng_3]) / np.linalg.norm(
             array_float64([-ng_1, -ng_2, -ng_3])
         )
-    return array_float64([ng_1, ng_2, ng_3]) / np.linalg.norm(array_float64([ng_1, ng_2, ng_3]))
+    return array_float64([ng_1, ng_2, ng_3]) / np.linalg.norm(
+        array_float64([ng_1, ng_2, ng_3])
+    )
 
 
 def rotate_vector_about_vector(
-    vector: npt.NDArray[np.float64], about_vector: npt.NDArray[np.float64], amount: float
+    vector: npt.NDArray[np.float64],
+    about_vector: npt.NDArray[np.float64],
+    amount: float,
 ) -> npt.NDArray[np.float64]:
     """
     Rotate a given vector about another vector.
@@ -95,7 +101,12 @@ def rotate_vector_about_vector(
     :param amount: How many radians to rotate.
     :return: Rotated vector.
     """
-    if np.all(vector == 0) or np.all(about_vector == 0):
+    if (
+        np.all(vector == 0)
+        or np.all(about_vector == 0)
+        or np.isclose(np.linalg.norm(vector), 0.0)
+        or np.isclose(np.linalg.norm(about_vector), 0.0)
+    ):
         return array_float64([0.0, 0.0, 0.0])
     if np.allclose(
         vector / np.linalg.norm(vector), about_vector / np.linalg.norm(about_vector)
@@ -340,21 +351,64 @@ def transform_with_gamma(
         return np.nan, np.nan, np.nan, np.nan
 
 
-
-def calc_difference_between_two_planes(
-    dip_first: float, dir_first: float, dip_second: float, dir_second: float
-) -> float:
+def transform(
+    alpha: float,
+    beta: float,
+    drillcore_trend: float,
+    drillcore_plunge: float,
+    gamma: Optional[float] = None,
+) -> tuple[float, float, Optional[float], Optional[float]]:
     """
-    Calculate difference between two measured planes.
+    Transform alpha, beta and, optionally, gamma measurements from core.
 
-    Result is in range [0, 180].
+    E.g.
+
+    >>> transform(45, 0, 0, 90)
+    (45.00000000000001, 0.0, None, None)
+
+    >>> transform(45, 0, 0, 90, 10)
+    (45.00000000000001, 0.0, -36.39247, 137.48165)
+
+    :param alpha: Angle in degrees between drillcore axis and plane.
+    :param beta: Angle in degrees between TOP mark of core and ellipse
+        long axis at DOWN hole end in counterclockwise direction.
+    :param drillcore_trend: Trend of the drillcore.
+    :param drillcore_plunge: Plunge of the drillcore.
+    :param gamma: Linear feature on a plane. Measured in clockwise direction
+        from ellipse long axis at DOWN hole end.
+    :return: Plane dip and direction + Linear feature plunge and trend.
     """
-    if any(np.isnan(np.array([dip_first, dir_first, dip_second, dir_second]))):
-        return np.nan
-    if np.isclose(dip_first, dip_second) and np.isclose(dir_first, dir_second):
-        return 0.0
-    vec_first = calc_normal_vector_of_plane(dip_first, dir_first)
-    vec_second = calc_normal_vector_of_plane(dip_second, dir_second)
-    diff = np.rad2deg(np.arccos(np.dot(vec_first, vec_second)))
-    diff = diff if diff <= 90 else 180 - diff
-    return float(diff)
+
+    if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
+        return np.nan, np.nan, np.nan, np.nan
+    try:
+        # plane normal vector
+        plane_normal = calc_global_normal_vector(
+            alpha, beta, drillcore_trend, drillcore_plunge
+        )
+
+        # plane direction of dip and dip
+        plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
+
+        # Vector in the direction of plane dir and dip
+        plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
+
+        if gamma is not None:
+            # TODO: Correction logic
+            gamma = 360 - gamma
+            # Gamma vector
+            gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, gamma)
+
+            # Gamma trend and plunge
+            gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
+
+        else:
+            gamma_plunge, gamma_trend = None, None
+
+        return plane_dip, plane_dir, gamma_plunge, gamma_trend
+    except ValueError as e:
+        print(str(e))
+        if gamma is not None:
+            return np.nan, np.nan, np.nan, np.nan
+        else:
+            return np.nan, np.nan, None, None
