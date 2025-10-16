@@ -2,7 +2,7 @@
 Module with all calculations.
 """
 
-from typing import NamedTuple, Optional, Dict, Callable
+from typing import NamedTuple, Callable
 
 import numpy as np
 import numpy.typing as npt
@@ -18,7 +18,7 @@ class Measurement(NamedTuple):
     beta: float
     drillcore_trend: float
     drillcore_plunge: float
-    gamma: Optional[float] = None
+    gamma: float | None = None
 
 
 def calc_global_normal_vector(
@@ -276,9 +276,9 @@ def calc_normal_vector_of_plane(dip: float, dip_dir: float) -> npt.NDArray[np.fl
 
 
 def apply_convention_map(
-    convention_map: Dict[str, Callable],
-    **kwargs,
-)->Dict[str, Optional[float]]:
+    convention_map: dict[str, Callable[[float | None], float | None]],
+    **kwargs: dict[str, float | None],
+)->dict[str, float | None]:
     return {k: convention_map.get(k, lambda x: x)(v) for k, v in kwargs.items()}
 
 
@@ -287,9 +287,9 @@ def transform(
     beta: float,
     drillcore_trend: float,
     drillcore_plunge: float,
-    gamma: Optional[float] = None,
-    convention_map: Dict[str, Callable] = DEFAULT_CONVENTION_MAP,
-) -> tuple[float, float, Optional[float], Optional[float]]:
+    gamma: float | None = None,
+    convention_map: dict[str, Callable[[float | None], float | None]] = DEFAULT_CONVENTION_MAP,
+) -> tuple[float, float, float | None, float | None]:
     """
     Transform alpha, beta and, optionally, gamma measurements from core.
 
