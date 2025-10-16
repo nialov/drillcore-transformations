@@ -266,89 +266,89 @@ def calc_normal_vector_of_plane(dip: float, dip_dir: float) -> npt.NDArray[np.fl
     return plane_normal / np.linalg.norm(plane_normal)
 
 
-def transform_without_gamma(
-    alpha: float, beta: float, drillcore_trend: float, drillcore_plunge: float
-) -> tuple[float, float]:
-    """
-    Transform alpha and beta measurements from core.
+# def transform_without_gamma(
+#     alpha: float, beta: float, drillcore_trend: float, drillcore_plunge: float
+# ) -> tuple[float, float]:
+#     """
+#     Transform alpha and beta measurements from core.
 
-    E.g.
+#     E.g.
 
-    >>> transform_without_gamma(45, 0, 0, 90)
-    (45.00000000000001, 0.0)
+#     >>> transform_without_gamma(45, 0, 0, 90)
+#     (45.00000000000001, 0.0)
 
-    :param alpha: Angle in degrees between drillcore axis and plane.
-    :param beta: Angle in degrees between TOP mark of core and ellipse long axis at
-        DOWN hole end.
-    :param drillcore_trend: Trend of the drillcore.
-    :param drillcore_plunge: Plunge of the drillcore.
-    :return: Plane dip and direction
-    """
-    if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
-        return np.nan, np.nan
-    try:
-        plane_normal = calc_global_normal_vector(
-            alpha, beta, drillcore_trend, drillcore_plunge
-        )
+#     :param alpha: Angle in degrees between drillcore axis and plane.
+#     :param beta: Angle in degrees between TOP mark of core and ellipse long axis at
+#         DOWN hole end.
+#     :param drillcore_trend: Trend of the drillcore.
+#     :param drillcore_plunge: Plunge of the drillcore.
+#     :return: Plane dip and direction
+#     """
+#     if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
+#         return np.nan, np.nan
+#     try:
+#         plane_normal = calc_global_normal_vector(
+#             alpha, beta, drillcore_trend, drillcore_plunge
+#         )
 
-        plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
-        return plane_dip, plane_dir
-    except ValueError as e:
-        print(str(e))
-        return np.nan, np.nan
+#         plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
+#         return plane_dip, plane_dir
+#     except ValueError as e:
+#         print(str(e))
+#         return np.nan, np.nan
 
 
-def transform_with_gamma(
-    alpha: float,
-    beta: float,
-    drillcore_trend: float,
-    drillcore_plunge: float,
-    gamma: float,
-) -> tuple[float, float, float, float]:
-    """
-    Transform alpha, beta and gamma measurements from core.
+# def transform_with_gamma(
+#     alpha: float,
+#     beta: float,
+#     drillcore_trend: float,
+#     drillcore_plunge: float,
+#     gamma: float,
+# ) -> tuple[float, float, float, float]:
+#     """
+#     Transform alpha, beta and gamma measurements from core.
 
-    E.g.
+#     E.g.
 
-    >>> transform_with_gamma(45, 0, 0, 90, 10)
-    (45.00000000000001, 0.0, -36.39247, 137.48165)
+#     >>> transform_with_gamma(45, 0, 0, 90, 10)
+#     (45.00000000000001, 0.0, -36.39247, 137.48165)
 
-    :param alpha: Angle in degrees between drillcore axis and plane.
-    :param beta: Angle in degrees between TOP mark of core and ellipse
-        long axis at DOWN hole end in counterclockwise direction.
-    :param drillcore_trend: Trend of the drillcore.
-    :param drillcore_plunge: Plunge of the drillcore.
-    :param gamma: Linear feature on a plane. Measured in clockwise direction
-        from ellipse long axis at DOWN hole end.
-    :return: Plane dip and direction + Linear feature plunge and trend.
-    """
+#     :param alpha: Angle in degrees between drillcore axis and plane.
+#     :param beta: Angle in degrees between TOP mark of core and ellipse
+#         long axis at DOWN hole end in counterclockwise direction.
+#     :param drillcore_trend: Trend of the drillcore.
+#     :param drillcore_plunge: Plunge of the drillcore.
+#     :param gamma: Linear feature on a plane. Measured in clockwise direction
+#         from ellipse long axis at DOWN hole end.
+#     :return: Plane dip and direction + Linear feature plunge and trend.
+#     """
 
-    # drillcore_plunge = -drillcore_plunge
-    # drillcore_trend = drillcore_plunge - 90
-    if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
-        return np.nan, np.nan, np.nan, np.nan
-    try:
-        # plane normal vector
-        plane_normal = calc_global_normal_vector(
-            alpha, beta, drillcore_trend, drillcore_plunge
-        )
+#     # drillcore_plunge = -drillcore_plunge
+#     # drillcore_trend = drillcore_plunge - 90
+#     if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
+#         return np.nan, np.nan, np.nan, np.nan
+#     try:
+#         # plane normal vector
+#         plane_normal = calc_global_normal_vector(
+#             alpha, beta, drillcore_trend, drillcore_plunge
+#         )
 
-        # plane direction of dip and dip
-        plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
+#         # plane direction of dip and dip
+#         plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
 
-        # Vector in the direction of plane dir and dip
-        plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
+#         # Vector in the direction of plane dir and dip
+#         plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
 
-        # Gamma vector
-        gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, gamma)
+#         # Gamma vector
+#         gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, gamma)
 
-        # Gamma trend and plunge
-        gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
+#         # Gamma trend and plunge
+#         gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
 
-        return plane_dip, plane_dir, gamma_plunge, gamma_trend
-    except ValueError as e:
-        print(str(e))
-        return np.nan, np.nan, np.nan, np.nan
+#         return plane_dip, plane_dir, gamma_plunge, gamma_trend
+#     except ValueError as e:
+#         print(str(e))
+#         return np.nan, np.nan, np.nan, np.nan
 
 
 def transform(
