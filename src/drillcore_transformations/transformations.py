@@ -40,7 +40,6 @@ def calc_global_normal_vector(
     """
     # TODO: Should not be here
     beta = beta - 180
-    trend = trend - 180
     # Degrees to radians
     alpha = np.deg2rad(alpha)
     beta = np.deg2rad(beta)
