@@ -13,6 +13,7 @@
     };
     nixpkgs.follows = "nix-extra/nixpkgs";
     flake-parts.follows = "nix-extra/flake-parts";
+    git-hooks.follows = "nix-extra/git-hooks";
   };
 
   outputs =

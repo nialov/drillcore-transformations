@@ -1,8 +1,6 @@
 """
 Unit test package for drillcore_transformations.
 """
-from pathlib import Path
-
 import numpy as np
 from hypothesis.extra.numpy import arrays
 from hypothesis.strategies import dictionaries, floats, functions, text
