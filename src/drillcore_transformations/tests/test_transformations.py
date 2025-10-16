@@ -10,7 +10,7 @@ from hypothesis import HealthCheck, assume, given, settings
 from drillcore_transformations import transformations, utils
 from drillcore_transformations.tests import (
     alpha_strategy,
-    amount_strategy,
+    amount_degrees_strategy,
     beta_strategy,
     dip_strategy,
     dir_strategy,
@@ -33,18 +33,18 @@ def test_calc_global_normal_vector(
     assert vector[2] >= 0
 
 
-@given(vector_strategy, vector_strategy, amount_strategy)
+@given(vector_strategy, vector_strategy, amount_degrees_strategy)
 def test_rotate_vector_about_vector(
-    vector: np.ndarray, about_vector: np.ndarray, amount: float
+    vector: np.ndarray, about_vector: np.ndarray, amount_degrees: float
 ) -> None:
     """
     Test rotate_vector_about_vector.
     """
-    transformations.rotate_vector_about_vector(vector, about_vector, amount)
+    transformations.rotate_vector_about_vector(vector, about_vector, amount_degrees)
 
     # sample test
     rotated_vector_ = transformations.rotate_vector_about_vector(
-        np.array([1, 0, 1]), np.array([0, 0, 1]), np.pi
+        np.array([1, 0, 1]), np.array([0, 0, 1]), 180.0
     )
     assert np.allclose(
         rotated_vector_, np.array([-1.0000000e00, 1.2246468e-16, 1.0000000e00])

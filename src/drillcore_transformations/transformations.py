@@ -80,7 +80,7 @@ def calc_global_normal_vector(
 def rotate_vector_about_vector(
     vector: npt.NDArray[np.float64],
     about_vector: npt.NDArray[np.float64],
-    amount: float,
+    amount_degrees: float,
 ) -> npt.NDArray[np.float64]:
     """
     Rotate a given vector about another vector.
@@ -90,7 +90,7 @@ def rotate_vector_about_vector(
 
     E.g.
 
-    >>> rotate_vector_about_vector(np.array([1, 0, 1]), np.array([0, 0, 1]), np.pi)
+    >>> rotate_vector_about_vector(np.array([1, 0, 1]), np.array([0, 0, 1]), 180.0)
     array([-1.0000000e+00,  1.2246468e-16,  1.0000000e+00])
 
     TODO: Is gamma axial or vector data? Right now treated as vector. =>
@@ -98,7 +98,7 @@ def rotate_vector_about_vector(
 
     :param vector: Vector to rotate.
     :param about_vector: Vector to rotate about.
-    :param amount: How many radians to rotate.
+    :param amount_degrees: How many radians to rotate.
     :return: Rotated vector.
     """
     if (
@@ -114,10 +114,10 @@ def rotate_vector_about_vector(
         return vector
     if np.all(np.cross(vector, about_vector) == 0):
         return vector
-    if np.isclose(amount, 0):
+    if np.isclose(amount_degrees, 0.0):
         return vector
     about_vector = about_vector / np.linalg.norm(about_vector)
-    amount_rad = amount
+    amount_rad = np.deg2rad(amount_degrees)
     try:
         v_rot = (
             vector * np.cos(amount_rad)
@@ -145,9 +145,9 @@ def vector_from_dip_and_dir(dip: float, dip_dir: float) -> npt.NDArray[np.float6
     :param dip_dir: Dip direction of feature.
     :return: Normalized vector pointing in the direction and the dip.
     """
-    # Print warning if dip is negative.
+    # Raise if dip is negative.
     if dip < 0:
-        logging.error(f"Dip is negative. Dip: {dip} (In {__name__})")
+        raise ValueError(f"Dip is negative. Dip: {dip} (In {__name__})")
 
     nx = np.sin(np.deg2rad(dip_dir)) * np.cos(np.deg2rad(dip))
     ny = np.cos(np.deg2rad(dip_dir)) * np.cos(np.deg2rad(dip))
@@ -223,12 +223,19 @@ def calc_vector_trend_plunge(vector: npt.NDArray[np.float64]) -> tuple[float, fl
     if np.all(vector == 0):
         return np.nan, np.nan
 
-    if vector[2] > 0:
-        plunge_radians = np.arcsin(vector[2])
-        plunge_degrees = -np.rad2deg(plunge_radians)
-    else:
-        plunge_radians = np.arcsin(vector[2])
-        plunge_degrees = -np.rad2deg(plunge_radians)
+    plunge_radians = np.arcsin(vector[2])
+    plunge_degrees = -np.rad2deg(plunge_radians)
+    if plunge_degrees < 0.0:
+        # plunge_degrees = -plunge_degrees
+        plunge_degrees = 90 + plunge_degrees
+
+    assert 0.0 <= plunge_degrees <= 90.0
+    # if vector[2] > 0:
+    #     plunge_radians = np.arcsin(vector[2])
+    #     plunge_degrees = -np.rad2deg(plunge_radians)
+    # else:
+    #     plunge_radians = np.arcsin(vector[2])
+    #     plunge_degrees = -np.rad2deg(plunge_radians)
 
     # Get vector trend
     vector_xy = vector[:2]
@@ -270,89 +277,6 @@ def calc_normal_vector_of_plane(dip: float, dip_dir: float) -> npt.NDArray[np.fl
     return plane_normal / np.linalg.norm(plane_normal)
 
 
-# def transform_without_gamma(
-#     alpha: float, beta: float, drillcore_trend: float, drillcore_plunge: float
-# ) -> tuple[float, float]:
-#     """
-#     Transform alpha and beta measurements from core.
-
-#     E.g.
-
-#     >>> transform_without_gamma(45, 0, 0, 90)
-#     (45.00000000000001, 0.0)
-
-#     :param alpha: Angle in degrees between drillcore axis and plane.
-#     :param beta: Angle in degrees between TOP mark of core and ellipse long axis at
-#         DOWN hole end.
-#     :param drillcore_trend: Trend of the drillcore.
-#     :param drillcore_plunge: Plunge of the drillcore.
-#     :return: Plane dip and direction
-#     """
-#     if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
-#         return np.nan, np.nan
-#     try:
-#         plane_normal = calc_global_normal_vector(
-#             alpha, beta, drillcore_trend, drillcore_plunge
-#         )
-
-#         plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
-#         return plane_dip, plane_dir
-#     except ValueError as e:
-#         print(str(e))
-#         return np.nan, np.nan
-
-
-# def transform_with_gamma(
-#     alpha: float,
-#     beta: float,
-#     drillcore_trend: float,
-#     drillcore_plunge: float,
-#     gamma: float,
-# ) -> tuple[float, float, float, float]:
-#     """
-#     Transform alpha, beta and gamma measurements from core.
-
-#     E.g.
-
-#     >>> transform_with_gamma(45, 0, 0, 90, 10)
-#     (45.00000000000001, 0.0, -36.39247, 137.48165)
-
-#     :param alpha: Angle in degrees between drillcore axis and plane.
-#     :param beta: Angle in degrees between TOP mark of core and ellipse
-#         long axis at DOWN hole end in counterclockwise direction.
-#     :param drillcore_trend: Trend of the drillcore.
-#     :param drillcore_plunge: Plunge of the drillcore.
-#     :param gamma: Linear feature on a plane. Measured in clockwise direction
-#         from ellipse long axis at DOWN hole end.
-#     :return: Plane dip and direction + Linear feature plunge and trend.
-#     """
-
-#     # drillcore_plunge = -drillcore_plunge
-#     # drillcore_trend = drillcore_plunge - 90
-#     if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
-#         return np.nan, np.nan, np.nan, np.nan
-#     try:
-#         # plane normal vector
-#         plane_normal = calc_global_normal_vector(
-#             alpha, beta, drillcore_trend, drillcore_plunge
-#         )
-
-#         # plane direction of dip and dip
-#         plane_dir, plane_dip = calc_plane_dir_dip(plane_normal)
-
-#         # Vector in the direction of plane dir and dip
-#         plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
-
-#         # Gamma vector
-#         gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, gamma)
-
-#         # Gamma trend and plunge
-#         gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
-
-#         return plane_dip, plane_dir, gamma_plunge, gamma_trend
-#     except ValueError as e:
-#         print(str(e))
-#         return np.nan, np.nan, np.nan, np.nan
 
 
 def transform(
@@ -370,8 +294,8 @@ def transform(
     >>> transform(45, 0, 0, 90)
     (45.00000000000001, 0.0, None, None)
 
-    >>> transform(45, 0, 0, 90, 10)
-    (45.0, 0.0, -36.39247, 137.48165)
+    >>> transform(45, 0, 0, 90, 0.0)
+    (45.0, 0.0, 45.0, 0.0)
 
     :param alpha: Angle in degrees between drillcore axis and plane.
     :param beta: Angle in degrees between TOP mark of core and ellipse
@@ -412,6 +336,6 @@ def transform(
     except ValueError as e:
         print(str(e))
         if gamma is not None:
-            return float('nan'), float('nan'), float('nan'), float('nan')
+            return float("nan"), float("nan"), float("nan"), float("nan")
         else:
-            return float('nan'), float('nan'), None, None
+            return float("nan"), float("nan"), None, None
