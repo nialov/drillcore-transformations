@@ -405,10 +405,10 @@ def transform(
         else:
             gamma_plunge, gamma_trend = None, None
 
-        return plane_dip, plane_dir, gamma_plunge, gamma_trend
+        return float(plane_dip), float(plane_dir), gamma_plunge, gamma_trend
     except ValueError as e:
         print(str(e))
         if gamma is not None:
-            return np.nan, np.nan, np.nan, np.nan
+            return float('nan'), float('nan'), float('nan'), float('nan')
         else:
-            return np.nan, np.nan, None, None
+            return float('nan'), float('nan'), None, None
