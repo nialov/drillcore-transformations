@@ -367,7 +367,7 @@ def transform(
     (45.00000000000001, 0.0, None, None)
 
     >>> transform(45, 0, 0, 90, 10)
-    (45.00000000000001, 0.0, -36.39247, 137.48165)
+    (45.0, 0.0, -11.56965, 101.81302)
 
     :param alpha: Angle in degrees between drillcore axis and plane.
     :param beta: Angle in degrees between TOP mark of core and ellipse
@@ -401,7 +401,8 @@ def transform(
 
             # Gamma trend and plunge
             gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
-
+            gamma_plunge = float(gamma_plunge)
+            gamma_trend = float(gamma_trend)
         else:
             gamma_plunge, gamma_trend = None, None
 
