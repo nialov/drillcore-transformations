@@ -56,7 +56,7 @@ doctest_optionflags =[
     "NORMALIZE_WHITESPACE",
     ]
 
-filterwarnings =[]
+filterwarnings =[ "error" ]
 
 [tool.mypy]
 files = "src/drillcore_transformations"

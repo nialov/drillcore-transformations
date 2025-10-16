@@ -7,7 +7,7 @@ from warnings import warn
 import numpy as np
 from hypothesis import HealthCheck, assume, given, settings
 
-from drillcore_transformations import transformations
+from drillcore_transformations import transformations, utils
 from drillcore_transformations.tests import (
     alpha_strategy,
     amount_strategy,
@@ -148,7 +148,7 @@ def test_transform_with_gamma(
         plane_dir,
         gamma_plunge,
         gamma_trend,
-    ) = transformations.transform_with_gamma(45, 0, 0, 90, 10)
+    ) = transformations.transform(45, 0, 0, 90, 10)
     assert np.allclose(
         (plane_dip, plane_dir, gamma_plunge, gamma_trend),
         (45.00000000000001, 0.0, -36.39247, 137.48165),
@@ -162,7 +162,7 @@ def test_calc_difference_between_two_planes(
     """
     Test calc_difference_between_two_planes.
     """
-    result = transformations.calc_difference_between_two_planes(
+    result = utils.calc_difference_between_two_planes(
         dip_first, dir_first, dip_second, dir_second
     )
 
@@ -174,5 +174,5 @@ def test_calc_difference_between_two_planes_nan() -> None:
     """
     Test calc_difference_between_two_planes with nan.
     """
-    result = transformations.calc_difference_between_two_planes(np.nan, 1, 5, 50)
+    result = utils.calc_difference_between_two_planes(np.nan, 1, 5, 50)
     assert np.isnan(result)
