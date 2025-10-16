@@ -1,0 +1,16 @@
+jobs:
+  uv-pytest:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+    - uses: DeterminateSystems/nix-installer-action@v19
+    - uses: cachix/cachix-action@v16
+      with:
+        name: nialov
+    - run: nix run .#fhs -- -c 'uv sync'
+    - run: nix run .#fhs -- -c 'uv run pytest -v'
+    timeout-minutes: 60
+'on':
+  pull_request: {}
+  push: {}
+  workflow_dispatch: {}

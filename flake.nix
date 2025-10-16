@@ -7,6 +7,7 @@
     };
     actions-nix = {
       url = "github:nialov/actions.nix";
+      inputs.git-hooks.follows = "git-hooks";
     };
     import-tree = {
       url = "github:vic/import-tree";
