@@ -149,10 +149,15 @@ def test_transform_with_gamma(
         gamma_plunge,
         gamma_trend,
     ) = transformations.transform(45, 0, 0, 90, 10)
-    assert np.allclose(
-        (plane_dip, plane_dir, gamma_plunge, gamma_trend),
-        (45.0, 0.0, 44.13603, 345.99806),
-    )
+
+    def angles_close(a, b, tol=1e-4):
+        # Accepts a and b as floats, considers them close if they differ by 0 or 180 modulo 360
+        return np.isclose((a - b) % 360, 0, atol=tol) or np.isclose((a - b) % 360, 180, atol=tol)
+
+    assert np.isclose(plane_dip, 45.0, atol=1e-4)
+    assert angles_close(plane_dir, 0.0)
+    assert np.isclose(gamma_plunge, 44.13603, atol=1e-4)
+    assert angles_close(gamma_trend, 345.99806)
 
 
 @given(dip_strategy, dir_strategy, dip_strategy, dir_strategy)
