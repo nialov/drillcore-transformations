@@ -179,6 +179,10 @@ def calc_plane_dir_dip(normal: npt.NDArray[np.float64]) -> tuple[float, float]:
     # Get plane vector trend from plane normal vector
 
     normal_xy = normal[:2]
+    xy_norm = np.linalg.norm(normal_xy)
+    if np.isclose(xy_norm, 0.0):
+        return 0.0, 0.0
+
     normal_xy = normal_xy / np.linalg.norm(normal_xy)
     dir_0 = np.array([0, 1.0])
     # y is negative
@@ -394,8 +398,6 @@ def transform(
         plane_vector = vector_from_dip_and_dir(plane_dip, plane_dir)
 
         if gamma is not None:
-            # TODO: Correction logic
-            gamma = 360 - gamma
             # Gamma vector
             gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, gamma)
 
