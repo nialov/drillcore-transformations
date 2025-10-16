@@ -2,13 +2,15 @@
 Module with all calculations.
 """
 
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, Dict, Callable
 
 import numpy as np
 import numpy.typing as npt
 from functools import partial
 
 array_float64 = partial(np.array, dtype=np.float64)
+
+DEFAULT_CONVENTION_MAP = {"beta": lambda beta: beta - 180}
 
 
 class Measurement(NamedTuple):
@@ -37,8 +39,6 @@ def calc_global_normal_vector(
     :param plunge: Plunge of the drillcore
     :return: Normalized normal vector of a plane. Always points upwards (z >= 0)
     """
-    # TODO: Should not be here
-    beta = beta - 180
     # Degrees to radians
     alpha = np.deg2rad(alpha)
     beta = np.deg2rad(beta)
@@ -275,6 +275,11 @@ def calc_normal_vector_of_plane(dip: float, dip_dir: float) -> npt.NDArray[np.fl
     return plane_normal / np.linalg.norm(plane_normal)
 
 
+def apply_convention_map(
+    convention_map: Dict[str, Callable],
+    **kwargs,
+)->Dict[str, Optional[float]]:
+    return {k: convention_map.get(k, lambda x: x)(v) for k, v in kwargs.items()}
 
 
 def transform(
@@ -283,6 +288,7 @@ def transform(
     drillcore_trend: float,
     drillcore_plunge: float,
     gamma: Optional[float] = None,
+    convention_map: Dict[str, Callable] = DEFAULT_CONVENTION_MAP,
 ) -> tuple[float, float, Optional[float], Optional[float]]:
     """
     Transform alpha, beta and, optionally, gamma measurements from core.
@@ -296,18 +302,24 @@ def transform(
     (45.0, 180.0, 45.0, 180.0)
 
     :param alpha: Angle in degrees between drillcore axis and plane.
-    :param beta: Angle in degrees between TOP mark of core and ellipse
-        long axis at DOWN hole end in counterclockwise direction.
     :param drillcore_trend: Trend of the drillcore.
     :param drillcore_plunge: Plunge of the drillcore.
-    :param gamma: Linear feature on a plane. Measured in clockwise direction
-        from ellipse long axis at DOWN hole end.
-    :return: Plane dip and direction + Linear feature plunge and trend.
+    :param gamma: Linear feature on a plane. Measured in clockwise direction from ellipse long axis at DOWN hole end.
     """
 
     if any(np.isnan(x) for x in (alpha, beta, drillcore_trend, drillcore_plunge)):
         return np.nan, np.nan, np.nan, np.nan
     try:
+        # apply convention map
+        alpha, beta, drillcore_trend, drillcore_plunge, gamma = apply_convention_map(
+            alpha=alpha,
+            beta=beta,
+            drillcore_trend=drillcore_trend,
+            drillcore_plunge=drillcore_plunge,
+            gamma=gamma,
+            convention_map=convention_map,
+        ).values()
+
         # plane normal vector
         plane_normal = calc_global_normal_vector(
             alpha, beta, drillcore_trend, drillcore_plunge
