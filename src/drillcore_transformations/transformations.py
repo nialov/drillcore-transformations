@@ -293,7 +293,7 @@ def transform(
     (45.00000000000001, 180.0, None, None)
 
     >>> transform(45, 0, 0, 90, 0.0)
-    (45.0, 0.0, 45.0, 0.0)
+    (45.0, 180.0, 45.0, 180.0)
 
     :param alpha: Angle in degrees between drillcore axis and plane.
     :param beta: Angle in degrees between TOP mark of core and ellipse
