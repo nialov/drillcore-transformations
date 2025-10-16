@@ -111,7 +111,7 @@ def test_transform_without_gamma(
     """
     Test transform_without_gamma.
     """
-    plane_dip, plane_dir = transformations.transform_without_gamma(
+    plane_dip, plane_dir, _, _ = transformations.transform(
         alpha, beta, drillcore_trend, drillcore_plunge
     )
     assert plane_dir >= 0.0
@@ -132,7 +132,7 @@ def test_transform_with_gamma(
         plane_dir,
         gamma_plunge,
         gamma_trend,
-    ) = transformations.transform_with_gamma(
+    ) = transformations.transform(
         alpha, beta, drillcore_trend, drillcore_plunge, gamma
     )
     assert plane_dir >= 0.0

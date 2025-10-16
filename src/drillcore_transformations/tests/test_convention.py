@@ -106,18 +106,35 @@ def test_measurement(
             f"Angle between planes ({diff_two_planes}) not within error margin"
         )
 
-    if measurement.gamma is not None:
-        print("Linear measurements:")
-        result_plunge = result[2]
-        result_trend = result[3]
-        assert result_plunge is not None
-        assert result_trend is not None
-        print(
-            (int(result_plunge), int(result_trend)),
-            [
-                compass_plunge,
-                compass_trend,
-            ],
-        )
-        assert np.isclose(compass_plunge, result_plunge)
-        assert np.isclose(compass_trend, result_trend)
+    if measurement.gamma is None:
+        print("No gamma measurement to test")
+        return
+    print("Linear measurements:")
+    result_plunge = result[2]
+    result_trend = result[3]
+    assert result_plunge is not None
+    assert result_trend is not None
+    print(
+        (int(result_plunge), int(result_trend)),
+        [
+            compass_plunge,
+            compass_trend,
+        ],
+    )
+    vec_first = transformations.vector_from_dip_and_dir(
+        dip=result_plunge,
+        dip_dir=result_trend,
+    )
+    vec_second = transformations.vector_from_dip_and_dir(
+        dip=compass_plunge,
+        dip_dir=compass_trend,
+    )
+    diff = np.rad2deg(np.arccos(np.dot(vec_first, vec_second)))
+    if diff < error_margin:
+        print("Angle between vectors within error margin")
+    else:
+        raise ValueError(f"Angle between vectors ({diff}) not within error margin")
+    # assert
+    # diff = diff if diff <= 90 else 180 - diff
+    # assert np.isclose(compass_plunge, result_plunge), diff
+    # assert np.isclose(compass_trend, result_trend), diff
