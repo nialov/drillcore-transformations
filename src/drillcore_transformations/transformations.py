@@ -212,6 +212,7 @@ def calc_vector_trend_plunge(vector: npt.NDArray[np.float64]) -> tuple[float, fl
     """
     Calculate trend and plunge of a vector.
 
+    TODO: No longer valid, no negative plunges currently possible.
     Does not assume that the data is axial and a negative plunge result implies
     that the gamma feature is pointed upwards.
 
