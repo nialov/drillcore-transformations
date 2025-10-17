@@ -45,21 +45,29 @@ in
               runNixFlakeCheck
             ];
           };
-          # uv-pytest = {
-          #   steps = baseNixSteps ++ [
-          #     {
-          #       run = ''
-          #         nix run .#fhs -- -c 'uv sync --all-extras'
-          #       '';
-          #     }
-          #     {
-          #       run = ''
-          #         nix run .#fhs -- -c 'uv run pytest -v'
-          #       '';
-          #     }
+          uv-pytest = {
+            strategy.matrix.python-version = [
+              "3.9"
+              "3.10"
+              "3.11"
+              "3.12"
+              "3.13"
+            ];
+            steps = [
+              actionsCheckout
+              {
+                uses = "astral-sh/setup-uv@v7";
+                "with".python-version = "\${{ matrix.python-version }}";
+              }
+              {
+                name = "Run pytest";
+                run = ''
+                  uv run --frozen --all-extras pytest -v
+                '';
+              }
 
-          #   ];
-          # };
+            ];
+          };
         };
       };
     };
