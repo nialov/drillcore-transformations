@@ -2,7 +2,7 @@
 Module with all calculations.
 """
 
-from typing import NamedTuple, Callable
+from typing import NamedTuple, Callable, Optional, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -18,7 +18,7 @@ class Measurement(NamedTuple):
     beta: float
     drillcore_trend: float
     drillcore_plunge: float
-    gamma: float | None = None
+    gamma: Optional[float] = None
 
 
 def calc_global_normal_vector(
@@ -156,7 +156,7 @@ def vector_from_dip_and_dir(dip: float, dip_dir: float) -> npt.NDArray[np.float6
     return n
 
 
-def calc_plane_dir_dip(normal: npt.NDArray[np.float64]) -> tuple[float, float]:
+def calc_plane_dir_dip(normal: npt.NDArray[np.float64]) -> Tuple[float, float]:
     """
     Calculate direction of dip and dip of a plane.
 
@@ -208,7 +208,7 @@ def calc_plane_dir_dip(normal: npt.NDArray[np.float64]) -> tuple[float, float]:
     return dir_degrees, dip_degrees
 
 
-def calc_vector_trend_plunge(vector: npt.NDArray[np.float64]) -> tuple[float, float]:
+def calc_vector_trend_plunge(vector: npt.NDArray[np.float64]) -> Tuple[float, float]:
     """
     Calculate trend and plunge of a vector.
 
@@ -277,9 +277,9 @@ def calc_normal_vector_of_plane(dip: float, dip_dir: float) -> npt.NDArray[np.fl
 
 
 def apply_convention_map(
-    convention_map: dict[str, Callable[[float | None], float | None]],
-    **kwargs: dict[str, float | None],
-)->dict[str, float | None]:
+    convention_map: dict[str, Callable[[Optional[float]], Optional[float]]],
+    **kwargs: dict[str, Optional[float]],
+) -> dict[str, Optional[float]]:
     return {k: convention_map.get(k, lambda x: x)(v) for k, v in kwargs.items()}
 
 
@@ -288,9 +288,9 @@ def transform(
     beta: float,
     drillcore_trend: float,
     drillcore_plunge: float,
-    gamma: float | None = None,
-    convention_map: dict[str, Callable[[float | None], float | None]] = DEFAULT_CONVENTION_MAP,
-) -> tuple[float, float, float | None, float | None]:
+    gamma: Optional[float] = None,
+    convention_map: dict[str, Callable[[Optional[float]], Optional[float]]] = DEFAULT_CONVENTION_MAP,
+) -> Tuple[float, float, Optional[float], Optional[float]]:
     """
     Transform alpha, beta and, optionally, gamma measurements from core.
 
