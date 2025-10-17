@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.0
+
+Full refactor of the library to focus on minimal implementation of calculations
+only. Support for reading, e.g., Excel and ``csv`` files has been removed. This
+update contains breaking changes.
+
+Changes include:
+
+- Removed Excel/CSV reading; library now focuses on core calculation functions only.
+- Simplified and refactored the Python API (usage from Python code), with improved type annotations and code clarity.
+- Streamlined codebase by removing obsolete modules, scripts, and data.
+- Improved test coverage and CI/development environment.
+
+Full set of changes:
+[`v0.2.6...v0.3.0`](git@github.com:nialov/drillcore-transformations/compare/v0.2.6...v0.3.0)
+
 ## v0.2.6 (2022-01-22)
 
 #### Fixes
