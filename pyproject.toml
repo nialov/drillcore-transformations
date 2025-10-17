@@ -29,6 +29,7 @@ test = [
 docs = [
     "pandas",
     "marimo",
+    "nbformat",
     "matplotlib"
 ]
 
