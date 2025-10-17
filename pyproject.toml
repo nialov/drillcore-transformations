@@ -26,6 +26,10 @@ test = [
     "hypothesis",
     "mypy"
 ]
+docs = [
+    "pandas",
+    "marimo"
+]
 
 [project.scripts]
 
