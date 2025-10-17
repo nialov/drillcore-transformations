@@ -2,6 +2,8 @@
 
 ## v0.3.0
 
+- License changed from GPLv3 to MIT.
+
 Full refactor of the library to focus on minimal implementation of calculations
 only. Support for reading, e.g., Excel and ``csv`` files has been removed. This
 update contains breaking changes.
