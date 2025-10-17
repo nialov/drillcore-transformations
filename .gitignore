@@ -13,6 +13,7 @@ dev/
 *.pickle
 sample_data
 *.rej
+/notebooks/__marimo__/
 
 # We do not want to include requirements.txt
 # It is merely for backwards compatible pip installs
