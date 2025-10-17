@@ -5,6 +5,15 @@ A minimal and simple Python library for transforming drillcore alpha, beta, and 
 
 |PyPI Status| |CI Test|
 
+Development
+~~~~~~~~~~~
+
+To run tests, use the following command:
+
+.. code-block:: bash
+
+   uv run pytest
+
 Credits
 -------
 
