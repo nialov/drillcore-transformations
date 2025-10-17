@@ -6,7 +6,8 @@ authors = [
     { name = "nialov", email = "nikolasovaskainen@gmail.com" }
 ]
 readme = "README.rst"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = [ "LICENSE" ]
 classifiers = [
     "Programming Language :: Python :: 3 :: Only"
 ]
