@@ -2,7 +2,6 @@
 
 ## v0.3.0
 
-- License changed from GPLv3 to MIT.
 
 Full refactor of the library to focus on minimal implementation of calculations
 only. Support for reading, e.g., Excel and ``csv`` files has been removed. This
@@ -14,6 +13,7 @@ Changes include:
 - Simplified and refactored the Python API (usage from Python code), with improved type annotations and code clarity.
 - Streamlined codebase by removing obsolete modules, scripts, and data.
 - Improved test coverage and CI/development environment.
+- License changed from GPLv3 to MIT.
 
 Full set of changes:
 [`v0.2.6...v0.3.0`](git@github.com:nialov/drillcore-transformations/compare/v0.2.6...v0.3.0)
