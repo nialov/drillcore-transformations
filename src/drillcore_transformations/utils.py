@@ -3,7 +3,6 @@ import numpy as np
 from drillcore_transformations.transformations import calc_normal_vector_of_plane
 
 
-from typing import Optional
 
 def calc_difference_between_two_planes(
     dip_first: float, dir_first: float, dip_second: float, dir_second: float
