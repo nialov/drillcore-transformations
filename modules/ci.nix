@@ -35,7 +35,7 @@ in
     workflows = {
       ".github/workflows/main.yaml" = {
         on = {
-          push.branches = [ "main" ];
+          push.branches = [ "master" ];
           workflow_dispatch = { };
           pull_request = { };
         };
