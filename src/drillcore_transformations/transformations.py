@@ -222,13 +222,16 @@ def calc_vector_trend_plunge(vector: npt.NDArray[np.float64]) -> Tuple[float, fl
     if np.all(vector == 0):
         return np.nan, np.nan
 
+    if np.all(np.isnan(vector)):
+        return np.nan, np.nan
+
     plunge_radians = np.arcsin(vector[2])
     plunge_degrees = -np.rad2deg(plunge_radians)
     if plunge_degrees < 0.0:
         # plunge_degrees = -plunge_degrees
         plunge_degrees = 90 + plunge_degrees
 
-    assert 0.0 <= plunge_degrees <= 90.0
+    assert 0.0 <= plunge_degrees <= 90.0, plunge_degrees
     # if vector[2] > 0:
     #     plunge_radians = np.arcsin(vector[2])
     #     plunge_degrees = -np.rad2deg(plunge_radians)
