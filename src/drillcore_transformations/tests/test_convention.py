@@ -91,6 +91,15 @@ measurement_validations_lope_202510 = (
         compass_dip=19,
         compass_dir=166,
     ),
+    MeasurementValidation(
+        measurement=transformations.Measurement(
+            alpha=7, beta=10, gamma=100, drillcore_trend=215, drillcore_plunge=-83
+        ),
+        compass_dip=87,
+        compass_dir=150,
+        compass_plunge=4,
+        compass_trend=55,
+    ),
 )
 
 measurement_validations_synt_2025 = (
