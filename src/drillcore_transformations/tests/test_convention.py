@@ -16,6 +16,10 @@ synt_2025_measurement = partial(
     transformations.Measurement, drillcore_trend=260, drillcore_plunge=-40
 )
 
+synt_2025_measurement_v2 = partial(
+    transformations.Measurement, drillcore_trend=360, drillcore_plunge=-62
+)
+
 
 class MeasurementValidation(NamedTuple):
     measurement: transformations.Measurement
@@ -131,6 +135,58 @@ measurement_validations_synt_2025 = (
     ),
 )
 
+measurement_validations_synt_2025_v2 = (
+    MeasurementValidation(
+        measurement=synt_2025_measurement_v2(alpha=90, beta=0, gamma=56),
+        compass_dip=29,
+        compass_dir=188,
+        compass_plunge=11,
+        compass_trend=273,
+    ),
+    MeasurementValidation(
+        measurement=synt_2025_measurement_v2(alpha=75, beta=312, gamma=152),
+        compass_dip=33,
+        compass_dir=182,
+        compass_plunge=12,
+        compass_trend=110,
+    ),
+    MeasurementValidation(
+        measurement=synt_2025_measurement_v2(alpha=60, beta=170, gamma=250),
+        compass_dip=6,
+        compass_dir=294,
+        compass_plunge=1,
+        compass_trend=52,
+    ),
+    MeasurementValidation(
+        measurement=synt_2025_measurement_v2(alpha=50, beta=20, gamma=40),
+        compass_dip=73,
+        compass_dir=219,
+        compass_plunge=5,
+        compass_trend=287,
+    ),
+    MeasurementValidation(
+        measurement=synt_2025_measurement_v2(alpha=35, beta=170, gamma=105),
+        compass_dip=27,
+        compass_dir=355,
+        compass_plunge=22,
+        compass_trend=290,
+    ),
+    MeasurementValidation(
+        measurement=synt_2025_measurement_v2(alpha=45, beta=135, gamma=325),
+        compass_dip=29,
+        compass_dir=283,
+        compass_plunge=38,
+        compass_trend=267,
+    ),
+    MeasurementValidation(
+        measurement=synt_2025_measurement_v2(alpha=80, beta=200, gamma=75),
+        compass_dip=22,
+        compass_dir=183,
+        compass_plunge=3,
+        compass_trend=84,
+    ),
+)
+
 lope_params = starmap(
     partial(pytest.param, id="lope_202510_measurement"),
     measurement_validations_lope_202510,
@@ -142,9 +198,30 @@ synt_params = starmap(
 )
 
 
+def change_param_convention(
+    measurement_validatiaon: MeasurementValidation,
+    gamma_change=lambda gamma: gamma + 180,
+) -> MeasurementValidation:
+    measurement = measurement_validatiaon.measurement
+    new_gamma = gamma_change(measurement.gamma)
+    if new_gamma > 360:
+        new_gamma = new_gamma - 360
+    measurement_changed = measurement._replace(gamma=new_gamma)
+    return measurement_validatiaon._replace(measurement=measurement_changed)
+
+
+synt_v2_params = starmap(
+    partial(pytest.param, id="synt_2025_measurement_v2"),
+    map(
+        lambda measurement: MeasurementValidation(*measurement),
+        measurement_validations_synt_2025_v2,
+    ),
+)
+
+
 @pytest.mark.parametrize(
     "measurement,compass_dip,compass_dir,compass_plunge,compass_trend,error_margin",
-    [*lope_params, *synt_params],
+    [*lope_params, *synt_params, *synt_v2_params],
 )
 def test_measurement(
     measurement, compass_dip, compass_dir, compass_plunge, compass_trend, error_margin
