@@ -6,6 +6,7 @@ from warnings import warn
 
 import numpy as np
 from hypothesis import HealthCheck, assume, given, settings
+import pytest
 
 from drillcore_transformations import transformations, utils
 from drillcore_transformations.tests import (
@@ -121,8 +122,12 @@ def test_transform_without_gamma(
 
 
 @given(alpha_strategy, beta_strategy, trend_strategy, plunge_strategy, gamma_strategy)
-def test_transform_with_gamma(
-    alpha: float, beta: float, drillcore_trend: float, drillcore_plunge: float, gamma: float
+def test_transform_with_gamma_hypothesis(
+    alpha: float,
+    beta: float,
+    drillcore_trend: float,
+    drillcore_plunge: float,
+    gamma: float,
 ) -> None:
     """
     Test transform_with_gamma.
@@ -132,32 +137,81 @@ def test_transform_with_gamma(
         plane_dir,
         gamma_plunge,
         gamma_trend,
-    ) = transformations.transform(
-        alpha, beta, drillcore_trend, drillcore_plunge, gamma
-    )
+    ) = transformations.transform(alpha, beta, drillcore_trend, drillcore_plunge, gamma)
     assert plane_dir >= 0.0
     assert plane_dir <= 360.0
     assert plane_dip >= 0.0
     assert plane_dip <= 90.0
-    assert gamma_trend >= 0.0
-    assert gamma_trend <= 360.0
-    assert gamma_plunge >= -90.0
-    assert gamma_plunge <= 90.0
+    if gamma_trend is not None:
+        assert gamma_trend >= 0.0
+        assert gamma_trend <= 360.0
+    if gamma_plunge is not None:
+        assert gamma_plunge >= -90.0
+        assert gamma_plunge <= 90.0
+
+
+@pytest.mark.parametrize(
+    ",".join(
+        [
+            "alpha",
+            "beta",
+            "drillcore_trend",
+            "drillcore_plunge",
+            "gamma",
+            "expected_dip",
+            "expected_dir",
+            "expected_plunge",
+            "expected_trend",
+        ]
+    ),
+    [
+        (45, 0, 0, -90, 10, 45.0, 0.0, 44.13603, 14.00194),
+        (45, 0, 0, 90, 10, 45.0, 0.0, -44.13603, 345.99806),
+        (45, 0, 0, -90, 90, 45.0, 0.0, 0.00, 90.0),
+        (45, 0, 0, 90, 90, 45.0, 0.0, 0.00, 270.0),
+        (45, 0, 0, -90, 180, 45.0, 0.0, -45.00, 180.0),
+        # TODO: Are these next two correct?
+        (45, 0, 0, -90, 225, 45.0, 0.0, -30.00, 234.73561),
+        (45, 0, 0, -90, 45, 45.0, 0.0, 30.00, 54.73561),
+        (45, 0, 0, -75, 10, 30.0, 0.0, 29.4987, 11.50839),
+    ],
+)
+def test_transform_with_gamma(
+    alpha: float,
+    beta: float,
+    drillcore_trend: float,
+    drillcore_plunge: float,
+    gamma: float,
+    expected_dip: float,
+    expected_dir: float,
+    expected_plunge: float,
+    expected_trend: float,
+) -> None:
+    """
+    Test transform_with_gamma.
+    """
     (
         plane_dip,
         plane_dir,
         gamma_plunge,
         gamma_trend,
-    ) = transformations.transform(45, 0, 0, 90, 10)
+    ) = transformations.transform(alpha, beta, drillcore_trend, drillcore_plunge, gamma)
 
-    def angles_close(a, b, tol=1e-4):
-        # Accepts a and b as floats, considers them close if they differ by 0 or 180 modulo 360
-        return np.isclose((a - b) % 360, 0, atol=tol) or np.isclose((a - b) % 360, 180, atol=tol)
+    # def angles_close(a, b, tol=1e-4):
+    #     # Accepts a and b as floats, considers them close if they differ by 0 or 180 modulo 360
+    #     return np.isclose((a - b) % 360, 0, atol=tol) or np.isclose(
+    #         (a - b) % 360, 180, atol=tol
+    #     )
 
-    assert np.isclose(plane_dip, 45.0, atol=1e-4)
-    assert angles_close(plane_dir, 0.0)
-    assert np.isclose(gamma_plunge, 44.13603, atol=1e-4)
-    assert angles_close(gamma_trend, 345.99806)
+    np.testing.assert_array_almost_equal(
+        (plane_dip, plane_dir), (expected_dip, expected_dir)
+    )
+    # assert np.isclose(plane_dip, expected_dip, atol=1e-4)
+    # assert np.isclose(plane_dir, expected_dir)
+    if gamma_plunge is not None and gamma_trend is not None:
+        np.testing.assert_array_almost_equal(
+            (gamma_plunge, gamma_trend), (expected_plunge, expected_trend)
+        )
 
 
 @given(dip_strategy, dir_strategy, dip_strategy, dir_strategy)

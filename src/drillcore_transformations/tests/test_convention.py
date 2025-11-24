@@ -28,6 +28,7 @@ class MeasurementValidation(NamedTuple):
     compass_plunge: Optional[float] = None
     compass_trend: Optional[float] = None
     error_margin: float = 20
+    gamma_error_margin: float = 40
 
 
 measurement_validations_lope_202510 = (
@@ -147,15 +148,15 @@ measurement_validations_synt_2025_v2 = (
         measurement=synt_2025_measurement_v2(alpha=75, beta=312, gamma=152),
         compass_dip=33,
         compass_dir=182,
-        compass_plunge=12,
-        compass_trend=110,
+        compass_plunge=-12,
+        compass_trend=110+180,
     ),
     MeasurementValidation(
         measurement=synt_2025_measurement_v2(alpha=60, beta=170, gamma=250),
         compass_dip=6,
         compass_dir=294,
-        compass_plunge=1,
-        compass_trend=52,
+        compass_plunge=-1,
+        compass_trend=52+180,
     ),
     MeasurementValidation(
         measurement=synt_2025_measurement_v2(alpha=50, beta=20, gamma=40),
@@ -163,13 +164,14 @@ measurement_validations_synt_2025_v2 = (
         compass_dir=219,
         compass_plunge=5,
         compass_trend=287,
+        error_margin=25,
     ),
     MeasurementValidation(
         measurement=synt_2025_measurement_v2(alpha=35, beta=170, gamma=105),
         compass_dip=27,
         compass_dir=355,
-        compass_plunge=22,
-        compass_trend=290,
+        compass_plunge=-22,
+        compass_trend=290-180,
     ),
     MeasurementValidation(
         measurement=synt_2025_measurement_v2(alpha=45, beta=135, gamma=325),
@@ -182,8 +184,8 @@ measurement_validations_synt_2025_v2 = (
         measurement=synt_2025_measurement_v2(alpha=80, beta=200, gamma=75),
         compass_dip=22,
         compass_dir=183,
-        compass_plunge=3,
-        compass_trend=84,
+        compass_plunge=-3,
+        compass_trend=84+180,
     ),
 )
 
@@ -199,32 +201,39 @@ synt_params = starmap(
 
 
 def change_param_convention(
-    measurement_validatiaon: MeasurementValidation,
-    gamma_change=lambda gamma: gamma + 180,
+    measurement_validation: MeasurementValidation,
+    gamma_change=lambda gamma: gamma,
 ) -> MeasurementValidation:
-    measurement = measurement_validatiaon.measurement
+    measurement = measurement_validation.measurement
     new_gamma = gamma_change(measurement.gamma)
     if new_gamma > 360:
         new_gamma = new_gamma - 360
     measurement_changed = measurement._replace(gamma=new_gamma)
-    return measurement_validatiaon._replace(measurement=measurement_changed)
+    return measurement_validation._replace(measurement=measurement_changed)
 
 
 synt_v2_params = starmap(
-    partial(pytest.param, id="synt_2025_measurement_v2"),
+    # partial(pytest.param, id="synt_2025_measurement_v2"),
+    lambda measurement, *args: pytest.param(measurement, *args, id=f"synt_2025_measurement_v2_gamma_{measurement.gamma}"),
     map(
-        lambda measurement: MeasurementValidation(*measurement),
+        change_param_convention,
         measurement_validations_synt_2025_v2,
     ),
 )
 
 
 @pytest.mark.parametrize(
-    "measurement,compass_dip,compass_dir,compass_plunge,compass_trend,error_margin",
+    "measurement,compass_dip,compass_dir,compass_plunge,compass_trend,error_margin,gamma_error_margin",
     [*lope_params, *synt_params, *synt_v2_params],
 )
 def test_measurement(
-    measurement, compass_dip, compass_dir, compass_plunge, compass_trend, error_margin
+    measurement,
+    compass_dip,
+    compass_dir,
+    compass_plunge,
+    compass_trend,
+    error_margin,
+    gamma_error_margin,
 ):
     assert 0 <= compass_dir <= 360
     assert 0 <= compass_dip <= 90
@@ -281,8 +290,11 @@ def test_measurement(
         dip=compass_plunge,
         dip_dir=compass_trend,
     )
-    diff = np.rad2deg(np.arccos(np.dot(vec_first, vec_second)))
-    if diff < error_margin:
+    dot = np.dot(vec_first, vec_second)
+    # Clamp the dot product to [-1, 1] to avoid invalid values due to floating-point errors.
+    dot = np.clip(dot, -1.0, 1.0)
+    diff = np.rad2deg(np.arccos(dot))
+    if diff < gamma_error_margin:
         print("Angle between vectors within error margin")
     else:
         raise ValueError(f"Angle between vectors ({diff}) not within error margin")

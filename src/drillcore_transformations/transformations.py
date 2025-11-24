@@ -10,7 +10,10 @@ from functools import partial
 
 array_float64 = partial(np.array, dtype=np.float64)
 
-DEFAULT_CONVENTION_MAP = {"beta": lambda beta: beta - 180}
+DEFAULT_CONVENTION_MAP = {
+    "beta": lambda beta: beta - 180,
+    "gamma": lambda gamma: gamma,
+}
 
 
 class Measurement(NamedTuple):
@@ -89,14 +92,14 @@ def rotate_vector_about_vector(
     E.g.
 
     >>> rotate_vector_about_vector(np.array([1, 0, 1]), np.array([0, 0, 1]), 180.0)
-    array([-1.0000000e+00,  1.2246468e-16,  1.0000000e+00])
+    array([-1.0000000e+00,  -1.2246468e-16,  1.0000000e+00])
 
     TODO: Is gamma axial or vector data? Right now treated as vector. =>
     Negative plunges possible.
 
     :param vector: Vector to rotate.
     :param about_vector: Vector to rotate about.
-    :param amount_degrees: How many radians to rotate.
+    :param amount_degrees: How many degrees to rotate.
     :return: Rotated vector.
     """
     if (
@@ -106,6 +109,7 @@ def rotate_vector_about_vector(
         or np.isclose(np.linalg.norm(about_vector), 0.0)
     ):
         return array_float64([0.0, 0.0, 0.0])
+    # Are vectors parallel?
     if np.allclose(
         vector / np.linalg.norm(vector), about_vector / np.linalg.norm(about_vector)
     ):
@@ -115,7 +119,8 @@ def rotate_vector_about_vector(
     if np.isclose(amount_degrees, 0.0):
         return vector
     about_vector = about_vector / np.linalg.norm(about_vector)
-    amount_rad = np.deg2rad(amount_degrees)
+    # TODO: This changes rotation direction
+    amount_rad = -np.deg2rad(amount_degrees)
     try:
         v_rot = (
             vector * np.cos(amount_rad)
@@ -144,8 +149,8 @@ def vector_from_dip_and_dir(dip: float, dip_dir: float) -> npt.NDArray[np.float6
     :return: Normalized vector pointing in the direction and the dip.
     """
     # Raise if dip is negative.
-    if dip < 0:
-        raise ValueError(f"Dip is negative. Dip: {dip} (In {__name__})")
+    # if dip < 0:
+    #     raise ValueError(f"Dip is negative. Dip: {dip} (In {__name__})")
 
     nx = np.sin(np.deg2rad(dip_dir)) * np.cos(np.deg2rad(dip))
     ny = np.cos(np.deg2rad(dip_dir)) * np.cos(np.deg2rad(dip))
@@ -208,15 +213,14 @@ def calc_plane_dir_dip(normal: npt.NDArray[np.float64]) -> Tuple[float, float]:
     return dir_degrees, dip_degrees
 
 
-def calc_vector_trend_plunge(vector: npt.NDArray[np.float64]) -> Tuple[float, float]:
+def calc_vector_trend_plunge(
+    vector: npt.NDArray[np.float64], flip: bool = False
+) -> Tuple[float, float]:
     """
     Calculate trend and plunge of a vector.
 
-    TODO: No longer valid, no negative plunges currently possible.
-    Does not assume that the data is axial and a negative plunge result implies
-    that the gamma feature is pointed upwards.
-
     :param vector: vector vector of a plane.
+    :param flip: If True, flip the sign of plunge and wrap trend.
     :return: Direction of dip and dip in degrees
     """
     if np.all(vector == 0):
@@ -227,17 +231,8 @@ def calc_vector_trend_plunge(vector: npt.NDArray[np.float64]) -> Tuple[float, fl
 
     plunge_radians = np.arcsin(vector[2])
     plunge_degrees = -np.rad2deg(plunge_radians)
-    if plunge_degrees < 0.0:
-        # plunge_degrees = -plunge_degrees
-        plunge_degrees = 90 + plunge_degrees
-
-    assert 0.0 <= plunge_degrees <= 90.0, plunge_degrees
-    # if vector[2] > 0:
-    #     plunge_radians = np.arcsin(vector[2])
-    #     plunge_degrees = -np.rad2deg(plunge_radians)
-    # else:
-    #     plunge_radians = np.arcsin(vector[2])
-    #     plunge_degrees = -np.rad2deg(plunge_radians)
+    if flip:
+        plunge_degrees = -plunge_degrees
 
     # Get vector trend
     vector_xy = vector[:2]
@@ -261,6 +256,10 @@ def calc_vector_trend_plunge(vector: npt.NDArray[np.float64]) -> Tuple[float, fl
             trend_radians = np.arccos(np.dot(vector_xy, dir_0))
 
     trend_degrees = np.rad2deg(trend_radians)
+    if flip:
+        trend_degrees = (360 - trend_degrees) % 360
+    else:
+        trend_degrees = trend_degrees % 360
     return round(trend_degrees, 5), round(plunge_degrees, 5)
 
 
@@ -283,7 +282,10 @@ def apply_convention_map(
     convention_map: dict[str, Callable[[Optional[float]], Optional[float]]],
     **kwargs: dict[str, Optional[float]],
 ) -> dict[str, Optional[float]]:
-    return {k: convention_map.get(k, lambda x: x)(v) for k, v in kwargs.items()}
+    return {
+        k: (convention_map.get(k, lambda x: x)(v) if v else v)
+        for k, v in kwargs.items()
+    }
 
 
 def transform(
@@ -292,7 +294,9 @@ def transform(
     drillcore_trend: float,
     drillcore_plunge: float,
     gamma: Optional[float] = None,
-    convention_map: dict[str, Callable[[Optional[float]], Optional[float]]] = DEFAULT_CONVENTION_MAP,
+    convention_map: dict[
+        str, Callable[[Optional[float]], Optional[float]]
+    ] = DEFAULT_CONVENTION_MAP,
 ) -> Tuple[float, float, Optional[float], Optional[float]]:
     """
     Transform alpha, beta and, optionally, gamma measurements from core.
@@ -300,10 +304,14 @@ def transform(
     E.g.
 
     >>> transform(45, 0, 0, 90)
-    (45.00000000000001, 180.0, None, None)
+    (45.00000000000001, 0.0, None, None)
 
-    >>> transform(45, 0, 0, 90, 0.0)
-    (45.0, 180.0, 45.0, 180.0)
+    >>> transform(45, 0, 0, -90, 0.0)
+    (45.0, 0.0, 45.0, 0.0)
+
+    >>> np.testing.assert_array_almost_equal(transform(45, 0, 0, -90, 10.0), (45.0, 0.0, 44.13603, 14.00194))
+
+    >>> np.testing.assert_array_almost_equal(transform(45, 0, 0, 90, 10.0), (45.0, 0.0, -44.13603, 345.99806))
 
     :param alpha: Angle in degrees between drillcore axis and plane.
     :param drillcore_trend: Trend of the drillcore.
@@ -340,7 +348,8 @@ def transform(
             gamma_vector = rotate_vector_about_vector(plane_vector, plane_normal, gamma)
 
             # Gamma trend and plunge
-            gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector)
+            flip = drillcore_plunge > 0  # True if drillcore is pointing up
+            gamma_trend, gamma_plunge = calc_vector_trend_plunge(gamma_vector, flip=flip)
             gamma_plunge = float(gamma_plunge)
             gamma_trend = float(gamma_trend)
         else:
