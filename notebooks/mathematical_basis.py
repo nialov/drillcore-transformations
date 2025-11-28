@@ -33,8 +33,8 @@ def _(mo):
 
 @app.cell
 def _(sp):
-    alpha, beta, trend, plunge, gamma = sp.symbols('alpha beta trend plunge gamma')
-    return alpha, beta, gamma, plunge, trend
+    alpha, beta, drillcore_trend, drillcore_plunge, gamma = sp.symbols('alpha beta drillcore_trend drillcore_plunge gamma')
+    return alpha, beta, gamma, drillcore_plunge, drillcore_trend
 
 
 @app.cell
@@ -44,14 +44,14 @@ def _(mo):
 
 
 @app.cell
-def _(alpha, beta, plunge, sp, trend):
+def _(alpha, beta, drillcore_plunge, sp, drillcore_trend):
 
     deg2rad = lambda x: x * sp.pi / 180
     alpha_rad = deg2rad(alpha)
     beta_rad = deg2rad(beta)
-    trend_rad = deg2rad(trend)
-    plunge_rad = deg2rad(plunge)
-    return alpha_rad, beta_rad, plunge_rad, trend_rad
+    drillcore_trend_rad = deg2rad(drillcore_trend)
+    drillcore_plunge_rad = deg2rad(drillcore_plunge)
+    return alpha_rad, beta_rad, drillcore_plunge_rad, drillcore_trend_rad
 
 
 @app.cell
@@ -61,25 +61,25 @@ def _(mo):
 
 
 @app.cell
-def _(alpha_rad, beta_rad, plunge_rad, sp, trend_rad):
+def _(alpha_rad, beta_rad, drillcore_plunge_rad, sp, drillcore_trend_rad):
     ng_1 = (
-        sp.cos(sp.pi / 2 - trend_rad)
-        * sp.cos(sp.pi / 2 - plunge_rad)
+        sp.cos(sp.pi / 2 - drillcore_trend_rad)
+        * sp.cos(sp.pi / 2 - drillcore_plunge_rad)
         * sp.cos(beta_rad)
         * sp.cos(alpha_rad)
-        - sp.sin(sp.pi / 2 - trend_rad) * sp.sin(beta_rad) * sp.cos(alpha_rad)
-        + sp.cos(sp.pi / 2 - trend_rad) * sp.sin(sp.pi / 2 - plunge_rad) * sp.sin(alpha_rad)
+        - sp.sin(sp.pi / 2 - drillcore_trend_rad) * sp.sin(beta_rad) * sp.cos(alpha_rad)
+        + sp.cos(sp.pi / 2 - drillcore_trend_rad) * sp.sin(sp.pi / 2 - drillcore_plunge_rad) * sp.sin(alpha_rad)
     )
     ng_2 = (
-        sp.sin(sp.pi / 2 - trend_rad)
-        * sp.cos(sp.pi / 2 - plunge_rad)
+        sp.sin(sp.pi / 2 - drillcore_trend_rad)
+        * sp.cos(sp.pi / 2 - drillcore_plunge_rad)
         * sp.cos(beta_rad)
         * sp.cos(alpha_rad)
-        + sp.cos(sp.pi / 2 - trend_rad) * sp.sin(beta_rad) * sp.cos(alpha_rad)
-        + sp.sin(sp.pi / 2 - trend_rad) * sp.sin(sp.pi / 2 - plunge_rad) * sp.sin(alpha_rad)
+        + sp.cos(sp.pi / 2 - drillcore_trend_rad) * sp.sin(beta_rad) * sp.cos(alpha_rad)
+        + sp.sin(sp.pi / 2 - drillcore_trend_rad) * sp.sin(sp.pi / 2 - drillcore_plunge_rad) * sp.sin(alpha_rad)
     )
-    ng_3 = -sp.sin(sp.pi / 2 - plunge_rad) * sp.cos(beta_rad) * sp.cos(alpha_rad) + sp.cos(
-        sp.pi / 2 - plunge_rad
+    ng_3 = -sp.sin(sp.pi / 2 - drillcore_plunge_rad) * sp.cos(beta_rad) * sp.cos(alpha_rad) + sp.cos(
+        sp.pi / 2 - drillcore_plunge_rad
     ) * sp.sin(alpha_rad)
     normal_vec = sp.Matrix([ng_1, ng_2, ng_3])
     return (normal_vec,)
