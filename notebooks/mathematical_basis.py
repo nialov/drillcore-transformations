@@ -103,8 +103,8 @@ def _(normal_vec_normalized_up, sp):
     normal_xy = sp.Matrix([n[0], n[1]])
     xy_norm = sp.sqrt(n[0]**2 + n[1]**2)
     normal_xy_unit = normal_xy / xy_norm
-    dir_0 = sp.Matrix([0, 1])
-    dot_prod = normal_xy_unit.dot(dir_0)
+    _dir_0_plane = sp.Matrix([0, 1])
+    dot_prod = normal_xy_unit.dot(_dir_0_plane)
     dir_radians = sp.acos(dot_prod)
     dir_degrees = sp.deg(dir_radians * 180 / sp.pi)
     return
@@ -150,8 +150,8 @@ def _(sp, v_rot):
     plunge_degrees = sp.deg(plunge_radians * 180 / sp.pi)
     vector_xy = sp.Matrix([v_rot[0], v_rot[1]])
     vector_xy_unit = vector_xy / sp.sqrt(v_rot[0]**2 + v_rot[1]**2)
-    dir_0 = sp.Matrix([0, 1])
-    trend_radians = sp.acos(vector_xy_unit.dot(dir_0))
+    _dir_0_vector = sp.Matrix([0, 1])
+    trend_radians = sp.acos(vector_xy_unit.dot(_dir_0_vector))
     trend_degrees = sp.deg(trend_radians * 180 / sp.pi)
     return
 
