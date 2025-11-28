@@ -136,9 +136,10 @@ def _():
 
 @app.cell
 def _(gamma, normal_vec_normalized_up, sp):
-    # Symbolic Rodrigues' rotation
-    v = normal_vec_normalized_up
-    k = normal_vec_normalized_up
+    # Apply Rodrigues' rotation formula to rotate the vector about the normal by gamma.
+    # Use the first branch of Piecewise for demonstration
+    v = normal_vec_normalized_up.args[0][0]
+    k = v
     theta = gamma * sp.pi / 180
     v_rot = (
         v * sp.cos(theta)
