@@ -307,11 +307,11 @@ def transform(
     (45.00000000000001, 0.0, None, None)
 
     >>> transform(45, 0, 0, -90, 0.0)
-    (45.0, 0.0, 45.0, 0.0)
+    (45.0, 0.0, -45.0, 0.0)
 
-    >>> np.testing.assert_array_almost_equal(transform(45, 0, 0, -90, 10.0), (45.0, 0.0, 44.13603, 14.00194))
+    >>> np.testing.assert_array_almost_equal(transform(45, 0, 0, -90, 10.0), (45.0, 0.0, -44.13603, 14.00194))
 
-    >>> np.testing.assert_array_almost_equal(transform(45, 0, 0, 90, 10.0), (45.0, 0.0, -44.13603, 345.99806))
+    >>> np.testing.assert_array_almost_equal(transform(45, 0, 0, 90, 10.0), (45.0, 0.0, 44.13603, 345.99806))
 
     :param alpha: Angle in degrees between drillcore axis and plane.
     :param drillcore_trend: Trend of the drillcore.
