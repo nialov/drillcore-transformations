@@ -59,6 +59,7 @@ def _(mo):
     mo.md("Symbolic equations for the normal vector components")
     return
 
+
 @app.cell
 def _(alpha_rad, beta_rad, plunge_rad, sp, trend_rad):
     ng_1 = (
@@ -89,6 +90,7 @@ def _(mo):
     mo.md("Normalization of the normal vector")
     return
 
+
 @app.cell
 def _(normal_vec, sp):
     norm = sp.sqrt(sum([comp**2 for comp in normal_vec]))
@@ -105,6 +107,7 @@ def _(normal_vec, sp):
 def _(mo):
     mo.md("Plane dip and direction from the normal vector")
     return
+
 
 @app.cell
 def _(normal_vec_normalized_up, sp):
@@ -151,6 +154,7 @@ def _(mo):
     mo.md("Apply Rodrigues' rotation formula to rotate the vector about the normal by gamma.")
     return
 
+
 @app.cell
 def _(gamma, normal_vec_normalized_up, sp):
     # Use the first branch of Piecewise for demonstration
@@ -169,6 +173,7 @@ def _(gamma, normal_vec_normalized_up, sp):
 def _(mo):
     mo.md("Trend and plunge from the rotated vector")
     return
+
 
 @app.cell
 def _(sp, v_rot):
