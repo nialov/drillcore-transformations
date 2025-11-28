@@ -55,8 +55,12 @@ def _(alpha, beta, plunge, sp, trend):
 
 
 @app.cell
+def _(mo):
+    mo.md("Symbolic equations for the normal vector components")
+    return
+
+@app.cell
 def _(alpha_rad, beta_rad, plunge_rad, sp, trend_rad):
-    # Symbolic equations for the normal vector components
     ng_1 = (
         sp.cos(sp.pi / 2 - trend_rad)
         * sp.cos(sp.pi / 2 - plunge_rad)
@@ -81,8 +85,12 @@ def _(alpha_rad, beta_rad, plunge_rad, sp, trend_rad):
 
 
 @app.cell
+def _(mo):
+    mo.md("Normalization of the normal vector")
+    return
+
+@app.cell
 def _(normal_vec, sp):
-    # Normalization of the normal vector
     norm = sp.sqrt(sum([comp**2 for comp in normal_vec]))
     normal_vec_normalized = normal_vec / norm
     normal_vec_normalized_up = sp.Piecewise(
@@ -94,8 +102,12 @@ def _(normal_vec, sp):
 
 
 @app.cell
+def _(mo):
+    mo.md("Plane dip and direction from the normal vector")
+    return
+
+@app.cell
 def _(normal_vec_normalized_up, sp):
-    # Plane dip and direction from the normal vector
     n = normal_vec_normalized_up
     # Extract the third component as a Piecewise
     n2 = sp.Piecewise(
@@ -135,8 +147,12 @@ def _():
 
 
 @app.cell
+def _(mo):
+    mo.md("Apply Rodrigues' rotation formula to rotate the vector about the normal by gamma.")
+    return
+
+@app.cell
 def _(gamma, normal_vec_normalized_up, sp):
-    # Apply Rodrigues' rotation formula to rotate the vector about the normal by gamma.
     # Use the first branch of Piecewise for demonstration
     v = normal_vec_normalized_up.args[0][0]
     k = v
@@ -150,8 +166,12 @@ def _(gamma, normal_vec_normalized_up, sp):
 
 
 @app.cell
+def _(mo):
+    mo.md("Trend and plunge from the rotated vector")
+    return
+
+@app.cell
 def _(sp, v_rot):
-    # Trend and plunge from the rotated vector
     plunge_radians = sp.asin(v_rot[2])
     plunge_degrees = sp.deg(plunge_radians * 180 / sp.pi)
     vector_xy = sp.Matrix([v_rot[0], v_rot[1]])
