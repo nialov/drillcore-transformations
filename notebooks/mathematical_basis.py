@@ -1,10 +1,19 @@
 import marimo
 
+__generated_with = "0.17.0"
 app = marimo.App(width="medium")
+
 
 @app.cell
 def _():
-    """
+    import marimo as mo
+    import sympy as sp
+    return mo, sp
+
+
+@app.cell
+def _(mo):
+    mo.md('''
     # Mathematical Basis of Drillcore Measurement Transformation
 
     This notebook introduces the mathematical steps behind the `transform` function,
@@ -12,32 +21,41 @@ def _():
     to real-world structural orientations.
 
     We use symbolic computation (`sympy`) to illustrate each step.
-    """
-    pass
+    ''')
+    return
+
 
 @app.cell
-def _():
-    import sympy as sp
-    pass
+def _(mo):
+    mo.md("## Define symbols for all input parameters")
+    return
+
 
 @app.cell
-def _():
-    # Define symbols for all input parameters
+def _(sp):
     alpha, beta, trend, plunge, gamma = sp.symbols('alpha beta trend plunge gamma')
-    return alpha, beta, trend, plunge, gamma
+    return alpha, beta, gamma, plunge, trend
+
 
 @app.cell
-def _(alpha, beta, trend, plunge, gamma):
-    # Degrees to radians conversion
+def _(mo):
+    mo.md("## Degrees to radians conversion")
+    return
+
+
+@app.cell
+def _(alpha, beta, plunge, sp, trend):
+
     deg2rad = lambda x: x * sp.pi / 180
     alpha_rad = deg2rad(alpha)
     beta_rad = deg2rad(beta)
     trend_rad = deg2rad(trend)
     plunge_rad = deg2rad(plunge)
-    return alpha_rad, beta_rad, trend_rad, plunge_rad, gamma
+    return alpha_rad, beta_rad, plunge_rad, trend_rad
+
 
 @app.cell
-def _(alpha_rad, beta_rad, trend_rad, plunge_rad, gamma):
+def _(alpha_rad, beta_rad, plunge_rad, sp, trend_rad):
     # Symbolic equations for the normal vector components
     ng_1 = (
         sp.cos(sp.pi / 2 - trend_rad)
@@ -59,10 +77,11 @@ def _(alpha_rad, beta_rad, trend_rad, plunge_rad, gamma):
         sp.pi / 2 - plunge_rad
     ) * sp.sin(alpha_rad)
     normal_vec = sp.Matrix([ng_1, ng_2, ng_3])
-    return normal_vec
+    return (normal_vec,)
+
 
 @app.cell
-def _(normal_vec):
+def _(normal_vec, sp):
     # Normalization of the normal vector
     norm = sp.sqrt(sum([comp**2 for comp in normal_vec]))
     normal_vec_normalized = normal_vec / norm
@@ -71,10 +90,11 @@ def _(normal_vec):
         (-normal_vec_normalized, normal_vec[2] < 0)
     )
     normal_vec_normalized_up
-    return normal_vec_normalized_up
+    return (normal_vec_normalized_up,)
+
 
 @app.cell
-def _(normal_vec_normalized_up):
+def _(normal_vec_normalized_up, sp):
     # Plane dip and direction from the normal vector
     n = normal_vec_normalized_up
     dip_radians = sp.pi / 2 - sp.asin(n[2])
@@ -87,7 +107,8 @@ def _(normal_vec_normalized_up):
     dot_prod = normal_xy_unit.dot(dir_0)
     dir_radians = sp.acos(dot_prod)
     dir_degrees = sp.deg(dir_radians * 180 / sp.pi)
-    return dip_degrees, dir_degrees
+    return
+
 
 @app.cell
 def _():
@@ -105,9 +126,11 @@ def _():
     where $\mathbf{v}$ is the vector to rotate, $\mathbf{k}$ is the axis (normal), and $\theta$ is the rotation angle (gamma).
     """
     pass
+    return
+
 
 @app.cell
-def _(normal_vec_normalized_up, gamma):
+def _(gamma, normal_vec_normalized_up, sp):
     # Symbolic Rodrigues' rotation
     v = normal_vec_normalized_up
     k = normal_vec_normalized_up
@@ -117,10 +140,11 @@ def _(normal_vec_normalized_up, gamma):
         + k.cross(v) * sp.sin(theta)
         + k * (k.dot(v)) * (1 - sp.cos(theta))
     )
-    return v_rot
+    return (v_rot,)
+
 
 @app.cell
-def _(v_rot):
+def _(sp, v_rot):
     # Trend and plunge from the rotated vector
     plunge_radians = sp.asin(v_rot[2])
     plunge_degrees = sp.deg(plunge_radians * 180 / sp.pi)
@@ -129,7 +153,8 @@ def _(v_rot):
     dir_0 = sp.Matrix([0, 1])
     trend_radians = sp.acos(vector_xy_unit.dot(dir_0))
     trend_degrees = sp.deg(trend_radians * 180 / sp.pi)
-    return trend_degrees, plunge_degrees
+    return
+
 
 @app.cell
 def _():
@@ -149,3 +174,8 @@ def _():
     These steps form the mathematical basis of the `transform` function in the codebase.
     """
     pass
+    return
+
+
+if __name__ == "__main__":
+    app.run()
