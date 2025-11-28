@@ -97,11 +97,16 @@ def _(normal_vec, sp):
 def _(normal_vec_normalized_up, sp):
     # Plane dip and direction from the normal vector
     n = normal_vec_normalized_up
-    dip_radians = sp.pi / 2 - sp.asin(n[2])
+    # Extract the third component as a Piecewise
+    n2 = sp.Piecewise(
+        (n.args[0][0][2], n.args[0][1]),
+        (n.args[1][0][2], n.args[1][1])
+    )
+    dip_radians = sp.pi / 2 - sp.asin(n2)
     dip_degrees = sp.deg(dip_radians * 180 / sp.pi)
-    # Direction calculation
-    normal_xy = sp.Matrix([n[0], n[1]])
-    xy_norm = sp.sqrt(n[0]**2 + n[1]**2)
+    # Direction calculation (only for first branch for demonstration)
+    normal_xy = sp.Matrix([n.args[0][0][0], n.args[0][0][1]])
+    xy_norm = sp.sqrt(n.args[0][0][0]**2 + n.args[0][0][1]**2)
     normal_xy_unit = normal_xy / xy_norm
     _dir_0_plane = sp.Matrix([0, 1])
     dot_prod = normal_xy_unit.dot(_dir_0_plane)
