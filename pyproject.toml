@@ -31,7 +31,8 @@ docs = [
     "pandas",
     "marimo",
     "nbformat",
-    "matplotlib"
+    "matplotlib",
+    "sympy>=1.14.0",
 ]
 
 [project.scripts]

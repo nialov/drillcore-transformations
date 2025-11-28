@@ -13,7 +13,8 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md('''
+    mo.md(
+        """
     # Mathematical Basis of Drillcore Measurement Transformation
 
     This notebook introduces the mathematical steps behind the `transform` function,
@@ -21,31 +22,31 @@ def _(mo):
     to real-world structural orientations.
 
     We use symbolic computation (`sympy`) to illustrate each step.
-    ''')
+    """
+    )
     return
 
 
 @app.cell
 def _(mo):
-    mo.md("## Define symbols for all input parameters")
+    mo.md("""## Define symbols for all input parameters""")
     return
 
 
 @app.cell
 def _(sp):
     alpha, beta, drillcore_trend, drillcore_plunge, gamma = sp.symbols('alpha beta drillcore_trend drillcore_plunge gamma')
-    return alpha, beta, gamma, drillcore_plunge, drillcore_trend
+    return alpha, beta, drillcore_plunge, drillcore_trend, gamma
 
 
 @app.cell
 def _(mo):
-    mo.md("## Degrees to radians conversion")
+    mo.md("""## Degrees to radians conversion""")
     return
 
 
 @app.cell
-def _(alpha, beta, drillcore_plunge, sp, drillcore_trend):
-
+def _(alpha, beta, drillcore_plunge, drillcore_trend, sp):
     deg2rad = lambda x: x * sp.pi / 180
     alpha_rad = deg2rad(alpha)
     beta_rad = deg2rad(beta)
@@ -56,12 +57,12 @@ def _(alpha, beta, drillcore_plunge, sp, drillcore_trend):
 
 @app.cell
 def _(mo):
-    mo.md("Symbolic equations for the normal vector components")
+    mo.md("""Symbolic equations for the normal vector components""")
     return
 
 
 @app.cell
-def _(alpha_rad, beta_rad, drillcore_plunge_rad, sp, drillcore_trend_rad):
+def _(alpha_rad, beta_rad, drillcore_plunge_rad, drillcore_trend_rad, sp):
     ng_1 = (
         sp.cos(sp.pi / 2 - drillcore_trend_rad)
         * sp.cos(sp.pi / 2 - drillcore_plunge_rad)
@@ -86,8 +87,14 @@ def _(alpha_rad, beta_rad, drillcore_plunge_rad, sp, drillcore_trend_rad):
 
 
 @app.cell
+def _(normal_vec, sp):
+    sp.simplify(normal_vec)
+    return
+
+
+@app.cell
 def _(mo):
-    mo.md("Normalization of the normal vector")
+    mo.md("""Normalization of the normal vector""")
     return
 
 
@@ -105,7 +112,7 @@ def _(normal_vec, sp):
 
 @app.cell
 def _(mo):
-    mo.md("Plane dip and direction from the normal vector")
+    mo.md("""Plane dip and direction from the normal vector""")
     return
 
 
@@ -151,7 +158,7 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md("Apply Rodrigues' rotation formula to rotate the vector about the normal by gamma.")
+    mo.md("""Apply Rodrigues' rotation formula to rotate the vector about the normal by gamma.""")
     return
 
 
@@ -171,7 +178,7 @@ def _(gamma, normal_vec_normalized_up, sp):
 
 @app.cell
 def _(mo):
-    mo.md("Trend and plunge from the rotated vector")
+    mo.md("""Trend and plunge from the rotated vector""")
     return
 
 
@@ -189,7 +196,8 @@ def _(sp, v_rot):
 
 @app.cell
 def _(mo):
-    mo.md("""
+    mo.md(
+        """
     ## Summary
 
     In this notebook, we have symbolically derived the steps for transforming drillcore measurements
@@ -203,7 +211,8 @@ def _(mo):
     - Computed trend and plunge from the rotated vector
 
     These steps form the mathematical basis of the `transform` function in the codebase.
-    """)
+    """
+    )
     return
 
 
@@ -240,6 +249,11 @@ def _(plunge_degrees, sp):
 @app.cell
 def _(sp, trend_degrees):
     sp.simplify(trend_degrees)
+    return
+
+
+@app.cell
+def _():
     return
 
 
