@@ -91,7 +91,7 @@ def _(normal_vec_normalized_up):
 
 @app.cell
 def _():
-    """
+    r"""
     ## Rodrigues' Rotation Formula
 
     To rotate a vector about another vector (the normal), we use Rodrigues' rotation formula:
