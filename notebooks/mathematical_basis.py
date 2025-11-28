@@ -184,7 +184,7 @@ def _(sp, v_rot):
     _dir_0_vector = sp.Matrix([0, 1])
     trend_radians = sp.acos(vector_xy_unit.dot(_dir_0_vector))
     trend_degrees = sp.deg(trend_radians * 180 / sp.pi)
-    return
+    return (plunge_degrees,)
 
 
 @app.cell
@@ -204,6 +204,17 @@ def _(mo):
 
     These steps form the mathematical basis of the `transform` function in the codebase.
     """)
+    return
+
+
+@app.cell
+def _(plunge_degrees):
+    plunge_degrees
+    return
+
+
+@app.cell
+def _():
     return
 
 
