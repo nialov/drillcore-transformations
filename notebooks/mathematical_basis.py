@@ -188,8 +188,8 @@ def _(sp, v_rot):
 
 
 @app.cell
-def _():
-    """
+def _(mo):
+    mo.md("""
     ## Summary
 
     In this notebook, we have symbolically derived the steps for transforming drillcore measurements
@@ -203,8 +203,7 @@ def _():
     - Computed trend and plunge from the rotated vector
 
     These steps form the mathematical basis of the `transform` function in the codebase.
-    """
-    pass
+    """)
     return
 
 
