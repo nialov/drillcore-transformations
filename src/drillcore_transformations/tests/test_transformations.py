@@ -98,7 +98,7 @@ def test_calc_vector_trend_plunge(vector: np.ndarray) -> None:
     """
     assume(all(10e15 > val > 1e-15 for val in vector))
     assume(not np.all(vector == 0))
-    dir_degrees, plunge_degrees = transformations.calc_vector_trend_plunge(vector)
+    dir_degrees, plunge_degrees = transformations.calc_vector_trend_plunge(vector, flip=False)
     assert dir_degrees >= 0.0
     assert dir_degrees <= 360.0
     assert plunge_degrees >= -90.0
@@ -168,14 +168,14 @@ def test_transform_with_gamma_hypothesis(
         # hole pointing downwards, plunge downwards => both negative
         (45, 0, 0, -90, 10, 45.0, 0.0, -44.13603, 14.00194),
         (45, 0, 0, 90, 10, 45.0, 0.0, 44.13603, 345.99806),
-        # (45, 0, 0, -90, 90, 45.0, 0.0, 0.00, 90.0),
-        # (45, 0, 0, 90, 90, 45.0, 0.0, 0.00, 270.0),
+        (45, 0, 0, -90, 90, 45.0, 0.0, 0.00, 90.0),
+        (45, 0, 0, 90, 90, 45.0, 0.0, 0.00, 270.0),
         # hole pointing downwards, plunge upwards => hole negative, plunge positive
-        # (45, 0, 0, -90, 180, 45.0, 0.0, 45.00, 180.0),
+        (45, 0, 0, -90, 180, 45.0, 0.0, 45.00, 180.0),
         # TODO: Are these next two correct?
-        # (45, 0, 0, -90, 225, 45.0, 0.0, 30.00, 234.73561),
-        # (45, 0, 0, -90, 45, 45.0, 0.0, -30.00, 54.73561),
-        # (45, 0, 0, -75, 10, 30.0, 0.0, -29.4987, 11.50839),
+        (45, 0, 0, -90, 225, 45.0, 0.0, 30.00, 234.73561),
+        (45, 0, 0, -90, 45, 45.0, 0.0, -30.00, 54.73561),
+        (45, 0, 0, -75, 10, 30.0, 0.0, -29.4987, 11.50839),
     ],
 )
 def test_transform_with_gamma(

@@ -214,7 +214,7 @@ def calc_plane_dir_dip(normal: npt.NDArray[np.float64]) -> Tuple[float, float]:
 
 
 def calc_vector_trend_plunge(
-    vector: npt.NDArray[np.float64], flip: bool = False
+        vector: npt.NDArray[np.float64], flip:bool
 ) -> Tuple[float, float]:
     """
     Calculate trend and plunge of a vector.
@@ -230,7 +230,7 @@ def calc_vector_trend_plunge(
         return np.nan, np.nan
 
     plunge_radians = np.arcsin(vector[2])
-    plunge_degrees = -np.rad2deg(plunge_radians)
+    plunge_degrees = np.rad2deg(plunge_radians)
     if flip:
         plunge_degrees = -plunge_degrees
 
