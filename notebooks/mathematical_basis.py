@@ -127,7 +127,7 @@ def _(normal_vec_normalized_up, sp):
     dot_prod = normal_xy_unit.dot(_dir_0_plane)
     dir_radians = sp.acos(dot_prod)
     dir_degrees = sp.deg(dir_radians * 180 / sp.pi)
-    return
+    return dip_degrees, dir_degrees
 
 
 @app.cell
@@ -184,7 +184,7 @@ def _(sp, v_rot):
     _dir_0_vector = sp.Matrix([0, 1])
     trend_radians = sp.acos(vector_xy_unit.dot(_dir_0_vector))
     trend_degrees = sp.deg(trend_radians * 180 / sp.pi)
-    return (plunge_degrees,)
+    return plunge_degrees, trend_degrees
 
 
 @app.cell
@@ -206,55 +206,40 @@ def _(mo):
     """)
     return
 
+
 @app.cell
 def _(mo):
-    mo.md("""
+    mo.md(
+        """
     ## Example: Simple Cases of Transformations
 
     Here are some example transformations using the `transform` function from the codebase.
-    """)
-    return
-
-@app.cell
-def _(mo):
-    from src.drillcore_transformations import transformations
-
-    examples = [
-        dict(alpha=45, beta=0, drillcore_trend=0, drillcore_plunge=90, gamma=None),
-        dict(alpha=45, beta=0, drillcore_trend=0, drillcore_plunge=-90, gamma=0.0),
-        dict(alpha=45, beta=0, drillcore_trend=0, drillcore_plunge=-90, gamma=10.0),
-        dict(alpha=45, beta=0, drillcore_trend=0, drillcore_plunge=90, gamma=10.0),
-    ]
-
-    results = []
-    for ex in examples:
-        result = transformations.transform(**ex)
-        results.append((ex, result))
-
-    mo.md("### Results")
-    for ex, res in results:
-        mo.md(f"**Input:** {ex}<br>**Output:** {res}")
-    return
-
-@app.cell
-def _(mo, sp, v_rot):
-    mo.md("### Symbolic simplification of plunge calculation using sympy")
-    plunge_radians = sp.asin(v_rot[2])
-    plunge_degrees = sp.deg(plunge_radians * 180 / sp.pi)
-    simplified_plunge = sp.simplify(plunge_degrees)
-    mo.md(f"**Original symbolic plunge_degrees:**<br>{plunge_degrees}")
-    mo.md(f"**Simplified symbolic plunge_degrees:**<br>{simplified_plunge}")
-    return simplified_plunge
-
-
-@app.cell
-def _(plunge_degrees):
-    plunge_degrees
+    """
+    )
     return
 
 
 @app.cell
-def _():
+def _(dip_degrees, sp):
+    sp.simplify(dip_degrees)
+    return
+
+
+@app.cell
+def _(dir_degrees, sp):
+    sp.simplify(dir_degrees)
+    return
+
+
+@app.cell
+def _(plunge_degrees, sp):
+    sp.simplify(plunge_degrees)
+    return
+
+
+@app.cell
+def _(sp, trend_degrees):
+    sp.simplify(trend_degrees)
     return
 
 
